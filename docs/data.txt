@@ -1,0 +1,13 @@
+waveshare 2inch LCD Display Module, 
+Compatible with Raspberry Pi/Pi zero/Arduino/Esp32, 
+with ST7789 Driver, 262K Color, IPS Screen, 
+240×320 Resolution, SPI Interface WITH Cable.
+Amazon $15 x 6 = 90 + 8 = 98  (tax, free ship)
+Ordered 1/27/25
+---------------------------------
+RPi (2G RAM), Heatsink, Tape, Pwr-Sup
+adafruit 56+16+5= 77 (ship,tax)
+Ordered 1/27/25
+---------------------------------
+
+98+77 = $175
