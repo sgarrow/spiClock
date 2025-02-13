@@ -14,7 +14,7 @@ def killSrvr(): # The ks handled directly in the handleClient func so it
 #############################################################################
 
 def getVer():
-    VER = ' v0.0.1 - 4-Feb-2025'
+    VER = ' v0.0.2 - 12-Feb-2025'
     return [VER]
 #############################################################################
 
@@ -22,9 +22,10 @@ def vector(inputStr): # called from handleClient. inputStr from client.
 
     # This dictionary embodies the worker function vector (and menu) info.
     vectorDict = {
-    'cmds' : { 'func': cw.cmds,  'parm': None, 'menu': 'List Commands'  },
-    'sr'   : { 'func': cw.sr,    'parm': None, 'menu': 'Set Red'        },
-    'ks'   : { 'func': killSrvr, 'parm': None, 'menu': 'Kill Server'    }
+    'cmds' : { 'func': cw.cmds,    'parm': None,     'menu': 'List Commands'  },
+    'sr'   : { 'func': cw.sr,      'parm': None,     'menu': 'Set Red'        },
+    'cc'   : { 'func': cw.clkCntr, 'parm': [2,34,0], 'menu': 'Set Red'        },
+    'ks'   : { 'func': killSrvr,   'parm': None,     'menu': 'Kill Server'    }
     }
 
     # Process the string (command) passed to this function via the call
@@ -41,12 +42,15 @@ def vector(inputStr): # called from handleClient. inputStr from client.
         func   = vectorDict[choice]['func']
         params = vectorDict[choice]['parm']
 
-        if params is None:
-            rsp = func()       # rsp[0] = rspStr. Vector to worker.
-            return rsp[0]      # return to srvr for forwarding to clnt.
-
-        rsp = func(params)     # rsp[0] = rspStr. Vector to worker.
-        return rsp[0]          # Return to srvr for forwarding to clnt.
+        try:
+            if params is None:
+                rsp = func()       # rsp[0] = rspStr. Vector to worker.
+                return rsp[0]      # return to srvr for forwarding to clnt.
+    
+            rsp = func(params)     # rsp[0] = rspStr. Vector to worker.
+            return rsp[0]          # Return to srvr for forwarding to clnt.
+        except Exception as e:
+            return str(e)
 
     if choice == 'm':
         rspStr = ''
