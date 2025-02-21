@@ -61,7 +61,8 @@ if __name__ == '__main__':
     printSocketInfo(clientSocket)
 
     # Validate password
-    pwd = input( ' Enter password -> ')
+    #pwd = input( ' Enter password -> ')
+    pwd = 'shgServer2024!'
     clientSocket.send(pwd.encode())
     time.sleep(.5)
     response = clientSocket.recv(1024)

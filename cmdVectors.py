@@ -5,7 +5,9 @@ function "vector" (in this file) and the appropriate "worker" function
 is then vectored to in file cmdWorkers.py.
 '''
 
-import cmdWorkers as cw
+import cmdWorkers  as cw
+import spiRoutines as sr
+import cmds
 #############################################################################
 
 def killSrvr(): # The ks handled directly in the handleClient func so it
@@ -14,7 +16,7 @@ def killSrvr(): # The ks handled directly in the handleClient func so it
 #############################################################################
 
 def getVer():
-    VER = ' v0.0.2 - 12-Feb-2025'
+    VER = ' v0.0.3 - 20-Feb-2025'
     return [VER]
 #############################################################################
 
@@ -22,10 +24,29 @@ def vector(inputStr): # called from handleClient. inputStr from client.
 
     # This dictionary embodies the worker function vector (and menu) info.
     vectorDict = {
-    'cmds' : { 'func': cw.cmds,    'parm': None,     'menu': 'List Commands'  },
-    'sr'   : { 'func': cw.sr,      'parm': None,     'menu': 'Set Red'        },
-    'cc'   : { 'func': cw.clkCntr, 'parm': [2,34,0], 'menu': 'Set Red'        },
-    'ks'   : { 'func': killSrvr,   'parm': None,     'menu': 'Kill Server'    }
+    'cmds' : { 'func': cmds.cmds,       'parm': None,     
+               'menu': 'List Commands'                     },
+
+    'hr'   : { 'func': sr.hwReset,      'parm': None,     
+               'menu': 'HW Reset'                          },
+
+    'sr'   : { 'func': sr.swReset,      'parm': None,     
+               'menu': 'SW Reset'                          },
+
+    'sbl'  : { 'func': sr.setBackLight, 'parm': [0], 
+               'menu': 'Set White'                         },
+
+    'sw'   : { 'func': sr.setWhite,     'parm': None,     
+               'menu': 'Set White'                         },
+
+    'cc'   : { 'func': cw.calClk,       'parm': [601],    
+               'menu': 'Cal   Clock'                       },
+
+    'sc'   : { 'func': cw.startClk,     'parm': [3,45,0], 
+               'menu': 'Start Clock'                       },
+
+    'ks'   : { 'func': killSrvr,        'parm': None,     
+               'menu': 'Kill Server'                       }
     }
 
     # Process the string (command) passed to this function via the call
@@ -37,20 +58,29 @@ def vector(inputStr): # called from handleClient. inputStr from client.
         return rspStr          # Return to srvr for forwarding to clnt.
 
     choice     = inputWords[0]
+    optArgsStr = inputWords[1:]
 
     if choice in vectorDict:
         func   = vectorDict[choice]['func']
         params = vectorDict[choice]['parm']
 
-        try:
-            if params is None:
-                rsp = func()       # rsp[0] = rspStr. Vector to worker.
-                return rsp[0]      # return to srvr for forwarding to clnt.
+        if choice in ['sc']:
+            if len(optArgsStr) == 3:
+                params = optArgsStr
+
+        if choice in ['cc', 'sbl']:
+            if len(optArgsStr) == 1:
+                params = optArgsStr
+
+        #try:
+        if params is None:
+            rsp = func()       # rsp[0] = rspStr. Vector to worker.
+            return rsp[0]      # return to srvr for forwarding to clnt.
     
-            rsp = func(params)     # rsp[0] = rspStr. Vector to worker.
-            return rsp[0]          # Return to srvr for forwarding to clnt.
-        except Exception as e:
-            return str(e)
+        rsp = func(params)     # rsp[0] = rspStr. Vector to worker.
+        return rsp[0]          # Return to srvr for forwarding to clnt.
+        #except Exception as e:
+        #    return str(e)
 
     if choice == 'm':
         rspStr = ''
