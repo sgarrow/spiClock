@@ -32,7 +32,7 @@ def sendDat(datLst):
     #print('dat = 0x{:02x}'.format(datLst[0]))
     DC_PIN.on()
     #time.sleep(0.001)       # Ensure proper timing.
-    spi.writebytes(datLst)   # Send a list of data.
+    spi.writebytes2(datLst)   # Send a list of data.
     time.sleep(0.001)        # Ensure proper timing.
 #############################################################################
 
@@ -54,7 +54,10 @@ def swReset():
     time.sleep(0.2)
 
     sendCmd(0x36)            # Memory Data Access Control.
-    sendDat([0x00])          # Set orientation (0x00 = normal orientation).
+    sendDat([0xC0])          # Bot Rt - 0x00, Bot Lft - 0x40, 
+                             # Top Rt - 0x80, Top Lft - 0xC0;
+                             # Portrait, Connector at bottom.
+                             # Set orientation.
 
     sendCmd(0x3A)            # Interface Pixel Format.
     sendDat([0x05])          # RGB565 format (16-bit).
@@ -64,30 +67,40 @@ def swReset():
     return ['donexx']
 #############################################################################
 
-def setPixel(x, y, color):
-    # Function to set a single pixel at (x, y) to specified color.
-    # Set col addr (X-axis).
-    sendCmd(0x2A)       # Column address set.
-    sendDat([x >> 8])   # Hi byte.
-    sendDat([x & 0xFF]) # Lo byte.
+def setPixel(row, col, color):
+    # Set a single pixel at (row,col) to specified RGB565 color.
 
-    # Set row addr (Y-axis).
-    sendCmd(0x2B)       # Row address set.
-    sendDat([y >> 8])   # Hi byte.
-    sendDat([y & 0xFF]) # Lo byte.
+    sendCmd(0x2B)         # Set row addr command.
+    sendDat([row >> 8])   # Hi byte.
+    sendDat([row & 0xFF]) # Lo byte.
 
-    # Memory write command (to write the pixel data).
-    sendCmd(0x2C)
+    sendCmd(0x2A)         # Set col addr command.
+    sendDat([col >> 8])   # Hi byte.
+    sendDat([col & 0xFF]) # Lo byte.
 
-    # Convert RGB888 (24-bit) to RGB565 (16-bit).
-    r = (color >> 16) & 0xF8
-    g = (color >> 8) & 0xFC
-    b = color & 0xF8
-    rgb565 = (r << 8) | (g << 3) | (b >> 3)
+    sendCmd(0x2C)         # Memory write command (to write the pixel data).
 
-    # Send the RGB565 data.
-    sendDat([rgb565 >> 8])   # Hi byte.
-    sendDat([rgb565 & 0xFF]) # Lo byte.
+                          # Send the RGB565 data.
+    sendDat([color >> 8, color & 0xFF])  # Send RGB565 (hi byte first).
+
+    #print(' Pixel (row,col) = ({:3},{:3}) to color {:06x}'.\
+    #      format(row, col, color))
+#############################################################################
+
+def setRow(row, startCol, numPix, color):
+
+    sendCmd(0x2B)              # Row address set.
+    sendDat([row >> 8])        # Hi byte.
+    sendDat([row & 0xFF])      # Lo byte.
+
+    sendCmd(0x2A)              # Set col addr command.
+    sendDat([startCol >> 8])   # Hi byte.
+    sendDat([startCol & 0xFF]) # Lo byte.
+
+    sendCmd(0x2C)              # Memory write command (to write the pixel data).
+
+    data = [color >> 8, color & 0xFF] * numPix
+    sendDat(data)              # Send RGB565 as 2 bytes (hi byte first)
 
     #print(' Pixel (row,col) = ({:3},{:3}) to color {:06x}'.format(y,x,color),flush = True)
 #############################################################################
@@ -105,20 +118,60 @@ swReset()  # SW Reset and the display initialization.
 
 def setWhite():
     BL_PIN.on()    # Turn on backlight.
-    print('backlight on, sleeping 5')
+
     time.sleep(1)  # Allow display to initialize and show content.
 
-    for row in range(10,100):
-        for col in range(10,100):
-            #setPixel(row, col, 0xFFFFFF) # Black, not White.
-            setPixel(row, col, 0xFF0000) # Blue,  not Red.
-    print('pixels set sleeping 5')
+    colors = [~0x000000, ~0xFFFFFF, ~0xFF0000, ~0x00FF00]
+    #colors = [~0x000000]
+    #colors = [~0x00FF00, ~0xFF0000, ~0xFFFFFF, ~0x000000]
 
-    time.sleep(1)
+    ## Method 1 - Write a pixel at a time.
+    #kStart = time.time()
+    #for c in colors:
+    #
+    #    rgb565 = ((c >> 19) & 0x1F) << 11 | \
+    #             ((c >> 10) & 0x3F) <<  5 | \
+    #             ((c >>  3) & 0x1F)
+    #
+    #    for row in range(80,240):
+    #        for col in range(60,180):
+    #            setPixel(row, col, rgb565)  
+    #print( ' Execution Time: {:8.3f} sec'.\
+    #       format( time.time() - kStart))
+    ####################################################
 
-    BL_PIN.off()   # Turn off backlight. 
-    print('backlight off, sleeping 5')
-    time.sleep(1)
+    # Method 2 - Write a row at a time.
+    kStart = time.time()
+    startCol = 0
+    numPix   = 240
+    for c in colors:
+
+        rgb565 = ((c >> 19) & 0x1F) << 11 | \
+                 ((c >> 10) & 0x3F) <<  5 | \
+                 ((c >>  3) & 0x1F)
+
+        for row in range(0,320):
+            setRow(row, startCol, numPix, rgb565)  
+    print( ' Execution Time: {:8.3f} sec'.\
+           format( time.time() - kStart))
+    ###################################################
+
+    # Method 3 - Write a block at a time.
+    kStart = time.time()
+    row = 0
+    startCol = 0
+    numPix   = 320*240
+    for c in colors:
+
+        rgb565 = ((c >> 19) & 0x1F) << 11 | \
+                 ((c >> 10) & 0x3F) <<  5 | \
+                 ((c >>  3) & 0x1F)
+
+        setRow(row, startCol, numPix, rgb565)
+    print( ' Execution Time: {:8.3f} sec'.\
+           format( time.time() - kStart))
+
+    #BL_PIN.off()   # Turn off backlight. 
 
     spi.close()
     return ['done2']
