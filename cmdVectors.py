@@ -16,7 +16,7 @@ def killSrvr(): # The ks handled directly in the handleClient func so it
 #############################################################################
 
 def getVer():
-    VER = ' v0.0.4 - 21-Feb-2025'
+    VER = ' v0.0.5 - 21-Feb-2025'
     return [VER]
 #############################################################################
 
@@ -36,7 +36,7 @@ def vector(inputStr): # called from handleClient. inputStr from client.
     'sbl'  : { 'func': sr.setBackLight, 'parm': [0], 
                'menu': 'Set White'                         },
 
-    'sw'   : { 'func': sr.setWhite,     'parm': None,     
+    'sw'   : { 'func': sr.setWhite,     'parm': [0,0,320*240],     
                'menu': 'Set White'                         },
 
     'cc'   : { 'func': cw.calClk,       'parm': [601],    
@@ -64,7 +64,7 @@ def vector(inputStr): # called from handleClient. inputStr from client.
         func   = vectorDict[choice]['func']
         params = vectorDict[choice]['parm']
 
-        if choice in ['sc']:
+        if choice in ['sc', 'sw']:
             if len(optArgsStr) == 3:
                 params = optArgsStr
 
