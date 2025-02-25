@@ -1,111 +1,36 @@
+# This script sends various commands and data to the waveshare 320x240 LCD 
+# module.  The LCD uses the st7789v controller.  The LCD is connected to the
+# Raspberry Pi 4 and they communicate via an SPI interface.
+
+# Import required modules.
 import time
+import pprint as pp
 import spidev
 import gpiozero as gp
 from PIL import Image, ImageDraw, ImageFont
-# Pin assignments.
+
+# GPIO pin assignments for the LCD's backlight, reset and data/command.
 BL_PIN   = gp.LED( 'J8:12' ) # Grey.    on() = 1 = Lit.    off() = 0 = Not Lit.
 RST_PIN  = gp.LED( 'J8:13' ) # Brown.   Active low.
 DC_PIN   = gp.LED( 'J8:22' ) # Blue.    on() = 1 = Data.   off() = 0 = Cmd.
 
-# Just text strings.
+# Some unused text strings.
 PWR_PIN  = 'J8:1'            # Purple.  3.3V.
 GND_PIN  = 'J8:6'            # White.
 MOSI_PIN = 'J8:19'           # Green.
 CLK_PIN  = 'J8:23'           # Orange.
 CS_PIN   = 'J8:24'           # Yellow.
 
+# Open up the SPI channel (global to this script).
 spi = spidev.SpiDev()
 spi.open(0, 0)               # Open SPI bus 0, device 0 (CE0).
 spi.mode = 0b00              # SPI mode 0, CPOL = 0, CPHA = 0.
 spi.max_speed_hz = 20000000  # max = 20000000 
 #############################################################################
 
-def sendCmd(cmd):
-    #print('cmd = 0x{:02x}'.format(cmd))
-    DC_PIN.off()
-    #time.sleep(0.001)       # Ensure proper timing.
-    spi.writebytes([cmd])    # Wrap the command in a list.
-    time.sleep(0.001)        # Ensure proper timing.
-#############################################################################
-
-def sendDat(datLst):
-    #print('dat = 0x{:02x}'.format(datLst[0]))
-    DC_PIN.on()
-    #time.sleep(0.001)       # Ensure proper timing.
-    spi.writebytes2(datLst)   # Send a list of data.
-    time.sleep(0.001)        # Ensure proper timing.
-    print('XXXXXXXXXXXXX')
-#############################################################################
-
-def hwReset():
-    RST_PIN.off()
-    time.sleep(.2)
-    RST_PIN.on()
-    time.sleep(.2)
-    return ['hwReset done.']
-#############################################################################
-
-def swReset():
-
-    sendCmd(0x01)            # Software reset.
-    time.sleep(0.2)
-
-    sendCmd(0x11)            # Sleep out.
-    time.sleep(0.2)
-
-    sendCmd(0x36)            # Memory Data Access Control. Set orientation. 
-    sendDat([0xC0])          # Bot Rt - 0x00, Bot Lft - 0x40, 
-                             # Top Rt - 0x80, Top Lft - 0xC0;
-                             # Portrait, Connector at bottom.
-
-    sendCmd(0x3A)            # Interface Pixel Format.
-    sendDat([0x05])          # RGB565 format (16-bit).
-
-    sendCmd(0x29)            # Display on.
-
-    return ['swReset done.']
-#############################################################################
-
-def setPixel(row, col, color):
-    # Set a single pixel at (row,col) to specified RGB565 color.
-
-    sendCmd(0x2B)         # Set row addr command.
-    sendDat([row >> 8])   # Hi byte.
-    sendDat([row & 0xFF]) # Lo byte.
-
-    sendCmd(0x2A)         # Set col addr command.
-    sendDat([col >> 8])   # Hi byte.
-    sendDat([col & 0xFF]) # Lo byte.
-
-    sendCmd(0x2C)         # Memory write command (to write the pixel data).
-
-                          # Send the RGB565 data.
-    sendDat([color >> 8, color & 0xFF])  # Send RGB565 (hi byte first).
-
-    #print(' Pixel (row,col) = ({:3},{:3}) to color {:06x}'.\
-    #      format(row, col, color))
-#############################################################################
-
-def setRow(row, startCol, numPix, color):
-    # Set numPix in specified row starting at specified col to specified color.
-
-    sendCmd(0x2B)              # Row address set.
-    sendDat([row >> 8])        # Hi byte.
-    sendDat([row & 0xFF])      # Lo byte.
-
-    sendCmd(0x2A)              # Set col addr command.
-    sendDat([startCol >> 8])   # Hi byte.
-    sendDat([startCol & 0xFF]) # Lo byte.
-
-    sendCmd(0x2C)              # Memory write command (to write the pixel data).
-
-    data = [color >> 8, color & 0xFF] * numPix
-    sendDat(data)              # Send RGB565 as 2 bytes (hi byte first)
-
-    #print(' Pixel (row,col) = ({:3},{:3}) to color {:06x}'.format(y,x,color),flush = True)
-#############################################################################
 def setBackLight(parmLst):
-    # Turn the backlight on/off.
+
+    # This function turn the backlight of the LCD on/off.
 
     dsrdState = parmLst[0]
     if dsrdState == '0':
@@ -115,148 +40,308 @@ def setBackLight(parmLst):
     return ['done2']
 #############################################################################
 
-def display_image(image):
-    width, height = image.size
-    pixels = list(image.getdata())
-    print(pixels[0])
+def hwReset():
 
-    # Start sending image data
-    sendCmd(0x2A)  # Column Address Set
-    sendDat([0x00])
-    sendDat([0x00])
-    #sendDat([0x01])
-    #sendDat([0x3F])  # Set column address range (0-319)
-    
-    sendCmd(0x2B)  # Row Address Set
-    sendDat([0x00])
-    sendDat([0x00])
-    #sendDat([0x00])
-    #sendDat([0xEF])  # Set row address range (0-239)
-    
-    sendCmd(0x2C)  # Memory Write
+    # This function performs a hardware reset on the st7789v controller. 
 
-    #rgb565 = [ ((c >> 19) & 0x1F) << 11 | ((c >> 10) & 0x3F) <<  5 | ((c >>  3) & 0x1F) for c in pixels ]
-    # Convert pixel (R, G, B) to a 16-bit color (5 bits for R, 6 bits for G, 5 bits for B)
-    rgb565 = []
-    for pixel in pixels:
-        r, g, b = pixel
-        rgb565.append((r >> 3) << 11 | (g >> 2) << 5 | (b >> 3))
-
-
-    data1 = [byte for el in rgb565 for byte in (el >> 8, el & 0xFF)]
-    data  = data1[:320*240*2]
-
-    # Send pixel data in RGB format
-    #for pixel in pixels:
-        # Convert pixel (R, G, B) to a 16-bit color (5 bits for R, 6 bits for G, 5 bits for B)
-        #r, g, b = pixel
-        #color = (r >> 3) << 11 | (g >> 2) << 5 | (b >> 3)
-        #sendDat([(color >> 8) & 0xFF])  # High byte
-        #sendDat([color & 0xFF])         # Low byte
-    print('&&&&&&&&&&&&&&&&&')
-    sendDat(data)
+    RST_PIN.off()
+    time.sleep(.2)
+    RST_PIN.on()
+    time.sleep(.2)
+    return ['hwReset done.']
 #############################################################################
-hwReset()  # HW Reset
-swReset()  # SW Reset and the display initialization.
 
-def setWhite(parmLst = [0,0,320*240]):
-    row      = int(parmLst[0])
-    startCol = int(parmLst[1])
-    numPix   = int(parmLst[2])
-    BL_PIN.on()    # Turn on backlight.
+def swReset():
 
-    time.sleep(1)  # Allow display to initialize and show content.
+    # This function performs a software reset on the st7789v controller. 
+    # It also initializes the controller to the desired configuration.
 
-    colors = [~0x000000, ~0xFFFFFF, ~0xFF0000, ~0x00FF00]
-    #colors = [~0x000000]
-    #colors = [~0x00FF00, ~0xFF0000, ~0xFFFFFF, ~0x000000]
+    sendCmdToSt7789(0x01)    # Software reset.
+    time.sleep(0.2)
 
-    ## Method 1 - Write a pixel at a time.
-    #kStart = time.time()
-    #for c in colors:
-    #
-    #    rgb565 = ((c >> 19) & 0x1F) << 11 | \
-    #             ((c >> 10) & 0x3F) <<  5 | \
-    #             ((c >>  3) & 0x1F)
-    #
-    #    for row in range(80,240):
-    #        for col in range(60,180):
-    #            setPixel(row, col, rgb565)  
-    #print( ' Execution Time: {:8.3f} sec'.\
-    #       format( time.time() - kStart))
-    ####################################################
+    sendCmdToSt7789(0x11)    # Sleep out.
+    time.sleep(0.2)
 
-    ## Method 2 - Write a row at a time.
-    #kStart = time.time()
-    #startCol = 0
-    #numPix   = 240
-    #for c in colors:
-    #
-    #    rgb565 = ((c >> 19) & 0x1F) << 11 | \
-    #             ((c >> 10) & 0x3F) <<  5 | \
-    #             ((c >>  3) & 0x1F)
-    #
-    #    for row in range(0,320):
-    #        setRow(row, startCol, numPix, rgb565)  
-    #print( ' Execution Time: {:8.3f} sec'.\
-    #       format( time.time() - kStart))
-    ####################################################
+    sendCmdToSt7789(0x36)    # Memory Data Access Control.
+    sendDatToSt7789([0xC0])  # Set orientation to portrait mode
 
-    # Method 3 - Write a block at a time.
-    #row = 0
-    #startCol = 0
-    #numPix   = 320*240
-    for c in colors:
+    sendCmdToSt7789(0x3A)    # Interface Pixel Format to RGB565 (16-bit). 
+    sendDatToSt7789([0x05])  
 
-        rgb565 = ((c >> 19) & 0x1F) << 11 | \
-                 ((c >> 10) & 0x3F) <<  5 | \
-                 ((c >>  3) & 0x1F)
+    sendCmdToSt7789(0x29)    # Display on.
+    return ['swReset done.']
+#############################################################################
 
-        kStart = time.time()
-        setRow(row, startCol, numPix, rgb565)
-        print( ' Execution Time: {:8.3f} sec'.\
-               format( time.time() - kStart))
-        time.sleep(.5)
+def sendCmdToSt7789(cmd):
 
-    #BL_PIN.off()   # Turn off backlight. 
+    # This function sends the passed in command to the st7789v controller.
+    # Use the spi writebytes function, which has a 4096 byte list size limit.
 
-    ####################################
+    DC_PIN.off()             # Set st7789v to command mode.
+    spi.writebytes([cmd])    # Wrap the command in a list.
+    time.sleep(0.001)        # Ensure proper timing.
+    return ['sendCmdToSt7789 done.']
+#############################################################################
 
-    # Set the font path (make sure the font file is in the same directory or specify full path)
-    font_path = 'Font00.ttf'
-    try:
-        font = ImageFont.truetype(font_path, 80)  # Set font size to 80
-    except IOError:
-        print('Font file not found. Please check the path.')
-        return
+def sendDatToSt7789(datLst):
 
-    # Create an image with white background
-    image = Image.new('RGB', (320, 240), (255, 255, 255))  # RGB mode with white background
-    draw = ImageDraw.Draw(image)
+    # This function sends the passed in data to the st7789v controller.
+    # Use the spi writebytes function, which has a 4096 byte list size limit.
 
-    # Define the text to display (number "1")
+    chunkSize = 4096
+    chunks = [ datLst[x:x+chunkSize] for x in range(0, len(datLst), chunkSize) ]
 
-    text = "1"
-    bbox = draw.textbbox((0, 0), text, font=font)  # Get the bounding box of the text
-    text_width = bbox[2] - bbox[0]  # Calculate width from bbox
-    text_height = bbox[3] - bbox[1]  # Calculate height from bbox
+    DC_PIN.on()              # Set st7789v to data mode. 
+    for c in chunks:
+        spi.writebytes(c)    # Send a list of data.
+        time.sleep(0.001)    # Ensure proper timing.
+    return ['sendDatToSt7789 done.']
+#############################################################################
+
+def sendDat2ToSt7789(datLst):
+
+    # This function sends the passed in data to the st7789v controller.
+    # Use the spi writebytes2 function, which handles arbitraily large lists.
+
+    DC_PIN.on()              # Set st7789v to data mode. 
+    spi.writebytes2(datLst)  # Send a list of data.
+    time.sleep(0.001)        # Ensure proper timing.
+    return ['sendDat2ToSt7789 done.']
+#############################################################################
+
+def setOnePixel(row, col, pixelDataListOfBytes, sendFunc):
+
+    # This function sets a single pixel at (row,col) to the RGB565 color data
+    # contained in pixelDataListOfBytes.  The sendFunc parameter will be 
+    # either sendDatToSt7789 or sendDat2ToSt7789.  When sendDatToSt7789 is 
+    # specified no manual chunking of data will be required since 
+    # len(pixelDataListOfBytes) = 2 < 4096.
+
+    sendCmdToSt7789(0x2B)          # Set row addr command.
+    sendDatToSt7789([row >> 8])    # Hi byte.
+    sendDatToSt7789([row & 0xFF])  # Lo byte.
+
+    sendCmdToSt7789(0x2A)          # Set col addr command.
+    sendDatToSt7789([col >> 8])    # Hi byte.
+    sendDatToSt7789([col & 0xFF])  # Lo byte.
+
+    sendCmdToSt7789(0x2C)          # Memory write command (to write the pixel data).
+
+    sendFunc(pixelDataListOfBytes) # Send pixel data.
+    return ['setOnePixel done.']
+#############################################################################
+
+def setOneRow(row, pixelDataListOfBytes, sendFunc):
+
+    # This function sets an entire row to the RGB565 color data
+    # contained in pixelDataListOfBytes.  The sendFunc parameter will be 
+    # either sendDatToSt7789 or sendDat2ToSt7789.  When sendDatToSt7789 is 
+    # specified no manual chunking of data will be required since 
+    # len(pixelDataListOfBytes) = 480 = 240 * 2 < 4096.
+
+    sendCmdToSt7789(0x2B)          # Row address set.
+    sendDatToSt7789([row >> 8])    # Hi byte.
+    sendDatToSt7789([row & 0xFF])  # Lo byte.
+
+    sendCmdToSt7789(0x2A)          # Set col addr command.
+    sendDatToSt7789([0])           # Hi byte.
+    sendDatToSt7789([0])           # Lo byte.
+
+    sendCmdToSt7789(0x2C)          # Memory write command (to write the pixel data).
+    sendFunc(pixelDataListOfBytes) # Send pixel data.
+    return ['setOneRow done.']
+#############################################################################
+
+def setEntireDisplay(pixelDataListOfBytes, sendFunc):
+
+    # This function sets the entire displat to the RGB565 color data
+    # contained in pixelDataListOfBytes.  The sendFunc parameter will be 
+    # either sendDatToSt7789 or sendDat2ToSt7789.  When sendDatToSt7789 is 
+    # specified manual chunking of data will be required since 
+    # len(pixelDataListOfBytes) = 153,600 = 240 * 320 *2 > 4096.
+
+    sendCmdToSt7789(0x2B)          # Row address set.
+    sendDatToSt7789([0])           # Hi byte.
+    sendDatToSt7789([0])           # Lo byte.
+
+    sendCmdToSt7789(0x2A)          # Set col addr command.
+    sendDatToSt7789([0])           # Hi byte.
+    sendDatToSt7789([0])           # Lo byte.
+
+    sendCmdToSt7789(0x2C)          # Memory write command (to write the pixel data).
+    sendFunc(pixelDataListOfBytes) # Send pixel data.
+    return ['setEntireDisplay done.']
+#############################################################################
     
-    # Calculate position to center the text on the screen
-    x_pos = (320 - text_width) // 2
-    y_pos = (240 - text_height) // 2
+def createPilImage(text):
+    font = ImageFont.truetype('Font00.ttf' , 80)  # Set font size to 80
+
+    # Create an RGB image with white background.
+    background_color = (255, 255, 255) # White.
+    #image = Image.new('RGB', (320, 240), background_color)
+    image = Image.new('RGB', (240, 320), background_color)
+    draw  = ImageDraw.Draw(image)
+
+    # Define the text and it's color to be drawn.
+    text_color = ( 0, 0, 0 ) # Black text color.
+
+    # Define a bounding box.
+    bbox = draw.textbbox( (0, 0), text, font = font )
+    text_width  = bbox[2] - bbox[0]  # Calculate width  from bbox.
+    text_height = bbox[3] - bbox[1]  # Calculate height from bbox.
     
-    # Draw the text on the image (black text)
-    draw.text((x_pos, y_pos), text, font=font, fill=(0, 0, 0))
-
-    # Display the image on the LCD
-    display_image(image)
-
-    # Keep the image on the screen for a while (5 seconds)
-    time.sleep(5)
-    ####################################
-    #spi.close()
-    return ['done2']
+    # Calculate position to center the text on the screen.
+    x_pos = ( 320 - text_width  ) // 2
+    y_pos = ( 240 - text_height ) // 2
+    
+    # Draw the text on the image.
+    draw.text((x_pos, y_pos), text, font = font, fill = text_color, align= 'center' )
+    return ['createPilImagedone.', image]
 #############################################################################
 
 if __name__ == '__main__':
-    setWhite()
+
+    hwReset()    # HW Reset
+    swReset()    # SW Reset and the display initialization.
+    BL_PIN.on()  # Turn on backlight.
+
+    # Create 3 lists each that holds 1 pixel (2-bytes) worth of data.
+    # Each list holds a different RGB color value: Red, Green, Blue.
+    colors = [ 0xFF0000, 0x00FF00, 0x0000FF, 0xFFFFFF ]
+    for ii,c in enumerate(colors):
+        rgb565  = ((c>>19) & 0x1F) << 11 | ((c>>10)&0x3F) << 5 | ((c>>3)&0x1F)
+        if ii == 0: rPixLst = [ rgb565 >> 8, rgb565 & 0xFF ]
+        if ii == 1: gPixLst = [ rgb565 >> 8, rgb565 & 0xFF ]
+        if ii == 2: bPixLst = [ rgb565 >> 8, rgb565 & 0xFF ]
+        if ii == 3: wPixLst = [ rgb565 >> 8, rgb565 & 0xFF ]
+
+    rRowLst = rPixLst * 240 # Create a Rows worth of values.
+    gRowLst = gPixLst * 240
+    bRowLst = bPixLst * 240
+    wRowLst = wPixLst * 240
+    
+
+    rAllLst = rRowLst * 320 # Create a whole Displays worth of values. 
+    gAllLst = gRowLst * 320 # These contain flat scenes.
+    bAllLst = bRowLst * 320
+    wAllLst = wRowLst * 320
+
+    # Create a display that has r,g,b,w bars - wach bar 10 rows thick
+    barAllLst = []
+    for numRepeats in range(8):
+        for coloredBar in [rRowLst,gRowLst,bRowLst,wRowLst]:
+            for barWidth in range(10):
+                barAllLst.extend(coloredBar)
+    setEntireDisplay(barAllLst, sendDat2ToSt7789)
+    time.sleep(1)
+    ########################################################
+
+    # Create two images using PIL
+    for text in ['0','1','2','3','4','5','6','7','8','9']:
+        rspStr, myImage2 = createPilImage(text)
+        width, height = myImage2.size
+        pixels2 = list(myImage2.getdata()) 
+    
+        #pixData  = open('pixData.txt', 'w')
+        #rgbData  = open('rgbData.txt', 'w')
+        #pixData1 = open('pixData1.txt', 'w')
+        #rgbData1 = open('rgbData1.txt', 'w')
+    
+        rgb565Lst = []
+        for row in range(320):
+            for col in range(240):
+                pixel = pixels2[row*240+col]
+                r, g, b = pixel
+                rgb565 = ((r >> 3) << 11 | (g >> 2) << 5 | (b >> 3))
+                rgb565Lst.append((r >> 3) << 11 | (g >> 2) << 5 | (b >> 3))
+                #pixData.write('{:3} {:3} {}\n'.format(row, col, pixel   ))
+                #rgbData.write('{:3} {:3} {:04x}\n'.format(row, col, rgb565  ))
+    
+                #if pixel  == (255, 255, 255):  pixData1.write('0')
+                #else:                          pixData1.write('1')
+                #
+                #if rgb565 == 0xffff:           rgbData1.write('0')
+                #else:                          rgbData1.write('1')
+    
+            #pixData1.write('\n')
+            #rgbData1.write('\n')
+    
+        #pixData.close
+        #rgbData.close
+        #pixData1.close
+        #rgbData1.close
+    
+        data2 = [byte for el in rgb565Lst for byte in (el >> 8, el & 0xFF)]
+        setEntireDisplay(data2, sendDatToSt7789)
+        time.sleep(1)
+
+    exit()
+
+    rgb565 = []
+    for pixel in pixels2:
+        r, g, b = pixel
+        rgb565.append((r >> 3) << 11 | (g >> 2) << 5 | (b >> 3))
+    data2 = [byte for el in rgb565 for byte in (el >> 8, el & 0xFF)]
+    ########################################################
+    
+    sendFuncs = [ sendDatToSt7789, sendDat2ToSt7789 ]
+
+    # Test 1 - Fill LCD with solid color via setOnePixel using both types of sendFuncs.
+    #          Use a different color for each screen fill to be able to 
+    #          tell if both fill methods work.
+    print('Begin test 1')
+    pixLst    = [ rPixLst, gPixLst ]
+    for sf,pl in zip( sendFuncs, pixLst ):
+        for row in range(320):
+            for col in range(240):
+                setOnePixel(row, col, pl, sf)
+        print('Test 1 half done')
+    ##################################################
+    
+    # Test 2 - Fill LCD with solid color via setOneRow using both types of sendFuncs.
+    #          Use a different color for each screen fill to be able to 
+    #          tell if both fill methods work.
+    print('Begin test 2')
+    pixLst    = [ rRowLst, gRowLst ]
+    for sf,pl in zip( sendFuncs, pixLst ):
+        for row in range(320):
+            setOneRow(row, pl, sf)
+        print('Test 2 half done')
+    ###################################################
+
+    # Test 3 - Fill LCD with solid color via setEntireDisplay using both types of sendFuncs.
+    #          Use a different color for each screen fill to be able to 
+    #          tell if both fill methods work.
+    print('Begin test 3')
+    pixLst    = [ rAllLst, gAllLst ]
+    for sf,pl in zip( sendFuncs, pixLst ):
+        setEntireDisplay(pl, sf)
+        print('Test 3 half done')
+    ####################################################
+
+    # Test 4 - Fill LCD with image 1 via setOnePixel using simplest sendFunc.
+    print('Begin test 4')
+    for row in range(320):
+        for col in range(240):
+            r, g, b = pixels1[row*240+col]
+            rgb565  = (r >> 3) << 11 | (g >> 2) << 5 | (b >> 3)
+            byLst   = [rgb565 >> 8, rgb565 & 0xFF]
+            setOnePixel(row, col, byLst, sendDatToSt7789)
+        print('row {:3} done'.format(row))
+
+    # Clear screen before sending image 2.
+    setEntireDisplay(rAllLst, sendDatToSt7789)
+
+    # Test 5 - Fill LCD with image 2 via setOnePixel using simplest sendFunc.
+    print('Begin test 5')
+    kStart = time.time()
+    for row in range(320):
+        for col in range(240):
+            r, g, b = pixels2[row*240+col]
+            rgb565  = (r >> 3) << 11 | (g >> 2) << 5 | (b >> 3)
+            byLst   = [rgb565 >> 8, rgb565 & 0xFF]
+            setOnePixel(row, col, byLst, sendDatToSt7789)
+        print('row {:3} done'.format(row))
+
+    BL_PIN.off()   # Turn off backlight. 
+
