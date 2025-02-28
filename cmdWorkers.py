@@ -1,28 +1,8 @@
+import pprint as pp
 import time
 import datetime
 import statistics
-#############################################################################
-
-def updateCfgData(inDict, **kwargs):
-    inDict.update(kwargs)
-    with open('pickle/configData.pickle', 'wb') as f:
-        pickle.dump(inDict, f)
-    return inDict
-
-# initSapStateMachineInfo()
-
-# def initSapStateMachineInfo():
-#     sapStateMachineInfo = {
-#     'sapState'   : 0,
-#     'profNames'  : [],
-#     }
-#     with open('pickle/sapStateMachineInfo.pickle', 'wb') as handle:
-#         pickle.dump(sapStateMachineInfo, handle)
-#     return sapStateMachineInfo
-
-# stateMachInfo = updateSapStateMachineInfo(stateMachInfo,sapState=2)
-
-
+import cfgDict as cd
 #############################################################################
 
 # On the second Sunday in March, clocks are set ahead one hour at 2:00 a.m.
@@ -45,15 +25,6 @@ def startClk(prmLst):
     hours   = prmLst[0]
     minutes = prmLst[1]
     seconds = prmLst[2]
-
-    try:
-        with open('pickle/configData.pickle', 'rb') as f:
-            cfgDataDict = pickle.load(f)
-            calibratedOneSecTime = cfgDataDict['calibratedOneSecTime']
-        with open('pickle/configData.pickle', 'wb') as f:
-            pickle.dump(cfgDataDict, f )
-    except:
-        calibratedOneSecTime = 1
 
     while True:
         now = datetime.datetime.now()
@@ -110,64 +81,75 @@ def calClk(prmLst):
     global rawMedianCalOneSec
     global filtMeanCalOneSec
     global filtMedianCalOneSec
-    calTime = prmLst[0]
+    calTime = int(prmLst[0])
+
+    print(' Collecting Data: ...')
     myLst   = []
     for ii in range(calTime):
         kStart = time.time()
         time.sleep(1)
-        #print('{:10.6f}'.format((time.time()- kStart)))
-        myLst.append( 1-(time.time()- kStart) )
+        myLst.append( 1-(time.time()-kStart) )
+        print('{:10.6f}'.format((time.time()- kStart)))
     myLst2 = median_filter( myLst, len(myLst) )
 
-    rawMean    = statistics.mean(   myLst  )
-    rawMedian  = statistics.median( myLst  )
-    filtMean   = statistics.mean(   myLst2 )
-    filtMedian = statistics.median( myLst2 )
+    print(' Calculating Effective Times: ...')
+    meanOfRawErr        = statistics.mean(   myLst  )
+    medianOfRawErr      = statistics.median( myLst  )
+    meanOfFilteredErr   = statistics.mean(   myLst2 )
+    medianOfFilteredErr = statistics.median( myLst2 )
 
-    rawMeanCalOneSec    = 1 + rawMean
-    rawMedianCalOneSec  = 1 + rawMedian
-    filtMeanCalOneSec   = 1 + filtMean
-    filtMedianCalOneSec = 1 + filtMedian
+    oneSecCalPerMeanOfRawErr        = 1 + meanOfRawErr       
+    oneSecCalPerMedianOfRawErr      = 1 + medianOfRawErr     
+    oneSecCalPerMeanOfFilteredErr   = 1 + meanOfFilteredErr  
+    oneSecCalPerMedianOfFilteredErr = 1 + medianOfFilteredErr
 
-    cfgDataDict = {'calibratedOneSecTime':  rawMedianCalOneSec }
-    with open('pickle/configData.pickle', 'wb') as f:
-        pickle.dump(cfgDataDict, f )
+    print(' Testing Effective Times: ... \n')
 
-    rspStr =  '\n'
-    rspStr += ' Uncalibrated Sleep 1 Second Error Statistics: \n'
-    rspStr += '  rawMean    = {:10.6f} uSec \n'.format(rawMean   *1000000)
-    rspStr += '  rawMedian  = {:10.6f} uSec \n'.format(rawMedian *1000000)
-    rspStr += '  filtMean   = {:10.6f} uSec \n'.format(filtMean  *1000000)
-    rspStr += '  filtMedian = {:10.6f} uSec \n'.format(filtMedian*1000000)
+    pLst =[' Sleep 1 rawMean    cal\'d:',' Sleep 1 rawMedian  cal\'d:',
+           ' Sleep 1 filtMean   cal\'d:',' Sleep 1 filtMedian cal\'d:']
 
-    rspStr += '\n Calibrated Sleep 1 Second Effective Times: \n'
-    rspStr += '  rawMeanCalOneSec    = {:12.9f} \n'.format(rawMeanCalOneSec   )
-    rspStr += '  rawMedianCalOneSec  = {:12.9f} \n'.format(rawMedianCalOneSec )
-    rspStr += '  filtMeanCalOneSec   = {:12.9f} \n'.format(filtMeanCalOneSec  )
-    rspStr += '  filtMedianCalOneSec = {:12.9f} \n'.format(filtMedianCalOneSec)
-    
-    rspStr += '\n Testing Effective Times: ... \n\n'
+    cLst =[ oneSecCalPerMeanOfRawErr,      oneSecCalPerMedianOfRawErr,
+            oneSecCalPerMeanOfFilteredErr, oneSecCalPerMedianOfFilteredErr ]
 
-    pLst =[' Sleep 1 rawMean    cal\'d: \n',' Sleep 1 rawMedian  cal\'d: \n',
-           ' Sleep 1 filtMean   cal\'d: \n',' Sleep 1 filtMedian cal\'d: \n']
-
-    cLst =[ rawMeanCalOneSec,   rawMedianCalOneSec,
-           filtMeanCalOneSec,  filtMedianCalOneSec ]
-
+    tstResults = []
     for p,c in zip(pLst, cLst):
         myLst = []
-        for ii in range(calTime//20):
+        print(p)
+        for ii in range(calTime):
             kStart = time.time()
             time.sleep(c)
-            #print('{:10.6f}'.format((time.time()- kStart)))
-            myLst.append(1-(time.time()- kStart))
-        
-        rawMean   = statistics.mean(   myLst )
-        rawMedian = statistics.median( myLst )
+            myLst.append(1-(time.time()-kStart))
+            print('{:10.6f}'.format((time.time()-kStart)))
+        rawMean   = statistics.mean(myLst)
+        print('  rawMean   = {:11.6f} uSec   \n'.format(rawMean  * 1000000))
+        tstResults.append(rawMean  * 1000000)
+    
+    cfgDict    = cd.loadCfgDict()
+    clkCalDict = { 'calibrated1Sec': { 
+                                       'A_oneSecCalPerMeanOfRawErr':        
+                                        oneSecCalPerMeanOfRawErr,
+                                       'B_oneSecCalPerMedianOfRawErr':      
+                                        oneSecCalPerMedianOfRawErr,
+                                       'C_oneSecCalPerMeanOfFilteredErr':   
+                                        oneSecCalPerMeanOfFilteredErr,
+                                       'D_oneSecCalPerMedianOfFilteredErr': 
+                                        oneSecCalPerMedianOfFilteredErr
+                                     },
 
-        rspStr += p
-        rspStr += '  rawMean   = {:10.6f} uSec   \n'.format(rawMean  * 1000000)
-        rspStr += '  rawMedian = {:10.6f} uSec \n\n'.format(rawMedian* 1000000)
+                   'testResults'   : { 
+                                       'A_oneSecCalPerMeanOfRawErr':        
+                                        tstResults[0], 
+                                       'B_oneSecCalPerMedianOfRawErr':      
+                                        tstResults[1], 
+                                       'C_oneSecCalPerMeanOfFilteredErr':   
+                                        tstResults[2],
+                                       'D_oneSecCalPerMedianOfFilteredErr': 
+                                        tstResults[3], 
+                                     }
+                 }
+    cfgDict = cd.updateCfgDict( cfgDict, clkCalDict=clkCalDict)
+    cfgDict = cd.saveCfgDict(cfgDict)
+    rspStr  = pp.pformat(cfgDict)
 
     return[rspStr]
 #############################################################################

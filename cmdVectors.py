@@ -16,7 +16,7 @@ def killSrvr(): # The ks handled directly in the handleClient func so it
 #############################################################################
 
 def getVer():
-    VER = ' v0.0.7 - 26-Feb-2025'
+    VER = ' v0.0.8 - 28-Feb-2025'
     return [VER]
 #############################################################################
 
@@ -37,9 +37,9 @@ def vector(inputStr): # called from handleClient. inputStr from client.
                'menu': 'Set Backlight'                     },
 
     'rt'   : { 'func': sr.runTest,      'parm': None,     
-               'menu': 'Set White'                         },
+               'menu': 'Run Test'                          },
 
-    'cc'   : { 'func': cw.calClk,       'parm': [601],    
+    'cc'   : { 'func': cw.calClk,       'parm': [11],    
                'menu': 'Cal   Clock'                       },
 
     'sc'   : { 'func': cw.startClk,     'parm': [3,45,0], 
