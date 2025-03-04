@@ -31,24 +31,24 @@ def runTest():
     cfgDict = loadCfgDict()
     pp.pprint(cfgDict)
 
-    cfgDict = saveCfgDict(cfgDict)
-    pp.pprint(cfgDict)
-
-    cd = loadCfgDict()
-    pp.pprint(cfgDict)
-
-    clkCalDict = { 'oneSecCalPerMeanOfFilteredErr':   0.9999175032631296,
-                   'oneSecCalPerMeanOfRawErr':        0.9999046755618737,
-                   'oneSecCalPerMedianOfFilteredErr': 0.9999175071716309,
-                   'oneSecCalPerMedianOfRawErr':      0.9999175071716309
-                 }
-
-    cfgDict = updateCfgDict( cfgDict, clkCalDict=clkCalDict)
-    cfgDict = saveCfgDict(cfgDict)
-    pp.pprint(cfgDict)
-
-    cd = loadCfgDict()
-    pp.pprint(cfgDict)
+    #cfgDict = saveCfgDict(cfgDict)
+    #pp.pprint(cfgDict)
+    #
+    #cd = loadCfgDict()
+    #pp.pprint(cfgDict)
+    #
+    #clkCalDict = { 'oneSecCalPerMeanOfFilteredErr':   0.9999175032631296,
+    #               'oneSecCalPerMeanOfRawErr':        0.9999046755618737,
+    #               'oneSecCalPerMedianOfFilteredErr': 0.9999175071716309,
+    #               'oneSecCalPerMedianOfRawErr':      0.9999175071716309
+    #             }
+    #
+    #cfgDict = updateCfgDict( cfgDict, clkCalDict=clkCalDict)
+    #cfgDict = saveCfgDict(cfgDict)
+    #pp.pprint(cfgDict)
+    #
+    #cd = loadCfgDict()
+    #pp.pprint(cfgDict)
 #############################################################################
 
 if __name__ == '__main__':

@@ -10,21 +10,18 @@ import cfgDict as cd
 # On the first Sunday in November, clocks are set back one hour at 2:00 a.m.
 # local Daylight Saving Time (which becomes 1:00 a.m. local standard time).
 
-rawMeanCalOneSec    =  1
-rawMedianCalOneSec  =  1
-filtMeanCalOneSec   =  1
-filtMedianCalOneSec =  1
-
 def startClk(prmLst):
 
-    global rawMeanCalOneSec
-    global rawMedianCalOneSec
-    global filtMeanCalOneSec
-    global filtMedianCalOneSec
+    hours   = int(prmLst[0])
+    minutes = int(prmLst[1])
+    seconds = int(prmLst[2])
 
-    hours   = prmLst[0]
-    minutes = prmLst[1]
-    seconds = prmLst[2]
+    cfgDict = cd.loadCfgDict()
+    try:
+        calibratedOneSecTime = cfgDict['clkCalDict']['calibrated1Sec'][cfgDict['clkCalDict']['keyToRunWith']]
+    except:
+        calibratedOneSecTime = 1
+    print(' calibratedOneSecTime  = {:11.6f}'.format(calibratedOneSecTime))
 
     while True:
         now = datetime.datetime.now()
@@ -37,15 +34,17 @@ def startClk(prmLst):
         second = now.second
         #microsecond = now.microsecond
     
-        if hours == hour and minute == minutes and second == seconds:
+        if ( hours  == hour and minute == minutes and second == seconds ):
             break
-        time.sleep(.001)
+
+        #time.sleep(.001)
+        time.sleep(.2)
 
     print(calibratedOneSecTime)
 
     while True:
 
-        if seconds == 0:
+        if seconds % 15 == 0:
             now = datetime.datetime.now()
             currTime = now.strftime("%H:%M:%S")
             print('{:02}:{:02}:{:02} =? {}'.\
@@ -123,9 +122,9 @@ def calClk(prmLst):
         rawMean   = statistics.mean(myLst)
         print('  rawMean   = {:11.6f} uSec   \n'.format(rawMean  * 1000000))
         tstResults.append(rawMean  * 1000000)
-    
+
     cfgDict    = cd.loadCfgDict()
-    clkCalDict = { 'calibrated1Sec': { 
+    clkCalDict = { 'calibrated1Sec': {  # Values of a calibrated 1 second.
                                        'A_oneSecCalPerMeanOfRawErr':        
                                         oneSecCalPerMeanOfRawErr,
                                        'B_oneSecCalPerMedianOfRawErr':      
@@ -136,7 +135,7 @@ def calClk(prmLst):
                                         oneSecCalPerMedianOfFilteredErr
                                      },
 
-                   'testResults'   : { 
+                   'testResults'   : {  # Avg err using above cal'd 1 sec.
                                        'A_oneSecCalPerMeanOfRawErr':        
                                         tstResults[0], 
                                        'B_oneSecCalPerMedianOfRawErr':      
@@ -144,9 +143,20 @@ def calClk(prmLst):
                                        'C_oneSecCalPerMeanOfFilteredErr':   
                                         tstResults[2],
                                        'D_oneSecCalPerMedianOfFilteredErr': 
-                                        tstResults[3], 
-                                     }
+                                        tstResults[3]
+                                     },
+                   'keyToRunWith'  :   'TBS'
                  }
+    # Find the key to the best test result.
+    bestKey = ''
+    bestVal = 1000.0
+    for k,v in clkCalDict['testResults'].items():
+        if abs(v) < bestVal:
+            bestKey = k
+            bestVal = abs(v)
+
+    clkCalDict['keyToRunWith'] = bestKey
+
     cfgDict = cd.updateCfgDict( cfgDict, clkCalDict=clkCalDict)
     cfgDict = cd.saveCfgDict(cfgDict)
     rspStr  = pp.pformat(cfgDict)

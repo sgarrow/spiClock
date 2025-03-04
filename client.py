@@ -47,7 +47,6 @@ if __name__ == '__main__':
 
     connectType = input(' ssh, lan, internet (s,l,i) -> ')
     #             {'s':'localhost','l':'lanAddr','i':'routerAddr'}
-    #connectDict = {'s':'localhost','l':'0.0.0.0','i':'00.00.00.00'}
     connectDict = {'s':'localhost','l':'0.0.0.0','i':'00.00.00.00'}
     PORT = 0000
     try:

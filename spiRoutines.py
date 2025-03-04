@@ -197,10 +197,10 @@ def createPilImage(text):
     x_pos = ( 240 - text_width  ) // 2    # Move left/right
     y_pos = ( 320 - text_height ) // 2    # Move up/down
     
-    print('text_width  = {}'.format( text_width  ))
-    print('text_height = {}'.format( text_height ))
-    print('x_pos       = {}'.format( x_pos       ))
-    print('y_pos       = {}'.format( y_pos       ))
+    #print('text_width  = {}'.format( text_width  ))
+    #print('text_height = {}'.format( text_height ))
+    #print('x_pos       = {}'.format( x_pos       ))
+    #print('y_pos       = {}'.format( y_pos       ))
 
     # Draw the text on the image.
     draw.text((x_pos, y_pos-100), text, font = font, fill = text_color )
@@ -215,9 +215,6 @@ def createPilImage(text):
                   )
 
     return ['createPilImagedone.', image]
-#############################################################################
-
-    
 #############################################################################
 
 def runTest():
@@ -259,52 +256,33 @@ def runTest():
             for barWidth in range(10):
                 barAllLst.extend(coloredBar)
 
-    # Create 1 list that holds 1 full screen ((2*240*320)-bytes) worth of data.
-    # Create list from a PIL image.
-    rspStr, myImage = createPilImage('8')
-    width, height = myImage.size
-    pixels = list(myImage.getdata()) 
-
-    rgb565Lst = []
-    for row in range(320):
-        for col in range(240):
-            pixel = pixels[row*240+col]
-            r, g, b = pixel
-            rgb565 = ((r >> 3) << 11 | (g >> 2) << 5 | (b >> 3))
-            rgb565Lst.append((r >> 3) << 11 | (g >> 2) << 5 | (b >> 3))
-    pilAllLst = [byte for el in rgb565Lst for byte in (el >> 8, el & 0xFF)]
-    # End of image creations.
-
+    # Create 10 lists, using PIL, where each list holds a character 0-9.
+    allPilNums = []
+    for ii in ['0','1','2','3','4','5','6','7','8','9']:
+        rspStr, myImage = createPilImage(ii)
+        width, height = myImage.size
+        pixels = list(myImage.getdata()) 
+        rgb565Lst = []
+        for row in range(320):
+            for col in range(240):
+                pixel = pixels[row*240+col]
+                r, g, b = pixel
+                rgb565 = ((r >> 3) << 11 | (g >> 2) << 5 | (b >> 3))
+                rgb565Lst.append(rgb565)
+        pilAllLst = [byte for el in rgb565Lst for byte in (el >> 8, el & 0xFF)]
+        allPilNums.append(pilAllLst)
+    #############################
     sendFuncs = [ sendDatToSt7789, sendDat2ToSt7789 ]
 
-    #     Begin test 1
-    #  Filling Screen via ( setOnePixel      using sendDatToSt7789 ) took 677.765 sec
-    #  Filling Screen via ( setOnePixel      using sendDat2ToSt7789) took 680.544 sec
-    # Begin test 2
-    #  Filling Screen via ( setOneRow        using sendDatToSt7789 ) took   2.851 sec
-    #  Filling Screen via ( setOneRow        using sendDat2ToSt7789) took   2.970 sec
-    # Begin test 3
-    #  Filling Screen via ( setEntireDisplay using sendDatToSt7789 ) took   0.117 sec
-    #  Filling Screen via ( setEntireDisplay using sendDat2ToSt7789) took   0.075 sec
-    # Begin test 4
-    #  Filling Screen via ( setEntireDisplay using sendDatToSt7789 ) took   0.117 sec
-    #  Filling Screen via ( setEntireDisplay using sendDat2ToSt7789) took   0.176 sec
-
-    # Test 1 - Fill LCD with solid color via setOnePixel using both types of sendFuncs.
-    #          Use a different color for each screen fill to be able to 
-    #          tell if both fill methods work.
-    try:
-        print('Begin test 1')
-        pixLst    = [ rPixLst, gPixLst ]
-        for sf,pl in zip( sendFuncs, pixLst ):
-            kStart = time.time()
-            for row in range(32):
-                for col in range(24):
-                    setOnePixel(row, col, pl, sf)
-            print( ' Filling Screen via ( {:16} using {:16}) took {:7.3f} sec'.\
-                format( 'setOnePixel', sf.__name__, time.time() - kStart ))
-    except:
-        pass
+    #print('Begin test 1')
+    #pixLst    = [ rPixLst, gPixLst ]
+    #for sf,pl in zip( sendFuncs, pixLst ):
+    #    kStart = time.time()
+    #    for row in range(32):
+    #        for col in range(24):
+    #            setOnePixel(row, col, pl, sf)
+    #    print( ' Filling Screen via ( {:16} using {:16}) took {:7.3f} sec'.\
+    #        format( 'setOnePixel', sf.__name__, time.time() - kStart ))
     ###################################################
     
     # Test 2 - Fill LCD with solid color via setOneRow using both types of sendFuncs.
@@ -334,18 +312,47 @@ def runTest():
         time.sleep(1)
     ####################################################
 
-    # Test 4 - Fill LCD with image 1 via setOnePixel using simplest sendFunc.
-    for ii in range(1):
-        print('Begin test 4')
-        pixLst    = [ bAllLst, pilAllLst ]
-        for sf,pl in zip( sendFuncs, pixLst ):
-            kStart = time.time()
-            setEntireDisplay(pl, sf)
-            print( ' Filling Screen via ( {:16} using {:16}) took {:7.3f} sec'.\
-                format( 'setEntireDisplay', sf.__name__, time.time() - kStart ))
+    # Test 4 - Fill LCD with all 10 PIL images.
+    print('Begin test 4')
+    for img in allPilNums[5:]:
+        setEntireDisplay(img, sendDat2ToSt7789)
         time.sleep(1)
 
-    BL_PIN.off()   # Turn off backlight. 
+    # Test 5 - Fill LCD with jpeg image converted to rgb off-line.
+    print('Begin test 5')
+    rgb565Lst = []
+    with open('240x320.rgb', 'rb') as file:
+        while True:
+            # Read 3 bytes at a time (one pixel)
+            pixel_data = file.read(3)
+            if not pixel_data:
+                break
+            # Unpack the bytes into RGB values
+            r, g, b = pixel_data
+            rgb565 = ((r >> 3) << 11 | (g >> 2) << 5 | (b >> 3))
+            rgb565Lst.append(rgb565)
+    k = [byte for el in rgb565Lst for byte in (el >> 8, el & 0xFF)]
+    setEntireDisplay(k, sendDat2ToSt7789)
+    time.sleep(3)
+
+    # Test 5 - Fill LCD with jpeg image converted to rgb right here.
+    with Image.open('240x320.jpg') as img:
+        rgb_image = img.convert('RGB')
+    pixels = list(rgb_image.getdata()) 
+    rgb565Lst = []
+    for row in range(320):
+        for col in range(240):
+            pixel = pixels[row*240+col]
+            r, g, b = pixel
+            rgb565 = ((r >> 3) << 11 | (g >> 2) << 5 | (b >> 3))
+            rgb565Lst.append(rgb565)
+    pilAllLst = [byte for el in rgb565Lst for byte in (el >> 8, el & 0xFF)]
+    setEntireDisplay(pilAllLst, sendDat2ToSt7789)
+    time.sleep(3)
+
+    setEntireDisplay(wAllLst, sendDat2ToSt7789)
+    BL_PIN.off()   # Turn off backlight.
+
     return ['Test Complete']
 #############################################################################
 
