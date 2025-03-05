@@ -1,11 +1,11 @@
-import socket             # For creating and managing sockets.
-import threading          # For handling multiple clients concurrently.
-import queue              # For Killing Server.
-import time               # For Killing Server and listThreads.
-import timeRoutines as tr
-import cmdVectors   as cv # Contains vectors to "worker" functions.
+import socket              # For creating and managing sockets.
+import threading           # For handling multiple clients concurrently.
+import queue               # For Killing Server.
+import time                # For Killing Server and listThreads.
+import clockRoutines as cr
+import cmdVectors    as cv # Contains vectors to "worker" functions.
 
-openSocketsLst = []       # Needed for processing close and ks commands.
+openSocketsLst = []        # Needed for processing close and ks commands.
 #############################################################################
 
 def listThreads(): # Daemon to startServer, terminates w/ kill server (ks).
@@ -129,7 +129,7 @@ def printSocketInfo(sSocket):
 #############################################################################
 
 def startServer():
-    rspLst = tr.getTimeDate(False)
+    rspLst = cr.getTimeDate(False)
     curDT  = rspLst[1]
     cDT = '{}'.format(curDT['now'].isoformat( timespec = 'seconds' ))
     with open('log.txt', 'a',encoding='utf-8') as f:
@@ -188,7 +188,7 @@ def startServer():
                                                format(clientAddress) )
             cThrd.start()
     print('Server breaking.')
-    rspLst = tr.getTimeDate(False)
+    rspLst = cr.getTimeDate(False)
     curDT  = rspLst[1]
     cDT = '{}'.format(curDT['now'].isoformat( timespec = 'seconds' ))
     with open('log.txt', 'a',encoding='utf-8') as f:

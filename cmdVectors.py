@@ -5,8 +5,9 @@ function "vector" (in this file) and the appropriate "worker" function
 is then vectored to in file cmdWorkers.py.
 '''
 
-import cmdWorkers  as cw
-import spiRoutines as sr
+import clockRoutines as cr
+import spiRoutines   as sr
+import testRoutines  as tr
 import cmds
 #############################################################################
 
@@ -16,7 +17,7 @@ def killSrvr(): # The ks handled directly in the handleClient func so it
 #############################################################################
 
 def getVer():
-    VER = ' v0.0.11 - 5-Mar-2025'
+    VER = ' v0.0.12 - 5-Mar-2025'
     return [VER]
 #############################################################################
 
@@ -36,13 +37,13 @@ def vector(inputStr): # called from handleClient. inputStr from client.
     'sbl'  : { 'func': sr.setBackLight, 'parm': [0], 
                'menu': 'Set Backlight'                     },
 
-    'rt'   : { 'func': sr.runTest,      'parm': None,     
+    'rt'   : { 'func': tr.runTest,      'parm': None,     
                'menu': 'Run Test'                          },
 
-    'cc'   : { 'func': cw.calClk,       'parm': [11],    
+    'cc'   : { 'func': cr.calClk,       'parm': [11],    
                'menu': 'Cal   Clock'                       },
 
-    'sc'   : { 'func': cw.startClk,     'parm': [3,45,0], 
+    'sc'   : { 'func': cr.startClk,     'parm': [3,45,0], 
                'menu': 'Start Clock'                       },
 
     'ks'   : { 'func': killSrvr,        'parm': None,     

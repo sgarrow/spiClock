@@ -1,8 +1,8 @@
-import pprint as pp
 import time
-import datetime
 import statistics
-import cfgDict as cd
+import pprint   as pp
+import datetime as dt
+import cfgDict  as cd
 #############################################################################
 
 # On the second Sunday in March, clocks are set ahead one hour at 2:00 a.m.
@@ -25,7 +25,7 @@ def startClk(prmLst):
     print(' calibratedOneSecTime  = {:11.6f}'.format(calibratedOneSecTime))
 
     while True:
-        now = datetime.datetime.now()
+        now = dt.datetime.now()
         print(now)
         #year = now.year
         #month = now.month
@@ -46,8 +46,8 @@ def startClk(prmLst):
     while True:
 
         if seconds % 15 == 0:
-            now = datetime.datetime.now()
-            currTime = now.strftime("%H:%M:%S")
+            now = dt.datetime.now()
+            currTime = now.strftime('%H:%M:%S')
             print('{:02}:{:02}:{:02} =? {}'.\
                 format( hours, minutes, seconds, currTime ))
         time.sleep( calibratedOneSecTime ) # rawMedianCalOneSec
@@ -63,14 +63,14 @@ def startClk(prmLst):
             hours    = 0
 #############################################################################
 
-def medianFilter(data, window_size):
-    if window_size % 2 == 0:
-        raise ValueError("Window size must be odd")
+def medianFilter(data, windowSize):
+    if windowSize % 2 == 0:
+        raise ValueError('Window size must be odd')
 
     tempList = []
     for i in range(len(data)):
-        start = max(0, i - window_size // 2)
-        end = min(len(data), i + window_size // 2 + 1)
+        start = max(0, i - windowSize // 2)
+        end = min(len(data), i + windowSize // 2 + 1)
         window = sorted(data[start:end])
         tempList.append(window[len(window) // 2])
     return tempList
@@ -161,20 +161,6 @@ def calClk(prmLst):
     return[rspStr]
 #############################################################################
 
-'''
-Simple module that contains only one function that returns the date and time.
-It can be called from the program's main prompt (gt command).
-It's also called from the function rp (Run (active) Profile).
-
-rp is in file runActProfRtns.py and it is an ifinite loop that continually
-reads the date/time and compares it the the profile to see if a relay should
-be opened or closed ... rp is the whole point of this project ...
-
-The infinite can be exited with the sp (Stop Profile) command.
-'''
-
-import datetime as dt
-
 def getTimeDate( prnEn = True ):
     now = dt.datetime.now()
 
@@ -210,4 +196,3 @@ def getTimeDate( prnEn = True ):
 
     return [rspStr, rtnDict]
 #############################################################################
-
