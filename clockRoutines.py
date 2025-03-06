@@ -156,7 +156,7 @@ def calClk(prmLst):
 
     cfgDict = cd.updateCfgDict( cfgDict, clkCalDict=clkCalDict)
     cfgDict = cd.saveCfgDict(cfgDict)
-    rspStr  = pp.pformat(cfgDict)
+    rspStr  = pp.pformat(clkCalDict)
 
     return[rspStr]
 #############################################################################

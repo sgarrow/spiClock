@@ -1,4 +1,8 @@
 from PIL import Image, ImageDraw, ImageFont
+
+import time
+import cfgDict     as cd
+import spiRoutines as sr
 #############################################################################
 
 def makeColoredPRSLstsOfBytes(c):
@@ -38,7 +42,6 @@ def makePilTextImage(text, textColor, backgroundColor):
     #print('xPos       = {}'.format( xPos       ))
     #print('yPos       = {}'.format( yPos       ))
 
-    # Draw the text on the image.
     draw.text((xPos, yPos-100), text, font = font, fill = textColor )
 
     draw.rectangle( ( bbox[0] + xPos,
@@ -94,3 +97,34 @@ def makePilJpgPicImage(fName):
     byteLst = [byte for el in rgb565Lst for byte in (el >> 8, el & 0xFF)]
     return byteLst
 #############################################################################
+
+def makeDigitScreens(text, textColor, backgroundColor):
+    backgroundColor       = (  0,  0,  0)
+    textColor = (255,255,255)
+    digitScreenDict = {}
+    for text in ['0','1','2','3','4','5','6','7','8','9']:
+        digitScreenDict[text] = \
+            makePilTextImage(text, textColor, backgroundColor)
+
+    print('***',len(digitScreenDict))
+    print('***',len(digitScreenDict['0']))
+    cfgDict = cd.loadCfgDict()
+    cfgDict = cd.updateCfgDict( cfgDict, digitScreenDict=digitScreenDict)
+    cfgDict = cd.saveCfgDict(cfgDict)
+#############################################################################
+
+if __name__ == '__main__':
+
+    #makeDigitScreens(0, 0, 0)
+    cfgDict = cd.loadCfgDict()
+
+    sr.setBackLight([1]) # Turn on backlight.
+    sr.hwReset()         # HW Reset
+    sr.swReset()         # SW Reset and the display initialization.
+    for k in ['0','1','2','3','4','5','6','7','8','9']:
+        data = cfgDict['digitScreenDict'][k]
+        sr.setEntireDisplay(data, sr.sendDat2ToSt7789)
+        time.sleep(.75)
+    sr.setBackLight([0]) # Turn off backlight.
+    sr.hwReset()         # HW Reset
+

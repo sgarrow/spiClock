@@ -33,21 +33,22 @@ def runTest():
 
     # Test 2 - Fill w/ solid color via setOneRow using both sendFuncs.
     #          Use a different color for each screen fill.
-    print('Begin test 2')
-    pixLst    = [ bRowLst, wRowLst ]
-    for sf,pl in zip( sendFuncs, pixLst ):
-        kStart = time.time()
-        for row in range(320):
-            sr.setOneRow(row, pl, sf)
-        print( ' Filling Screen via ( {:16} using {:16}) took {:7.3f} sec'.\
-            format( 'setOneRow', sf.__name__, time.time() - kStart ))
-        time.sleep(1)
+    #print('Begin test 2')
+    #pixLst    = [ bRowLst, wRowLst ]
+    #for sf,pl in zip( sendFuncs, pixLst ):
+    #    kStart = time.time()
+    #    for row in range(320):
+    #        sr.setOneRow(row, pl, sf)
+    #    print( ' Filling Screen via ( {:16} using {:16}) took {:7.3f} sec'.\
+    #        format( 'setOneRow', sf.__name__, time.time() - kStart ))
+    #    time.sleep(1)
     ###################################################
 
     # Test 3 - Fill w/ solid color via setEntireDisplay sendFuncs.
     #          Use a different color for each screen fill.
     print('Begin test 3')
     pixLst    = [ rScrLst, gScrLst ]
+    pixLst    = [ rScrLst ]
     for sf,pl in zip( sendFuncs, pixLst ):
         kStart = time.time()
         sr.setEntireDisplay(pl, sf)
@@ -59,27 +60,27 @@ def runTest():
     # Test 4 - Fill w/ PIL text image.
     print('Begin test 4')
     for text in ['1','2','3','4','5']:
-        textColor       = (255,255,255)
-        backgroundColor = (  0,  0,  0)
+        textColor       = (  0,  0,  0)
+        backgroundColor = (255,255,255)
         data = ms.makePilTextImage(text, textColor, backgroundColor)
         sr.setEntireDisplay(data, sr.sendDat2ToSt7789)
         time.sleep(1)
 
     # Test 5 - Fill w/ rgb image.
-    print('Begin test 5')
-    rgb565Lst = []
-    data = ms.makePilRgbPicImage('240x320.rgb')
-    sr.setEntireDisplay(data, sr.sendDat2ToSt7789)
-    time.sleep(3)
+    #print('Begin test 5')
+    #rgb565Lst = []
+    #data = ms.makePilRgbPicImage('240x320.rgb')
+    #sr.setEntireDisplay(data, sr.sendDat2ToSt7789)
+    #time.sleep(3)
 
     # Test 6 - Fill w/ jpeg image.
-    print('Begin test 6')
-    data = ms.makePilJpgPicImage('240x320.jpg')
-    sr.setEntireDisplay(data, sr.sendDat2ToSt7789)
-    time.sleep(3)
+    #print('Begin test 6')
+    #data = ms.makePilJpgPicImage('240x320.jpg')
+    #sr.setEntireDisplay(data, sr.sendDat2ToSt7789)
+    #time.sleep(3)
 
-    sr.setEntireDisplay(wScrLst, sr.sendDat2ToSt7789)
-    sr.setBackLight([0]) # Turn off backlight.
+    #sr.setEntireDisplay(wScrLst, sr.sendDat2ToSt7789)
+    #sr.setBackLight([0]) # Turn off backlight.
 
     return ['Test Complete']
 #############################################################################

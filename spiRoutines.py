@@ -22,6 +22,7 @@ CS_PIN   = 'J8:24'           # Yellow.
 # Open up the SPI channel (global to this script).
 spi = spidev.SpiDev()
 spi.open(0, 0)               # Open SPI bus 0, device 0 (CE0).
+#print('open')
 spi.mode = 0b00              # SPI mode 0, CPOL = 0, CPHA = 0.
 spi.max_speed_hz = 20000000  # max = 20000000
 #############################################################################
