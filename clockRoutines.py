@@ -1,8 +1,9 @@
 import time
 import statistics
-import pprint   as pp
-import datetime as dt
-import cfgDict  as cd
+import pprint      as pp
+import datetime    as dt
+import cfgDict     as cd
+import spiRoutines as sr
 #############################################################################
 
 # On the second Sunday in March, clocks are set ahead one hour at 2:00 a.m.
@@ -12,35 +13,44 @@ import cfgDict  as cd
 
 def startClk(prmLst):
 
-    hours   = int(prmLst[0])
-    minutes = int(prmLst[1])
-    seconds = int(prmLst[2])
+    if len(prmLst) == 3:
+        hours   = int(prmLst[0])
+        minutes = int(prmLst[1])
+        seconds = int(prmLst[2])
+        while True:
+            #time.sleep(.001)
+            time.sleep(.2)
+            now = dt.datetime.now()
+            print(now)
+            #year = now.year
+            #month = now.month
+            #day = now.day
+            hour = now.hour
+            minute = now.minute
+            second = now.second
+            #microsecond = now.microsecond
+            if ( hours  == hour and minute == minutes and second == seconds ):
+                break
+    else:
+        hours   = 0
+        minutes = 0
+        seconds = 0
 
-    cfgDict = cd.loadCfgDict()
-    try:
-        calibratedOneSecTime = \
-        cfgDict['clkCalDict']['calibrated1Sec'][cfgDict['clkCalDict']['keyToRunWith']]
-    except:
-        calibratedOneSecTime = 1
+
+    sr.setBackLight([1]) # Turn on backlight.
+    sr.hwReset()         # HW Reset
+    sr.swReset()         # SW Reset and the display initialization.
+
+    #try:
+    cfgDict   = cd.loadCfgDict()
+    clockDict = cfgDict['clkCalDict']
+    pp.pprint(clockDict)
+    digitDict = cfgDict['digitScreenDict']
+    calibratedOneSecTime = clockDict['calibrated1Sec'][clockDict['keyToRunWith']]
+    #except:
+    calibratedOneSecTime = 1
+    #digitDict = None
     print(' calibratedOneSecTime  = {:11.6f}'.format(calibratedOneSecTime))
-
-    while True:
-        now = dt.datetime.now()
-        print(now)
-        #year = now.year
-        #month = now.month
-        #day = now.day
-        hour = now.hour
-        minute = now.minute
-        second = now.second
-        #microsecond = now.microsecond
-
-        if ( hours  == hour and minute == minutes and second == seconds ):
-            break
-
-        #time.sleep(.001)
-        time.sleep(.2)
-
     print(calibratedOneSecTime)
 
     while True:
@@ -61,6 +71,12 @@ def startClk(prmLst):
             hours   += 1
         if hours    == 24:
             hours    = 0
+
+        secLSD = str(seconds % 10)
+        print(secLSD)
+        if digitDict:
+            data = digitDict[secLSD]
+            sr.setEntireDisplay(data, sr.sendDat2ToSt7789)
 #############################################################################
 
 def medianFilter(data, windowSize):
@@ -196,3 +212,6 @@ def getTimeDate( prnEn = True ):
 
     return [rspStr, rtnDict]
 #############################################################################
+
+if __name__ == '__main__':
+    startClk([])

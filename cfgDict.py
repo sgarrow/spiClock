@@ -29,7 +29,7 @@ def updateCfgDict(cfgDict, **kwargs):
 def runTest():
 
     cfgDict = loadCfgDict()
-    pp.pprint(cfgDict)
+    pp.pprint(cfgDict.keys())
 #############################################################################
 
 if __name__ == '__main__':

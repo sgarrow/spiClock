@@ -115,7 +115,7 @@ def makeDigitScreens(text, textColor, backgroundColor):
 
 if __name__ == '__main__':
 
-    #makeDigitScreens(0, 0, 0)
+    makeDigitScreens(0, 0, 0)
     cfgDict = cd.loadCfgDict()
 
     sr.setBackLight([1]) # Turn on backlight.
