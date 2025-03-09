@@ -1,82 +1,148 @@
 import time
 import statistics
-import pprint      as pp
-import datetime    as dt
-import cfgDict     as cd
-import spiRoutines as sr
+import pprint          as pp
+import datetime        as dt
+import multiprocessing as mp
+import cfgDict         as cd
+import spiRoutines     as sr
 #############################################################################
 
-# On the second Sunday in March, clocks are set ahead one hour at 2:00 a.m.
-# local standard time (which becomes 3:00 a.m. local Daylight Saving Time).
-# On the first Sunday in November, clocks are set back one hour at 2:00 a.m.
-# local Daylight Saving Time (which becomes 1:00 a.m. local standard time).
+def lcdUpdateProc( threadName, qLst, digitDict ):
 
-def startClk(prmLst):
-
-    if len(prmLst) == 3:
-        hours   = int(prmLst[0])
-        minutes = int(prmLst[1])
-        seconds = int(prmLst[2])
-        while True:
-            #time.sleep(.001)
-            time.sleep(.2)
-            now = dt.datetime.now()
-            print(now)
-            #year = now.year
-            #month = now.month
-            #day = now.day
-            hour = now.hour
-            minute = now.minute
-            second = now.second
-            #microsecond = now.microsecond
-            if ( hours  == hour and minute == minutes and second == seconds ):
-                break
-    else:
-        hours   = 0
-        minutes = 0
-        seconds = 0
-
+    lcdCq = qLst[0]
+    lcdRq = qLst[1]
+    clkCq = qLst[2]
+    clkRq = qLst[3]
 
     sr.setBackLight([1]) # Turn on backlight.
     sr.hwReset()         # HW Reset
     sr.swReset()         # SW Reset and the display initialization.
 
-    #try:
-    cfgDict   = cd.loadCfgDict()
-    clockDict = cfgDict['clkCalDict']
-    pp.pprint(clockDict)
-    digitDict = cfgDict['digitScreenDict']
-    calibratedOneSecTime = clockDict['calibrated1Sec'][clockDict['keyToRunWith']]
-    #except:
-    calibratedOneSecTime = 1
-    #digitDict = None
-    print(' calibratedOneSecTime  = {:11.6f}'.format(calibratedOneSecTime))
-    print(calibratedOneSecTime)
+    while True:
+
+        digit  = lcdCq.get() # Block here.
+        kStart = time.perf_counter()
+        data   = digitDict[digit]
+        sr.setEntireDisplay(data, sr.sendDat2ToSt7789)
+
+        lcdRq.put( ' updateAnLCD   loop time {:.6f} sec.'.\
+                format(time.perf_counter()-kStart)
+              )
+#############################################################################
+
+def clockCntrProc( threadName, qLst, clockDict, startTime ):
+
+    lcdCq = qLst[0]
+    lcdRq = qLst[1]
+    clkCq = qLst[2]
+    clkRq = qLst[3]
+
+    if len(startTime) == 3:
+        hours   = int(startTime[0])
+        minutes = int(startTime[1])
+        seconds = int(startTime[2])
+        while True:
+            time.sleep(.2)
+            now = dt.datetime.now()
+            print(now)
+            hour   = now.hour
+            minute = now.minute
+            second = now.second
+            if (hours == hour and minute == minutes and second == seconds):
+                break
+    else:
+        hours, minutes, seconds = 0,0,0
+
+    calTime = clockDict['calibrated1Sec'][clockDict['keyToRunWith']]
+    print('ct = ',calTime)
 
     while True:
 
-        if seconds % 15 == 0:
-            now = dt.datetime.now()
-            currTime = now.strftime('%H:%M:%S')
-            print('{:02}:{:02}:{:02} =? {}'.\
-                format( hours, minutes, seconds, currTime ))
-        time.sleep( calibratedOneSecTime ) # rawMedianCalOneSec
-        seconds += 1
+        kStart = time.perf_counter()
+        try:
+            #if seconds % 15 == 0:
+            #    now = dt.datetime.now()
+            #    currTime = now.strftime('%H:%M:%S')
+            #    print('{:02}:{:02}:{:02} =? {}'.\
+            #        format( hours, minutes, seconds, currTime ))
+    
+            time.sleep( calTime )
+            seconds += 1
+    
+            if seconds  == 60:
+                seconds  = 0
+                minutes += 1
+            if minutes  == 60:
+                minutes  = 0
+                hours   += 1
+            if hours    == 24:
+                hours    = 0
+    
+            secLSD = str(seconds % 10)
+            lcdCq.put(secLSD)
+    
+            try:
+                rsp = lcdRq.get_nowait()  # Non-blocking get
+                print(rsp)
+            except mp.queues.Empty:
+                pass
 
-        if seconds  == 60:
-            seconds  = 0
-            minutes += 1
-        if minutes  == 60:
-            minutes  = 0
-            hours   += 1
-        if hours    == 24:
-            hours    = 0
+        except Exception as e:
+            print('clockCntrProc exception')
+            print(e.message, e.args)
+            break
 
-        secLSD = str(seconds % 10)
-        print(secLSD)
-        if digitDict:
-            data = digitDict[secLSD]
-            sr.setEntireDisplay(data, sr.sendDat2ToSt7789)
+        print( ' clockCntrProc loop time {:.6f} sec.'.\
+                format(time.perf_counter()-kStart))
+#############################################################################
+
+def startLcdUpdateProc( qLst, digitDict ):
+    procLst = []
+    for _ in range(1):
+        # Cannot access return value from proc directly.
+        proc = mp.Process(
+               target = lcdUpdateProc,
+               args   = ( 'lcdUpdateProc',  # Process Name.
+                          qLst,             # [lcdCq,lcdRq,clkCq,clkRq]
+                          digitDict ))      # Dict of LCD Display Data.
+
+        proc.daemon = True
+        proc.start()
+        procLst.append(proc)
+    #for p in procLst:
+    #    p.join()
+#############################################################################
+
+def startClockCntrProc( qLst, clockDict, startTime ):
+    procLst = []
+    for _ in range(1):
+        # Cannot access return value from proc directly.
+        proc = mp.Process(
+               target = clockCntrProc,
+               args   = ( 'clockCntrProc',  # Process Name.
+                          qLst,             # [lcdCq,lcdRq,clkCq,clkRq]
+                          clockDict,        # Cal'd wait time.
+                          startTime ))      # start time.
+        proc.daemon = True
+        proc.start()
+        procLst.append(proc)
+    #for p in procLst:
+    #    p.join()
+#############################################################################
+
+def startClk(prmLst):
+    startTime = prmLst[0]
+    qLst      = prmLst[1]
+    try:
+        cfgDict   = cd.loadCfgDict()
+        digitDict = cfgDict['digitScreenDict']
+        clockDict = cfgDict['clkCalDict']
+    except:
+        return ['clock not started.']
+    startLcdUpdateProc( qLst, digitDict )
+    time.sleep(1)
+    startClockCntrProc( qLst, clockDict,  startTime )
+    return ['clock started.' ]
 #############################################################################
 
 def medianFilter(data, windowSize):
@@ -214,4 +280,19 @@ def getTimeDate( prnEn = True ):
 #############################################################################
 
 if __name__ == '__main__':
-    startClk([])
+
+    lcdCqMain = mp.Queue()    # LCD Cmd Q. mp queue must be used here.
+    lcdRqMain = mp.Queue()    # LCD Rsp Q. mp queue must be used here.
+    clkCqMain = mp.Queue()    # CLK Cmd Q. mp queue must be used here.
+    clkRqMain = mp.Queue()    # CLK Rsp Q. mp queue must be used here.
+
+    rsp = startClk([ [], [lcdCqMain,lcdRqMain,clkCqMain,clkRqMain] ])
+    print([rsp])
+
+    while True:
+        try:
+            print('main looping')
+            time.sleep(10)
+        except:
+            sr.hwReset()         # HW Reset
+

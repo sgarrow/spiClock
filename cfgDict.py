@@ -30,7 +30,9 @@ def runTest():
 
     cfgDict = loadCfgDict()
     pp.pprint(cfgDict.keys())
+    pp.pprint(cfgDict['digitScreenDict'].keys())
 #############################################################################
 
 if __name__ == '__main__':
     runTest()
+

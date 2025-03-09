@@ -106,8 +106,6 @@ def makeDigitScreens(text, textColor, backgroundColor):
         digitScreenDict[text] = \
             makePilTextImage(text, textColor, backgroundColor)
 
-    print('***',len(digitScreenDict))
-    print('***',len(digitScreenDict['0']))
     cfgDict = cd.loadCfgDict()
     cfgDict = cd.updateCfgDict( cfgDict, digitScreenDict=digitScreenDict)
     cfgDict = cd.saveCfgDict(cfgDict)
@@ -127,4 +125,3 @@ if __name__ == '__main__':
         time.sleep(.75)
     sr.setBackLight([0]) # Turn off backlight.
     sr.hwReset()         # HW Reset
-

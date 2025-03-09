@@ -5,19 +5,26 @@ function "vector" (in this file) and the appropriate "worker" function
 is then vectored to in file cmdWorkers.py.
 '''
 
+import multiprocessing as mp
 import clockRoutines as cr
 import spiRoutines   as sr
 import testRoutines  as tr
 import cmds
 #############################################################################
 
-def killSrvr(): # The ks handled directly in the handleClient func so it
-    return      # doesn't need a wrk funct, but because of the way vectoring
-                # is done a func needs to exist. This func never called/runs.
+lcdCq = mp.Queue() # LCD Cmd Q. mp queue must be used here.
+lcdRq = mp.Queue() # LCD Rsp Q. mp queue must be used here.
+clkCq = mp.Queue() # CLK Cmd Q. mp queue must be used here.
+clkRq = mp.Queue() # CLK Rsp Q. mp queue must be used here.
+#############################################################################
+
+def killSrvr():    # The ks handled directly in the handleClient func so it
+    return         # doesn't need a wrk funct, but because of way vectoring
+                   # is done a func needs to exist. Func never called/runs.
 #############################################################################
 
 def getVer():
-    VER = ' v0.0.14 - 5-Mar-2025'
+    VER = ' v0.1.0 - 9-Mar-2025'
     return [VER]
 #############################################################################
 
@@ -42,8 +49,11 @@ def vector(inputStr): # called from handleClient. inputStr from client.
 
     'cc'   : { 'func': cr.calClk,       'parm': [11],    
                'menu': 'Cal   Clock'                       },
+    
 
-    'sc'   : { 'func': cr.startClk,     'parm': [3,45,0], 
+    'sc'   : { 'func': cr.startClk,     'parm': [ [3,45,0], 
+                                                  [lcdCq,lcdRq,clkCq,clkRq]
+                                                ], 
                'menu': 'Start Clock'                       },
 
     'ks'   : { 'func': killSrvr,        'parm': None,     
