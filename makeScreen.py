@@ -20,7 +20,7 @@ def makeColoredPRSLstsOfBytes(c):
 
 def makePilTextImage(text, textColor, backgroundColor):
 
-    font = ImageFont.truetype('Font00.ttf' , 300)  # Set font size to 80
+    font = ImageFont.truetype('fonts/Font00.ttf' , 300)  # Set font size to 80
 
     # Create an RGB image with white background.
     image = Image.new('RGB', (240, 320), backgroundColor)

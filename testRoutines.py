@@ -67,20 +67,20 @@ def runTest():
         time.sleep(1)
 
     # Test 5 - Fill w/ rgb image.
-    #print('Begin test 5')
-    #rgb565Lst = []
-    #data = ms.makePilRgbPicImage('240x320.rgb')
-    #sr.setEntireDisplay(data, sr.sendDat2ToSt7789)
-    #time.sleep(3)
+    print('Begin test 5')
+    rgb565Lst = []
+    data = ms.makePilRgbPicImage('pics/240x320.rgb')
+    sr.setEntireDisplay(data, sr.sendDat2ToSt7789)
+    time.sleep(3)
 
     # Test 6 - Fill w/ jpeg image.
-    #print('Begin test 6')
-    #data = ms.makePilJpgPicImage('240x320.jpg')
-    #sr.setEntireDisplay(data, sr.sendDat2ToSt7789)
-    #time.sleep(3)
+    print('Begin test 6')
+    data = ms.makePilJpgPicImage('pics/240x320.jpg')
+    sr.setEntireDisplay(data, sr.sendDat2ToSt7789)
+    time.sleep(3)
 
-    #sr.setEntireDisplay(wScrLst, sr.sendDat2ToSt7789)
-    #sr.setBackLight([0]) # Turn off backlight.
+    sr.setEntireDisplay(wScrLst, sr.sendDat2ToSt7789)
+    sr.setBackLight([0]) # Turn off backlight.
 
     return ['Test Complete']
 #############################################################################

@@ -24,7 +24,7 @@ def killSrvr():    # The ks handled directly in the handleClient func so it
 #############################################################################
 
 def getVer():
-    VER = ' v0.1.0 - 9-Mar-2025'
+    VER = ' v0.1.1 - 9-Mar-2025'
     return [VER]
 #############################################################################
 
@@ -47,11 +47,7 @@ def vector(inputStr): # called from handleClient. inputStr from client.
     'rt'   : { 'func': tr.runTest,      'parm': None,     
                'menu': 'Run Test'                          },
 
-    'cc'   : { 'func': cr.calClk,       'parm': [11],    
-               'menu': 'Cal   Clock'                       },
-    
-
-    'sc'   : { 'func': cr.startClk,     'parm': [ [3,45,0], 
+    'sc'   : { 'func': cr.startClk,     'parm': [ [0,0,0], 
                                                   [lcdCq,lcdRq,clkCq,clkRq]
                                                 ], 
                'menu': 'Start Clock'                       },
@@ -75,9 +71,9 @@ def vector(inputStr): # called from handleClient. inputStr from client.
         func   = vectorDict[choice]['func']
         params = vectorDict[choice]['parm']
 
-        if choice in ['sc', 'sw']:
+        if choice in ['sc']:
             if len(optArgsStr) == 3:
-                params = optArgsStr
+                params[0] = optArgsStr
 
         if choice in ['cc', 'sbl']:
             if len(optArgsStr) == 1:
