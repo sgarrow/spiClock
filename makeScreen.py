@@ -1,6 +1,5 @@
-from PIL import Image, ImageDraw, ImageFont
-
 import time
+from PIL import Image, ImageDraw, ImageFont
 import cfgDict     as cd
 import spiRoutines as sr
 #############################################################################
@@ -51,7 +50,7 @@ def makePilTextImage(text, textColor, backgroundColor):
 
                       outline='red' )
 
-    width, height = image.size
+    #width, height = image.size
     pixels = list(image.getdata())
     rgb565Lst = []
 
@@ -102,9 +101,9 @@ def makeDigitScreens(text, textColor, backgroundColor):
     backgroundColor       = (  0,  0,  0)
     textColor = (255,255,255)
     digitScreenDict = {}
-    for text in ['0','1','2','3','4','5','6','7','8','9']:
-        digitScreenDict[text] = \
-            makePilTextImage(text, textColor, backgroundColor)
+    for t in ['0','1','2','3','4','5','6','7','8','9']:
+        digitScreenDict[t] = \
+            makePilTextImage(t, textColor, backgroundColor)
 
     cfgDict = cd.loadCfgDict()
     cfgDict = cd.updateCfgDict( cfgDict, digitScreenDict=digitScreenDict)
@@ -114,13 +113,13 @@ def makeDigitScreens(text, textColor, backgroundColor):
 if __name__ == '__main__':
 
     makeDigitScreens(0, 0, 0)
-    cfgDict = cd.loadCfgDict()
+    cfgDic = cd.loadCfgDict()
 
     sr.setBackLight([1]) # Turn on backlight.
     sr.hwReset()         # HW Reset
     sr.swReset()         # SW Reset and the display initialization.
     for k in ['0','1','2','3','4','5','6','7','8','9']:
-        data = cfgDict['digitScreenDict'][k]
+        data = cfgDic['digitScreenDict'][k]
         sr.setEntireDisplay(data, sr.sendDat2ToSt7789)
         time.sleep(.75)
     sr.setBackLight([0]) # Turn off backlight.

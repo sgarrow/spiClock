@@ -17,7 +17,7 @@ def listThreads(): # Daemon to startServer, terminates w/ kill server (ks).
         print(' Active Threads: ')
         for t in threading.enumerate():
             print('   Name: {} Daemon: {} ID: {} Target: {}'.\
-                format( t.name, t.daemon, t.ident, 
+                format( t.name, t.daemon, t.ident,
                         getattr(t, '_target', None)))
 
         print(' ##################')

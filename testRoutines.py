@@ -19,29 +19,29 @@ def runTest():
 
     # Test 1 - Fill w/ solid color via setOneRow using both sendFuncs.
     #          Use a different color for each screen fill.
-    #print('Begin test 1')
-    #
-    #pixLst    = [ rPixLst, gPixLst ]
-    #for sf,pl in zip( sendFuncs, pixLst ):
-    #    kStart = time.time()
-    #    for row in range(32):
-    #        for col in range(24):
-    #            sr.setOnePixel(row, col, pl, sf)
-    #    print( ' Filling Screen via ( {:16} using {:16}) took {:7.3f} sec'.\
-    #        format( 'setOnePixel', sf.__name__, time.time() - kStart ))
+    print('Begin test 1')
+
+    pixLst    = [ rPixLst, gPixLst ]
+    for sf,pl in zip( sendFuncs, pixLst ):
+        kStart = time.time()
+        for row in range(32):
+            for col in range(24):
+                sr.setOnePixel(row, col, pl, sf)
+        print( ' Filling Screen via ( {:16} using {:16}) took {:7.3f} sec'.\
+            format( 'setOnePixel', sf.__name__, time.time() - kStart ))
     ##################################################
 
     # Test 2 - Fill w/ solid color via setOneRow using both sendFuncs.
     #          Use a different color for each screen fill.
-    #print('Begin test 2')
-    #pixLst    = [ bRowLst, wRowLst ]
-    #for sf,pl in zip( sendFuncs, pixLst ):
-    #    kStart = time.time()
-    #    for row in range(320):
-    #        sr.setOneRow(row, pl, sf)
-    #    print( ' Filling Screen via ( {:16} using {:16}) took {:7.3f} sec'.\
-    #        format( 'setOneRow', sf.__name__, time.time() - kStart ))
-    #    time.sleep(1)
+    print('Begin test 2')
+    pixLst    = [ bRowLst, wRowLst ]
+    for sf,pl in zip( sendFuncs, pixLst ):
+        kStart = time.time()
+        for row in range(320):
+            sr.setOneRow(row, pl, sf)
+        print( ' Filling Screen via ( {:16} using {:16}) took {:7.3f} sec'.\
+            format( 'setOneRow', sf.__name__, time.time() - kStart ))
+        time.sleep(1)
     ###################################################
 
     # Test 3 - Fill w/ solid color via setEntireDisplay sendFuncs.
@@ -68,7 +68,6 @@ def runTest():
 
     # Test 5 - Fill w/ rgb image.
     print('Begin test 5')
-    rgb565Lst = []
     data = ms.makePilRgbPicImage('pics/240x320.rgb')
     sr.setEntireDisplay(data, sr.sendDat2ToSt7789)
     time.sleep(3)

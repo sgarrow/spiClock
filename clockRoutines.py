@@ -1,5 +1,4 @@
 import time
-import pprint          as pp
 import datetime        as dt
 import multiprocessing as mp
 import cfgDict         as cd
@@ -8,6 +7,8 @@ import makeScreen      as ms
 #############################################################################
 
 def lcdUpdateProc( procName, qLst, digitDict ):
+
+    print(procName)
 
     lcdCq = qLst[0]
     lcdRq = qLst[1]
@@ -31,6 +32,7 @@ def lcdUpdateProc( procName, qLst, digitDict ):
 #############################################################################
 
 def clockCntrProc( procName, qLst, startTime ):
+    print(procName)
     print(startTime )
 
     lcdCq = qLst[0]
@@ -70,10 +72,9 @@ def clockCntrProc( procName, qLst, startTime ):
 
         kStart = time.perf_counter()
 
-    
         time.sleep( calTime )
         seconds += 1
-    
+
         if seconds  == 60:
             seconds  = 0
             minutes += 1
@@ -82,10 +83,10 @@ def clockCntrProc( procName, qLst, startTime ):
             hours   += 1
         if hours    == 24:
             hours    = 0
-    
+
         secLSD = str(seconds % 10)
         lcdCq.put(secLSD)
-    
+
         try:
             rsp = lcdRq.get_nowait()  # Non-blocking get
             #print(rsp)
@@ -93,7 +94,7 @@ def clockCntrProc( procName, qLst, startTime ):
             pass
 
         actNumDataPoints += 1
-        actTime = time.perf_counter()-kStart  
+        actTime = time.perf_counter()-kStart
 
         if actNumDataPoints <= dsrNumDataPoints:
             cumSumLoopTime  += actTime
@@ -208,13 +209,13 @@ if __name__ == '__main__':
     clkCqMain = mp.Queue()    # CLK Cmd Q. mp queue must be used here.
     clkRqMain = mp.Queue()    # CLK Rsp Q. mp queue must be used here.
 
-    rsp = startClk( 
-                    [ 
-                      [ ], 
+    resp = startClk(
+                    [
+                      [ ],
                       [ lcdCqMain,lcdRqMain,clkCqMain,clkRqMain ]
                     ]
                   )
-    print([rsp])
+    print([resp])
 
     while True:
         try:
@@ -222,4 +223,3 @@ if __name__ == '__main__':
             time.sleep(1)
         except:
             sr.hwReset()         # HW Reset
-
