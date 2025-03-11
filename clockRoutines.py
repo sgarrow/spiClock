@@ -1,10 +1,10 @@
 import time
-import statistics
 import pprint          as pp
 import datetime        as dt
 import multiprocessing as mp
 import cfgDict         as cd
 import spiRoutines     as sr
+import makeScreen      as ms
 #############################################################################
 
 def lcdUpdateProc( procName, qLst, digitDict ):
@@ -52,7 +52,12 @@ def clockCntrProc( procName, qLst, startTime ):
             if (hours == hour and minute == minutes and second == seconds):
                 break
     else:
-        hours, minutes, seconds = 0,0,0
+        now = dt.datetime.now()
+        print(now)
+        hour   = now.hour
+        minute = now.minute
+        second = now.second
+        hours, minutes, seconds = hour, minute, second
 
     calTime = 1
     print('ct = ',calTime)
@@ -106,7 +111,7 @@ def clockCntrProc( procName, qLst, startTime ):
                 format( hours, minutes, seconds, currTime ))
             print( ' time (req,act) = ({:.6f}, {:.6f}) sec. Num points = {}.'.\
                     format(calTime,actTime,actNumDataPoints))
-#############################################################################
+##############################################################################
 
 def startLcdUpdateProc( qLst, digitDict ):
     procLst = []
@@ -125,7 +130,7 @@ def startLcdUpdateProc( qLst, digitDict ):
     #    p.join()
 #############################################################################
 
-def startClockCntrProc( qLst, clockDict, startTime ):
+def startClockCntrProc( qLst, startTime ):
     procLst = []
     for _ in range(1):
         # Cannot access return value from proc directly.
@@ -144,11 +149,16 @@ def startClockCntrProc( qLst, clockDict, startTime ):
 def startClk(prmLst):
     startTime = prmLst[0]
     qLst      = prmLst[1]
-    #try:
-    cfgDict   = cd.loadCfgDict()
-    digitDict = cfgDict['digitScreenDict']
-    #except:
-    #    return ['clock not started.']
+
+    try:
+        cfgDict   = cd.loadCfgDict()
+        digitDict = cfgDict['digitScreenDict']
+    except:
+        print(' making screens')
+        ms.makeDigitScreens(0, 0, 0)
+        cfgDict   = cd.loadCfgDict()
+        digitDict = cfgDict['digitScreenDict']
+
     startLcdUpdateProc( qLst, digitDict )
     time.sleep(1)
     startClockCntrProc( qLst, startTime )
@@ -209,7 +219,7 @@ if __name__ == '__main__':
     while True:
         try:
             #print('main looping')
-            time.sleep(10)
+            time.sleep(1)
         except:
             sr.hwReset()         # HW Reset
 

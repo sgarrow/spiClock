@@ -16,6 +16,7 @@ lcdCq = mp.Queue() # LCD Cmd Q. mp queue must be used here.
 lcdRq = mp.Queue() # LCD Rsp Q. mp queue must be used here.
 clkCq = mp.Queue() # CLK Cmd Q. mp queue must be used here.
 clkRq = mp.Queue() # CLK Rsp Q. mp queue must be used here.
+qs    = [ lcdCq, lcdRq, clkCq, clkRq ]
 #############################################################################
 
 def killSrvr():    # The ks handled directly in the handleClient func so it
@@ -24,7 +25,7 @@ def killSrvr():    # The ks handled directly in the handleClient func so it
 #############################################################################
 
 def getVer():
-    VER = ' v0.1.1 - 9-Mar-2025'
+    VER = ' v0.1.2 - 9-Mar-2025'
     return [VER]
 #############################################################################
 
@@ -32,28 +33,13 @@ def vector(inputStr): # called from handleClient. inputStr from client.
 
     # This dictionary embodies the worker function vector (and menu) info.
     vectorDict = {
-    'cmds' : { 'func': cmds.cmds,       'parm': None,     
-               'menu': 'List Commands'                     },
-
-    'hr'   : { 'func': sr.hwReset,      'parm': None,     
-               'menu': 'HW Reset'                          },
-
-    'sr'   : { 'func': sr.swReset,      'parm': None,     
-               'menu': 'SW Reset'                          },
-
-    'sbl'  : { 'func': sr.setBackLight, 'parm': [0], 
-               'menu': 'Set Backlight'                     },
-
-    'rt'   : { 'func': tr.runTest,      'parm': None,     
-               'menu': 'Run Test'                          },
-
-    'sc'   : { 'func': cr.startClk,     'parm': [ [0,0,0], 
-                                                  [lcdCq,lcdRq,clkCq,clkRq]
-                                                ], 
-               'menu': 'Start Clock'                       },
-
-    'ks'   : { 'func': killSrvr,        'parm': None,     
-               'menu': 'Kill Server'                       }
+    'cmds':{'func':cmds.cmds,      'parm':None,   'menu': 'List Commands'},
+    'hr'  :{'func':sr.hwReset,     'parm':None,   'menu': 'HW Reset'     },
+    'sr'  :{'func':sr.swReset,     'parm':None,   'menu': 'SW Reset'     },
+    'sbl' :{'func':sr.setBackLight,'parm':[0],    'menu': 'Set Backlight'},
+    'rt'  :{'func':tr.runTest,     'parm':None,   'menu': 'Run Test'     },
+    'sc'  :{'func':cr.startClk,    'parm':[[],qs],'menu': 'Start Clock'  },
+    'ks'  :{'func':killSrvr,       'parm':None,   'menu': 'Kill Server'  }
     }
 
     # Process the string (command) passed to this function via the call

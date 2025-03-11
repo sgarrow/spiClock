@@ -4,21 +4,26 @@ import queue               # For Killing Server.
 import time                # For Killing Server and listThreads.
 import clockRoutines as cr
 import cmdVectors    as cv # Contains vectors to "worker" functions.
-
 openSocketsLst = []        # Needed for processing close and ks commands.
 #############################################################################
 
 def listThreads(): # Daemon to startServer, terminates w/ kill server (ks).
     while True:
-        time.sleep(60*60*24*7) # Once a week.
+
+        time.sleep(5)
+        #time.sleep(60*60*24*7) # Once a week.
+
+        print(' ##################')
         print(' Active Threads: ')
         for t in threading.enumerate():
-            print('   {}'.format(t.name))
+            print('   Name: {} Daemon: {} ID: {} Target: {}'.\
+                format( t.name, t.daemon, t.ident, 
+                        getattr(t, '_target', None)))
+
         print(' ##################')
         print(' Open Sockets: ')
         for openS in openSocketsLst:
             print('   {}'.format(openS['ca']))
-        print(' ##################')
 #############################################################################
 
 def processCloseCmd(clientSocket, clientAddress):
