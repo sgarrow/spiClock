@@ -31,6 +31,7 @@ def lcdUpdateProc( procName, qLst, digitDict ):
 #############################################################################
 
 def clockCntrProc( procName, qLst, startTime ):
+    print(startTime )
 
     lcdCq = qLst[0]
     lcdRq = qLst[1]
@@ -143,11 +144,11 @@ def startClockCntrProc( qLst, clockDict, startTime ):
 def startClk(prmLst):
     startTime = prmLst[0]
     qLst      = prmLst[1]
-    try:
-        cfgDict   = cd.loadCfgDict()
-        digitDict = cfgDict['digitScreenDict']
-    except:
-        return ['clock not started.']
+    #try:
+    cfgDict   = cd.loadCfgDict()
+    digitDict = cfgDict['digitScreenDict']
+    #except:
+    #    return ['clock not started.']
     startLcdUpdateProc( qLst, digitDict )
     time.sleep(1)
     startClockCntrProc( qLst, startTime )
@@ -197,7 +198,12 @@ if __name__ == '__main__':
     clkCqMain = mp.Queue()    # CLK Cmd Q. mp queue must be used here.
     clkRqMain = mp.Queue()    # CLK Rsp Q. mp queue must be used here.
 
-    rsp = startClk([ [], [lcdCqMain,lcdRqMain,clkCqMain,clkRqMain] ])
+    rsp = startClk( 
+                    [ 
+                      [ ], 
+                      [ lcdCqMain,lcdRqMain,clkCqMain,clkRqMain ]
+                    ]
+                  )
     print([rsp])
 
     while True:
