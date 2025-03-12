@@ -25,7 +25,7 @@ def killSrvr():    # The ks handled directly in the handleClient func so it
 #############################################################################
 
 def getVer():
-    VER = ' v0.1.4 - 11-Mar-2025'
+    VER = ' v0.1.5 - 11-Mar-2025'
     return [VER]
 #############################################################################
 
@@ -33,12 +33,13 @@ def vector(inputStr): # called from handleClient. inputStr from client.
 
     # This dictionary embodies the worker function vector (and menu) info.
     vectorDict = {
-    'cmds':{'func':cmds.cmds,      'parm':None,   'menu': 'List Commands'},
+    'lc'  :{'func':cmds.cmds,      'parm':None,   'menu': 'List Commands'},
     'hr'  :{'func':sr.hwReset,     'parm':None,   'menu': 'HW Reset'     },
     'sr'  :{'func':sr.swReset,     'parm':None,   'menu': 'SW Reset'     },
-    'sbl' :{'func':sr.setBackLight,'parm':[0],    'menu': 'Set Backlight'},
+    'sb'  :{'func':sr.setBackLight,'parm':[0],    'menu': 'Set Backlight'},
     'rt'  :{'func':tr.runTest,     'parm':None,   'menu': 'Run Test'     },
     'sc'  :{'func':cr.startClk,    'parm':[[],qs],'menu': 'Start Clock'  },
+    'pc'  :{'func':cr.stopClk,     'parm':qs,     'menu': 'stoP Clock'  },
     'ks'  :{'func':killSrvr,       'parm':None,   'menu': 'Kill Server'  }
     }
 

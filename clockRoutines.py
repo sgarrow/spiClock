@@ -8,32 +8,43 @@ import makeScreen      as ms
 
 def lcdUpdateProc( procName, qLst, digitDict ):
 
-    print(procName)
+    #print(procName)
 
     lcdCq = qLst[0]
     lcdRq = qLst[1]
     clkCq = qLst[2]
     clkRq = qLst[3]
 
-    sr.setBackLight([1]) # Turn on backlight.
-    sr.hwReset()         # HW Reset
-    sr.swReset()         # SW Reset and the display initialization.
+    sr.setBackLight([1])     # Turn on backlight.
+    sr.hwReset()             # HW Reset
+    sr.swReset()             # SW Reset and the display initialization.
 
     while True:
 
         digit  = lcdCq.get() # Block here.
+
+        if digit == 'stop':
+            print('lcdCq = ', digit)
+            break
+
         kStart = time.perf_counter()
         data   = digitDict[digit]
         sr.setEntireDisplay(data, sr.sendDat2ToSt7789)
 
         lcdRq.put( ' updateAnLCD   loop time {:.6f} sec.'.\
-                format(time.perf_counter()-kStart)
-              )
+                format(time.perf_counter()-kStart))
+
+    sr.setBackLight([0])     # Turn off backlight.
+    sr.hwReset()             # HW Reset
+    sr.swReset()             # SW Reset and the display initialization.
+
+    lcdRq.put('putting lcdUpdateProc is exiting')
+    print('lcdUpdateProc is exiting')
 #############################################################################
 
 def clockCntrProc( procName, qLst, startTime ):
-    print(procName)
-    print(startTime )
+    #print(procName)
+    #print(startTime )
 
     lcdCq = qLst[0]
     lcdRq = qLst[1]
@@ -112,6 +123,18 @@ def clockCntrProc( procName, qLst, startTime ):
                 format( hours, minutes, seconds, currTime ))
             print( ' time (req,act) = ({:.6f}, {:.6f}) sec. Num points = {}.'.\
                     format(calTime,actTime,actNumDataPoints))
+
+
+        try:
+            cmd = clkCq.get_nowait()  # Non-blocking get
+            print('clkCq = ', cmd)
+            if cmd == 'stop':
+                break
+        except mp.queues.Empty:
+            pass
+
+    clkRq.put('putting clockCntrProc is exiting')
+    print('clockCntrProc is exiting')
 ##############################################################################
 
 def startLcdUpdateProc( qLst, digitDict ):
@@ -132,6 +155,7 @@ def startLcdUpdateProc( qLst, digitDict ):
 #############################################################################
 
 def startClockCntrProc( qLst, startTime ):
+    #print(f"Process is alive after join(2): {process.is_alive()}")
     procLst = []
     for _ in range(1):
         # Cannot access return value from proc directly.
@@ -161,6 +185,24 @@ def startClk(prmLst):
     time.sleep(1)
     startClockCntrProc( qLst, startTime )
     return ['clock started.' ]
+#############################################################################
+
+def stopClk(prmLst):
+    qLst  = prmLst
+    lcdCq = qLst[0]
+    lcdRq = qLst[1]
+    clkCq = qLst[2]
+    clkRq = qLst[3]
+
+    clkCq.put('stop')
+    clkRsp = clkRq.get()
+    print(clkRsp)
+
+    lcdCq.put('stop')
+    lcdRsp = lcdRq.get()
+    print(lcdRsp)
+
+    return ['clock stopped.']
 #############################################################################
 
 def getTimeDate( prnEn = True ):
