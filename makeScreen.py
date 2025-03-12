@@ -97,30 +97,67 @@ def makePilJpgPicImage(fName):
     return byteLst
 #############################################################################
 
-def makeDigitScreens(text, textColor, backgroundColor):
-    backgroundColor       = (  0,  0,  0)
-    textColor = (255,255,255)
-    digitScreenDict = {}
-    for t in ['0','1','2','3','4','5','6','7','8','9']:
-        digitScreenDict[t] = \
-            makePilTextImage(t, textColor, backgroundColor)
-
-    cfgDict = cd.loadCfgDict()
-    cfgDict = cd.updateCfgDict( cfgDict, digitScreenDict=digitScreenDict)
-    cfgDict = cd.saveCfgDict(cfgDict)
+def makeDigitScreens( screenDict, styleName,
+                      txtLst, textColor, backgroundColor):
+    print('making',styleName)
+    screenDict[styleName] = {}
+    for t in txtLst:
+        screenDict[styleName][t] = \
+        makePilTextImage( t, textColor, backgroundColor )
+    return screenDict
 #############################################################################
 
 if __name__ == '__main__':
 
-    makeDigitScreens(0, 0, 0)
-    cfgDic = cd.loadCfgDict()
+    #cfgDict = { 'digitScreenDict' : { 'whiteOnBlack': { '0': data,
+    #                                                    '1': data
+    #                                                  },
+    #                                  'blackOnWhite': { '0': data,
+    #                                                    '1': data
+    #                                                  }
+    #                                },
+    #
+    #            'someOtherDict'   : someOtherValue
+    #          }
+
+    white     = (   0,   0,   0 )
+    black     = ( 255, 255, 255 )
+    orange    = ( 239, 144,   1 )
+    turquoise = (  18, 151, 128 )
+    textLst = ['0','1','2','3','4','5','6','7','8','9']
+
+    digitScreenDict = {}
+
+    digitScreenDict = makeDigitScreens(
+    digitScreenDict, 'whiteOnBlack',      textLst, white,     black     )
+
+    digitScreenDict = makeDigitScreens(
+    digitScreenDict, 'blackOnWhite',      textLst, black,     white     )
+
+    digitScreenDict = makeDigitScreens(
+    digitScreenDict, 'orangeOnTurquoise', textLst, orange,    turquoise )
+
+    digitScreenDict = makeDigitScreens(
+    digitScreenDict, 'turquoiseOnOrange', textLst, turquoise, orange    )
+
+
+    cfgDict = cd.loadCfgDict()
+    cfgDict = cd.updateCfgDict( cfgDict, digitScreenDict = digitScreenDict )
+    cfgDict = cd.saveCfgDict( cfgDict )
+    cd.runTest()
+    #########################
 
     sr.setBackLight([1]) # Turn on backlight.
     sr.hwReset()         # HW Reset
     sr.swReset()         # SW Reset and the display initialization.
-    for k in ['0','1','2','3','4','5','6','7','8','9']:
-        data = cfgDic['digitScreenDict'][k]
-        sr.setEntireDisplay(data, sr.sendDat2ToSt7789)
-        time.sleep(.75)
+
+    digitScreenDict = cfgDict['digitScreenDict']
+
+    for style in digitScreenDict.keys():
+        for k in textLst:
+            data = digitScreenDict[style][k]
+            sr.setEntireDisplay(data, sr.sendDat2ToSt7789)
+            time.sleep(.5)
+
     sr.setBackLight([0]) # Turn off backlight.
     sr.hwReset()         # HW Reset

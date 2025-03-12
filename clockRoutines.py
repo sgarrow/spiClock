@@ -153,12 +153,9 @@ def startClk(prmLst):
 
     try:
         cfgDict   = cd.loadCfgDict()
-        digitDict = cfgDict['digitScreenDict']
+        digitDict = cfgDict['digitScreenDict']['blackOnWhite']
     except:
-        print(' making screens')
-        ms.makeDigitScreens(0, 0, 0)
-        cfgDict   = cd.loadCfgDict()
-        digitDict = cfgDict['digitScreenDict']
+        return ['make screens.']
 
     startLcdUpdateProc( qLst, digitDict )
     time.sleep(1)

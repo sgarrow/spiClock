@@ -10,15 +10,17 @@ openSocketsLst = []        # Needed for processing close and ks commands.
 def listThreads(): # Daemon to startServer, terminates w/ kill server (ks).
     while True:
 
-        time.sleep(5)
+        time.sleep(15)
         #time.sleep(60*60*24*7) # Once a week.
 
         print(' ##################')
         print(' Active Threads: ')
         for t in threading.enumerate():
-            print('   Name: {} Daemon: {} ID: {} Target: {}'.\
-                format( t.name, t.daemon, t.ident,
-                        getattr(t, '_target', None)))
+            print('   Name: {:11}  Daemon: {}'.format( t.name, t.daemon))
+
+            #print('   Name: {} Daemon: {} ID: {} Target: {}'.\
+            #    format( t.name, t.daemon, t.ident,
+            #            getattr(t, '_target', None)))
 
         print(' ##################')
         print(' Open Sockets: ')
