@@ -4,7 +4,7 @@
 
 # Import required modules.
 import time
-import spidev
+import spidev # pylint: disable=E0401
 import gpiozero as gp
 
 # GPIO pin assignments for the LCD's backlight, reset and data/command.

@@ -25,7 +25,7 @@ def killSrvr():    # The ks handled directly in the handleClient func so it
 #############################################################################
 
 def getVer():
-    VER = ' v0.1.5 - 11-Mar-2025'
+    VER = ' v0.1.6 - 12-Mar-2025'
     return [VER]
 #############################################################################
 
@@ -73,7 +73,7 @@ def vector(inputStr): # called from handleClient. inputStr from client.
 
         rsp = func(params)     # rsp[0] = rspStr. Vector to worker.
         return rsp[0]          # Return to srvr for forwarding to clnt.
-        #except Exception as e:
+        #except Exception #as e:
         #    return str(e)
 
     if choice == 'm':

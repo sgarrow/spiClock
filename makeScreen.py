@@ -1,5 +1,5 @@
 import time
-from PIL import Image, ImageDraw, ImageFont
+from PIL import Image, ImageDraw, ImageFont # pylint: disable=E0401
 import cfgDict     as cd
 import spiRoutines as sr
 #############################################################################
