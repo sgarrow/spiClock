@@ -1,3 +1,4 @@
+import psutil
 import time
 import datetime        as dt
 import multiprocessing as mp
@@ -15,7 +16,6 @@ def getStartTime( startTime ):
         while True:
             time.sleep(.2)
             now = dt.datetime.now()
-            print(now)
             hour   = now.hour
             minute = now.minute
             second = now.second
@@ -23,7 +23,6 @@ def getStartTime( startTime ):
                 break
     else:
         now = dt.datetime.now()
-        print(now)
         hour   = now.hour
         minute = now.minute
         second = now.second
@@ -48,7 +47,7 @@ def updateCntr(hours, minutes, seconds):
 
 def lcdUpdateProc( procName, qLst, digitDict ):
 
-    print(' {} {}'.format(procName, 'starting'))
+    print(' {} {}'.format(procName, 'starting')) # <-- Debug. 
 
     lcdCq = qLst[0]
     lcdRq = qLst[1]
@@ -64,25 +63,24 @@ def lcdUpdateProc( procName, qLst, digitDict ):
         digit = lcdCq.get() # Block here. Get digit/stop from clk/user.
 
         if digit == 'stop':
-            print(' lcdUpdateProc: lcdCq.get = {}'.format(digit))
             break
 
         kStart = time.perf_counter()
         data   = digitDict[digit]
         sr.setEntireDisplay(data, sr.sendDat2ToSt7789)
 
-        lcdRq.put( ' lcdUpdateProc: lcdRq.put updateAnLCD time {:.6f} sec.'.\
+        lcdRq.put( ' LCD update time {:.6f} sec.'.\
                 format(time.perf_counter()-kStart)) # Put rsp back to clk.
 
     sr.setBackLight([0])     # Turn off backlight.
     sr.hwReset()             # HW Reset
     sr.swReset()             # SW Reset and the display initialization.
 
-    lcdRq.put(' lcdUpdateProc: lcdRq.put exiting.')  # Put rsp back to user.
+    lcdRq.put(' {} {}'.format(procName, 'exiting'))  # Put rsp back to user.
 #############################################################################
 
 def clockCntrProc( procName, qLst, startTime ):
-    print(' {} {}'.format(procName, 'starting'))
+    print(' {} {}'.format(procName, 'starting')) # <-- Debug.
 
     lcdCq, lcdRq, clkCq, clkRq = qLst[0], qLst[1], qLst[2], qLst[3]
     hours, minutes, seconds    = getStartTime(startTime)
@@ -102,10 +100,9 @@ def clockCntrProc( procName, qLst, startTime ):
         lcdCq.put(secLSD)             # Send cmd to LCD.
         try:
             rsp = lcdRq.get_nowait()  # Get rsp from LCD.
+            print(rsp)                # <-- Debug. Comment out in production.
         except mp.queues.Empty:
             pass
-        else:
-            print(' clockCntrProc: lcdRq.get_nowait = {}'.format(rsp))
 
         actNumDataPoints += 1
         actTime = time.perf_counter()-kStart
@@ -127,93 +124,111 @@ def clockCntrProc( procName, qLst, startTime ):
 
         try:
             cmd = clkCq.get_nowait()  # Get any stop cmd from user.
-            print(' clockCntrProc: clkCq.get_nowait = {}'.format(cmd))
             if cmd == 'stop':
                 break
         except mp.queues.Empty:
             pass
 
-    clkRq.put(' clockCntrProc: clkRq.put exiting')
+    clkRq.put(' {} {}'.format(procName, 'exiting'))  # Put rsp back to user.
 ##############################################################################
+
+procPidDict = {'clockCntrProc': None, 'lcdUpdateProc': None}
 
 def startLcdUpdateProc( qLst, digitDict ):
     procLst = []
     for _ in range(1):
         # Cannot access return value from proc directly.
-        proc = mp.Process(
+        lcdProc = mp.Process(
                target = lcdUpdateProc,
                args   = ( 'lcdUpdateProc',  # Process Name.
                           qLst,             # [lcdCq,lcdRq,clkCq,clkRq]
                           digitDict ))      # Dict of LCD Display Data.
 
-        proc.daemon = True
-        proc.start()
-        procLst.append(proc)
-    #for p in procLst:
-    #    p.join()
+        lcdProc.daemon = True
+        lcdProc.start()
+        procPidDict['lcdUpdateProc'] = lcdProc.pid
+        procLst.append(lcdProc)
 #############################################################################
 
 def startClockCntrProc( qLst, startTime ):
-    #print(f"Process is alive after join(2): {process.is_alive()}")
     procLst = []
     for _ in range(1):
         # Cannot access return value from proc directly.
-        proc = mp.Process(
+        clkProc = mp.Process(
                target = clockCntrProc,
                args   = ( 'clockCntrProc',  # Process Name.
                           qLst,             # [lcdCq,lcdRq,clkCq,clkRq]
                           startTime ))      # start time.
-        proc.daemon = True
-        proc.start()
-        procLst.append(proc)
-    #for p in procLst:
-    #    p.join()
+        clkProc.daemon = True
+        clkProc.start()
+        procPidDict['clockCntrProc'] = clkProc.pid
+        procLst.append(clkProc)
 #############################################################################
 
 def startClk(prmLst):
     startTime = prmLst[0]
     qLst      = prmLst[1]
+    rspStr    = ''
 
     try:
         cfgDict   = cd.loadCfgDict()
         digitDict = cfgDict['digitScreenDict']['blackOnWhite']
     except KeyError as e:
-        print(' startClock KeyError:', str(e))
-        return ['make screens.']
+        rspStr += ' startClock KeyError:', str(e)
+        return [rspStr]
 
-    startLcdUpdateProc( qLst, digitDict )
-    time.sleep(1)
-    startClockCntrProc( qLst, startTime )
-    return ['clock started.']
+    if procPidDict['lcdUpdateProc'] == None:
+        startLcdUpdateProc( qLst, digitDict )
+        rspStr += ' lcdUpdateProc started.'
+    else:
+        rspStr += ' lcdUpdateProc already started.'
+
+    if procPidDict['clockCntrProc'] == None:
+        startClockCntrProc( qLst, startTime )
+        rspStr += ' clockCntrProc started.'
+    else:
+        rspStr += ' clockCntrProc already started.'
+    return [rspStr]
 #############################################################################
 
 def stopClk(prmLst):
-    qLst  = prmLst
-    lcdCq = qLst[0]
-    lcdRq = qLst[1]
-    clkCq = qLst[2]
-    clkRq = qLst[3]
+    qLst   = prmLst
+    lcdCq  = qLst[0]
+    lcdRq  = qLst[1]
+    clkCq  = qLst[2]
+    clkRq  = qLst[3]
+    rspStr = ''
 
-    clkCq.put('stop')
-    clkRsp = clkRq.get()
-    print(' stopClk: clkRq.get = {}'.format(clkRsp))
+    if procPidDict['clockCntrProc'] != None:
+        clkCq.put('stop')
+        clkRsp = clkRq.get()
+        print(' stopClk: clkRq.get = {}'.format(clkRsp))
+        procPidDict['clockCntrProc'] = None
+        rspStr += ' clockCntrProc stopped.'
+    else:
+        rspStr += ' clockCntrProc not running.'
 
 
     # There may be a stale response in the lcdRq that was meant for 
     # clockCntrProc which was killed above.
-    lcdCq.put('stop')
-    matchStr = 'exiting'
-    while True:
-        try:
-            time.sleep(.1)
-            lcdRsp = lcdRq.get_nowait()
-            print(' stopClk: lcdRq.get = {}'.format(lcdRsp))
-            if matchStr in lcdRsp:
-                break
-        except mp.queues.Empty:
-            pass
+    if procPidDict['lcdUpdateProc'] != None:
+        lcdCq.put('stop')
+        matchStr = 'exiting'
+        while True:
+            try:
+                time.sleep(.1)
+                lcdRsp = lcdRq.get_nowait()
+                print(' stopClk: lcdRq.get = {}'.format(lcdRsp))
+                if matchStr in lcdRsp:
+                    break
+            except mp.queues.Empty:
+                pass
+        procPidDict['lcdUpdateProc'] = None
+        rspStr += ' lcdUpdateProc stopped.'
+    else:
+        rspStr += ' lcdUpdateProc not running.'
 
-    return ['clock stopped.']
+    return [rspStr]
 #############################################################################
 
 def getTimeDate( prnEn = True ):
