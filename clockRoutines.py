@@ -4,43 +4,9 @@ import multiprocessing as mp
 import cfgDict         as cd
 import spiRoutines     as sr
 import makeScreen      as ms
+
 #############################################################################
-
-def lcdUpdateProc( procName, qLst, digitDict ):
-
-    print(procName, 'starting')
-
-    lcdCq = qLst[0]
-    lcdRq = qLst[1]
-    clkCq = qLst[2]
-    clkRq = qLst[3]
-
-    sr.setBackLight([1])     # Turn on backlight.
-    sr.hwReset()             # HW Reset
-    sr.swReset()             # SW Reset and the display initialization.
-
-    while True:
-
-        digit = lcdCq.get() # Block here. Get digit/stop from clk/user.
-
-        if digit == 'stop':
-            print('lcdCq = ', digit)
-            break
-
-        kStart = time.perf_counter()
-        data   = digitDict[digit]
-        sr.setEntireDisplay(data, sr.sendDat2ToSt7789)
-
-        lcdRq.put( ' updateAnLCD   loop time {:.6f} sec.'.\
-                format(time.perf_counter()-kStart)) # Put rsp back to clk.
-
-    sr.setBackLight([0])     # Turn off backlight.
-    sr.hwReset()             # HW Reset
-    sr.swReset()             # SW Reset and the display initialization.
-
-    lcdRq.put(' lcdUpdateProc is exiting')          # Put rsp back to user.
 #############################################################################
-
 def getStartTime( startTime ):
     if len(startTime) == 3:
         hours   = int(startTime[0])
@@ -65,10 +31,58 @@ def getStartTime( startTime ):
 
     return hours, minutes, seconds
 #############################################################################
+#############################################################################
+def updateCntr(hours, minutes, seconds):
+    seconds += 1
+    if seconds  == 60:
+        seconds  = 0
+        minutes += 1
+    if minutes  == 60:
+        minutes  = 0
+        hours   += 1
+    if hours    == 24:
+        hours    = 0
+    return hours, minutes, seconds
+#############################################################################
+#############################################################################
+
+def lcdUpdateProc( procName, qLst, digitDict ):
+
+    print(' {} {}'.format(procName, 'starting'))
+
+    lcdCq = qLst[0]
+    lcdRq = qLst[1]
+    clkCq = qLst[2]
+    clkRq = qLst[3]
+
+    sr.setBackLight([1])     # Turn on backlight.
+    sr.hwReset()             # HW Reset
+    sr.swReset()             # SW Reset and the display initialization.
+
+    while True:
+
+        digit = lcdCq.get() # Block here. Get digit/stop from clk/user.
+
+        if digit == 'stop':
+            print(' lcdUpdateProc: lcdCq.get = {}'.format(digit))
+            break
+
+        kStart = time.perf_counter()
+        data   = digitDict[digit]
+        sr.setEntireDisplay(data, sr.sendDat2ToSt7789)
+
+        lcdRq.put( ' lcdUpdateProc: lcdRq.put updateAnLCD time {:.6f} sec.'.\
+                format(time.perf_counter()-kStart)) # Put rsp back to clk.
+
+    sr.setBackLight([0])     # Turn off backlight.
+    sr.hwReset()             # HW Reset
+    sr.swReset()             # SW Reset and the display initialization.
+
+    lcdRq.put(' lcdUpdateProc: lcdRq.put exiting.')  # Put rsp back to user.
+#############################################################################
 
 def clockCntrProc( procName, qLst, startTime ):
-
-    print(procName, 'starting')
+    print(' {} {}'.format(procName, 'starting'))
 
     lcdCq, lcdRq, clkCq, clkRq = qLst[0], qLst[1], qLst[2], qLst[3]
     hours, minutes, seconds    = getStartTime(startTime)
@@ -79,38 +93,26 @@ def clockCntrProc( procName, qLst, startTime ):
     cumSumLoopTime   =  0
 
     while True:
-
         kStart = time.perf_counter()
-
         time.sleep( calTime )
-        seconds += 1
 
-        if seconds  == 60:
-            seconds  = 0
-            minutes += 1
-        if minutes  == 60:
-            minutes  = 0
-            hours   += 1
-        if hours    == 24:
-            hours    = 0
+        hours, minutes, seconds = updateCntr(hours, minutes, seconds)
 
         secLSD = str(seconds % 10)
         lcdCq.put(secLSD)             # Send cmd to LCD.
-
         try:
             rsp = lcdRq.get_nowait()  # Get rsp from LCD.
-            #print(rsp)
         except mp.queues.Empty:
             pass
+        else:
+            print(' clockCntrProc: lcdRq.get_nowait = {}'.format(rsp))
 
         actNumDataPoints += 1
         actTime = time.perf_counter()-kStart
-
         if actNumDataPoints <= dsrNumDataPoints:
             cumSumLoopTime  += actTime
 
         else:
-            #print()
             calTime -= (cumSumLoopTime-(dsrNumDataPoints*1.0))/dsrNumDataPoints
             actNumDataPoints = 1
             cumSumLoopTime   = actTime
@@ -125,13 +127,13 @@ def clockCntrProc( procName, qLst, startTime ):
 
         try:
             cmd = clkCq.get_nowait()  # Get any stop cmd from user.
-            print('clkCq = ', cmd)
+            print(' clockCntrProc: clkCq.get_nowait = {}'.format(cmd))
             if cmd == 'stop':
                 break
         except mp.queues.Empty:
             pass
 
-    clkRq.put(' clockCntrProc is exiting')
+    clkRq.put(' clockCntrProc: clkRq.put exiting')
 ##############################################################################
 
 def startLcdUpdateProc( qLst, digitDict ):
@@ -194,15 +196,22 @@ def stopClk(prmLst):
 
     clkCq.put('stop')
     clkRsp = clkRq.get()
-    print(clkRsp)
+    print(' stopClk: clkRq.get = {}'.format(clkRsp))
 
 
+    # There may be a stale response in the lcdRq that was meant for 
+    # clockCntrProc which was killed above.
     lcdCq.put('stop')
-    time.sleep(.1)
-    while not lcdRq.empty():
-        time.sleep(.1)
-        lcdRsp = lcdRq.get_nowait()
-        print(lcdRsp)
+    matchStr = 'exiting'
+    while True:
+        try:
+            time.sleep(.1)
+            lcdRsp = lcdRq.get_nowait()
+            print(' stopClk: lcdRq.get = {}'.format(lcdRsp))
+            if matchStr in lcdRsp:
+                break
+        except mp.queues.Empty:
+            pass
 
     return ['clock stopped.']
 #############################################################################
@@ -264,6 +273,8 @@ if __name__ == '__main__':
             time.sleep(1)
         except KeyboardInterrupt as e:
             print(' clockRoutines main KeyboardInterrupt:', str(e))
+            stopClk([ lcdCqMain,lcdRqMain,clkCqMain,clkRqMain ] )
+            sleep(3)
             sr.setBackLight([0])     # Turn off backlight.
             sr.hwReset()             # HW Reset
             sr.swReset()             # SW Reset and the display initialization.

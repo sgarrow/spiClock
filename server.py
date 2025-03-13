@@ -10,7 +10,7 @@ openSocketsLst = []        # Needed for processing close and ks commands.
 def listThreads(): # Daemon to startServer, terminates w/ kill server (ks).
     while True:
 
-        time.sleep(60)
+        time.sleep(10)
         #time.sleep(60*60*24*7) # Once a week.
 
         print(' ##################')
