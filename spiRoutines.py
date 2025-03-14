@@ -12,12 +12,23 @@ BL_PIN   = gp.LED( 'J8:12' ) # Grey.    on() = 1 = Lit.    off() = 0 = Not Lit.
 RST_PIN  = gp.LED( 'J8:13' ) # Brown.   Active low.
 DC_PIN   = gp.LED( 'J8:22' ) # Blue.    on() = 1 = Data.   off() = 0 = Cmd.
 
+CS_PIN_HR_MSD = gp.LED( 'J8:29' ) # Yellow. GPIO-05. hr_msd.
+CS_PIN_HR_LSD = gp.LED( 'J8:31' ) # Yellow. GPIO-06. hr_lsd.
+CS_PIN_MN_MSD = gp.LED( 'J8:11' ) # Yellow. GPIO-17. mn_msd.
+CS_PIN_MN_LSD = gp.LED( 'J8:15' ) # Yellow. GPIO-22. mn_lsd.
+CS_PIN_SC_MSD = gp.LED( 'J8:16' ) # Yellow. GPIO-23. sc_msd.
+CS_PIN_SC_LSD = gp.LED( 'J8:37' ) # Yellow. GPIO-26. sc_lsd.
+
+csDict = { 'CS_PIN_HR_MSD' : CS_PIN_HR_MSD, 'CS_PIN_HR_LSD' : CS_PIN_HR_LSD,
+           'CS_PIN_MN_MSD' : CS_PIN_MN_MSD, 'CS_PIN_MN_LSD' : CS_PIN_MN_LSD,
+           'CS_PIN_SC_MSD' : CS_PIN_SC_MSD, 'CS_PIN_SC_LSD' : CS_PIN_SC_LSD }
+
 # Some unused text strings.
 PWR_PIN  = 'J8:1'            # Purple.  3.3V.
 GND_PIN  = 'J8:6'            # White.
 MOSI_PIN = 'J8:19'           # Green.
 CLK_PIN  = 'J8:23'           # Orange.
-CS_PIN   = 'J8:24'           # Yellow.
+CS_PIN   = 'J8:24'           # Yellow. Not used - supports only 1 device.
 
 # Open up the SPI channel (global to this script).
 spi = spidev.SpiDev()
@@ -78,9 +89,11 @@ def sendCmdToSt7789(cmd):
     # This function sends the passed in command to the st7789v controller.
     # Use the spi writebytes function, which has a 4096 byte list size limit.
 
-    DC_PIN.off()             # Set st7789v to command mode.
-    spi.writebytes([cmd])    # Wrap the command in a list.
-    time.sleep(0.001)        # Ensure proper timing.
+    csDict['CS_PIN_SC_LSD'].off() # CS active lo.
+    DC_PIN.off()                  # Set st7789v to command mode.
+    spi.writebytes([cmd])         # Wrap the command in a list.
+    time.sleep(0.001)             # Ensure proper timing.
+    csDict['CS_PIN_SC_LSD'].on()
     return ['sendCmdToSt7789 done.']
 #############################################################################
 
@@ -92,10 +105,12 @@ def sendDatToSt7789(datLst):
     chunkSize = 4096
     chunks = [ datLst[x:x+chunkSize] for x in range(0, len(datLst), chunkSize) ]
 
-    DC_PIN.on()              # Set st7789v to data mode.
+    csDict['CS_PIN_SC_LSD'].off() # CS active lo.
+    DC_PIN.on()                   # Set st7789v to data mode.
     for c in chunks:
-        spi.writebytes(c)    # Send a list of data.
-        time.sleep(0.001)    # Ensure proper timing.
+        spi.writebytes(c)         # Send a list of data.
+        time.sleep(0.001)         # Ensure proper timing.
+    csDict['CS_PIN_SC_LSD'].on()
     return ['sendDatToSt7789 done.']
 #############################################################################
 
@@ -104,9 +119,11 @@ def sendDat2ToSt7789(datLst):
     # This function sends the passed in data to the st7789v controller.
     # Use the spi writebytes2 function, which handles arbitraily large lists.
 
-    DC_PIN.on()              # Set st7789v to data mode.
-    spi.writebytes2(datLst)  # Send a list of data.
-    time.sleep(0.001)        # Ensure proper timing.
+    csDict['CS_PIN_SC_LSD'].off() # CS active lo.
+    DC_PIN.on()                   # Set st7789v to data mode.
+    spi.writebytes2(datLst)       # Send a list of data.
+    time.sleep(0.001)             # Ensure proper timing.
+    csDict['CS_PIN_SC_LSD'].on()
     return ['sendDat2ToSt7789 done.']
 #############################################################################
 

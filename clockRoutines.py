@@ -1,11 +1,9 @@
-import psutil
 import time
 import datetime        as dt
 import multiprocessing as mp
 import cfgDict         as cd
 import spiRoutines     as sr
 import makeScreen      as ms
-
 #############################################################################
 #############################################################################
 def getStartTime( startTime ):
@@ -47,12 +45,12 @@ def updateCntr(hours, minutes, seconds):
 
 def lcdUpdateProc( procName, qLst, digitDict ):
 
-    print(' {} {}'.format(procName, 'starting')) # <-- Debug. 
+    print(' {} {}'.format(procName, 'starting')) # <-- Debug.
 
     lcdCq = qLst[0]
     lcdRq = qLst[1]
-    clkCq = qLst[2]
-    clkRq = qLst[3]
+    #clkCq = qLst[2]
+    #clkRq = qLst[3]
 
     sr.setBackLight([1])     # Turn on backlight.
     sr.hwReset()             # HW Reset
@@ -177,13 +175,13 @@ def startClk(prmLst):
         rspStr += ' startClock KeyError:', str(e)
         return [rspStr]
 
-    if procPidDict['lcdUpdateProc'] == None:
+    if procPidDict['lcdUpdateProc'] is None:
         startLcdUpdateProc( qLst, digitDict )
         rspStr += ' lcdUpdateProc started.'
     else:
         rspStr += ' lcdUpdateProc already started.'
 
-    if procPidDict['clockCntrProc'] == None:
+    if procPidDict['clockCntrProc'] is None:
         startClockCntrProc( qLst, startTime )
         rspStr += ' clockCntrProc started.'
     else:
@@ -199,7 +197,7 @@ def stopClk(prmLst):
     clkRq  = qLst[3]
     rspStr = ''
 
-    if procPidDict['clockCntrProc'] != None:
+    if procPidDict['clockCntrProc'] is not None:
         clkCq.put('stop')
         clkRsp = clkRq.get()
         print(' stopClk: clkRq.get = {}'.format(clkRsp))
@@ -209,9 +207,9 @@ def stopClk(prmLst):
         rspStr += ' clockCntrProc not running.'
 
 
-    # There may be a stale response in the lcdRq that was meant for 
+    # There may be a stale response in the lcdRq that was meant for
     # clockCntrProc which was killed above.
-    if procPidDict['lcdUpdateProc'] != None:
+    if procPidDict['lcdUpdateProc'] is not None:
         lcdCq.put('stop')
         matchStr = 'exiting'
         while True:
@@ -289,7 +287,7 @@ if __name__ == '__main__':
         except KeyboardInterrupt as e:
             print(' clockRoutines main KeyboardInterrupt:', str(e))
             stopClk([ lcdCqMain,lcdRqMain,clkCqMain,clkRqMain ] )
-            sleep(3)
+            time.sleep(2)
             sr.setBackLight([0])     # Turn off backlight.
             sr.hwReset()             # HW Reset
             sr.swReset()             # SW Reset and the display initialization.
