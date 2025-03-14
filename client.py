@@ -62,7 +62,7 @@ if __name__ == '__main__':
 
     # Validate password
     #pwd = input( ' Enter password -> ')
-    pwd = 'shgServer2024!' # pylint: disable=C0103
+    pwd = 'pwd' # pylint: disable=C0103
     clientSocket.send(pwd.encode())
     time.sleep(.5)
     response = clientSocket.recv(1024)
