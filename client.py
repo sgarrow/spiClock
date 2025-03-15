@@ -45,7 +45,8 @@ if __name__ == '__main__':
     # Each client will connect to the server with a new address.
     clientSocket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 
-    connectType = input(' ssh, lan, internet (s,l,i) -> ')
+    #connectType = input(' ssh, lan, internet (s,l,i) -> ')
+    connectType = 'l'
     #             {'s':'localhost','l':'lanAddr','i':'routerAddr'}
     connectDict = {'s':'localhost','l':'0.0.0.0','i':'00.00.00.00'}
     PORT = 0000
@@ -60,9 +61,9 @@ if __name__ == '__main__':
 
     printSocketInfo(clientSocket)
 
-    # Validate password
+    # Validate pWord
     #pwd = input( ' Enter password -> ')
-    pwd = 'pwd' # pylint: disable=C0103
+    pwd = 'tempPW' # pylint: disable=C0103
     clientSocket.send(pwd.encode())
     time.sleep(.5)
     response = clientSocket.recv(1024)

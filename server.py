@@ -10,8 +10,8 @@ openSocketsLst = []        # Needed for processing close and ks commands.
 def listThreads(): # Daemon to startServer, terminates w/ kill server (ks).
     while True:
 
-        time.sleep(30)
-        #time.sleep(60*60*24*7) # Once a week.
+        #time.sleep(30)
+        time.sleep(60*60*24*7) # Once a week.
 
         print(' ##################')
         print(' Active Threads: ')
@@ -70,7 +70,7 @@ def handleClient(clientSocket, clientAddress, client2ServerCmdQ):
 
     # Validate password
     data = clientSocket.recv(1024)
-    if data.decode() == 'pwd':
+    if data.decode() == 'tempPW':
         passwordIsOk = True
         rspStr = ' Accepted connection from: {}'.format(clientAddress)
     else:

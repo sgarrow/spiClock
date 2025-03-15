@@ -26,10 +26,31 @@ def getStartTime( startTime ):
         second = now.second
         hours, minutes, seconds = hour, minute, second
 
-    return hours, minutes, seconds
+        hrMSD = hours   // 10
+        hrLSD = hours    % 10
+        mnMSD = minutes // 10
+        mnLSD = minutes  % 10
+        scMSD = seconds // 10
+        scLSD = seconds  % 10
+
+    timeDict = { 'hrMSD' : { 'value' : hrMSD, 'updated' : True },
+                 'hrLSD' : { 'value' : hrLSD, 'updated' : True },
+                 'mnMSD' : { 'value' : mnMSD, 'updated' : True },
+                 'mnLSD' : { 'value' : mnLSD, 'updated' : True },
+                 'scMSD' : { 'value' : scMSD, 'updated' : True },
+                 'scLSD' : { 'value' : scLSD, 'updated' : True }}
+
+    return timeDict
 #############################################################################
 #############################################################################
-def updateCntr(hours, minutes, seconds):
+def updateCntr(timeDict):
+
+    prevDict = timeDict.copy()
+
+    hours   = timeDict['hrMSD']['value'] * 10 + timeDict['hrLSD']['value']
+    minutes = timeDict['mnMSD']['value'] * 10 + timeDict['mnLSD']['value']
+    seconds = timeDict['scMSD']['value'] * 10 + timeDict['scLSD']['value']
+
     seconds += 1
     if seconds  == 60:
         seconds  = 0
@@ -39,7 +60,23 @@ def updateCntr(hours, minutes, seconds):
         hours   += 1
     if hours    == 24:
         hours    = 0
-    return hours, minutes, seconds
+
+    hrMSD = hours   // 10
+    hrLSD = hours    % 10
+    mnMSD = minutes // 10
+    mnLSD = minutes  % 10
+    scMSD = seconds // 10
+    scLSD = seconds  % 10
+
+    timeDict = { 
+    'hrMSD':{'value': hrMSD, 'updated': prevDict['hrMSD']['value'] != hrMSD},
+    'hrLSD':{'value': hrLSD, 'updated': prevDict['hrLSD']['value'] != hrLSD},
+    'mnMSD':{'value': mnMSD, 'updated': prevDict['mnMSD']['value'] != mnMSD},
+    'mnLSD':{'value': mnLSD, 'updated': prevDict['mnLSD']['value'] != mnLSD},
+    'scMSD':{'value': scMSD, 'updated': prevDict['scMSD']['value'] != scMSD},
+    'scLSD':{'value': scLSD, 'updated': prevDict['scLSD']['value'] != scLSD}}
+
+    return timeDict
 #############################################################################
 #############################################################################
 
@@ -58,14 +95,29 @@ def lcdUpdateProc( procName, qLst, digitDict ):
 
     while True:
 
-        digit = lcdCq.get() # Block here. Get digit/stop from clk/user.
-
-        if digit == 'stop':
-            break
-
+        data = lcdCq.get()   # Block here. Get digit/stop from clk/user.
         kStart = time.perf_counter()
-        data   = digitDict[digit]
-        sr.setEntireDisplay(data, sr.sendDat2ToSt7789)
+
+        if data == 'stop':
+            break
+        timeDict = data
+
+        hours   = timeDict['hrMSD']['value'] * 10 + timeDict['hrLSD']['value']
+        minutes = timeDict['mnMSD']['value'] * 10 + timeDict['mnLSD']['value']
+        seconds = timeDict['scMSD']['value'] * 10 + timeDict['scLSD']['value']
+
+        print('\n{:02}{:02}{:02}'.format(hours, minutes, seconds))
+        kLst = ['hrMSD','hrLSD','mnMSD','mnLSD','scMSD','scLSD']
+        for theKey in kLst:
+            if timeDict[theKey]['updated']:
+                print(1, end = '')
+            else:
+                print(0, end = '')
+        print()
+
+        digit   = str(timeDict['scLSD']['value'])
+        spiData = digitDict[digit]
+        sr.setEntireDisplay(spiData, sr.sendDat2ToSt7789)
 
         lcdRq.put( ' LCD update time {:.6f} sec.'.\
                 format(time.perf_counter()-kStart)) # Put rsp back to clk.
@@ -81,24 +133,24 @@ def clockCntrProc( procName, qLst, startTime ):
     print(' {} {}'.format(procName, 'starting')) # <-- Debug.
 
     lcdCq, lcdRq, clkCq, clkRq = qLst[0], qLst[1], qLst[2], qLst[3]
-    hours, minutes, seconds    = getStartTime(startTime)
-
     calTime          =  1
     dsrNumDataPoints = 20
     actNumDataPoints =  0
     cumSumLoopTime   =  0
 
+    timeDict = getStartTime(startTime)
+    lcdCq.put(timeDict)               # Send cmd to lcdUpdateProc.
+
     while True:
         kStart = time.perf_counter()
         time.sleep( calTime )
 
-        hours, minutes, seconds = updateCntr(hours, minutes, seconds)
+        timeDict = updateCntr(timeDict)
 
-        secLSD = str(seconds % 10)
-        lcdCq.put(secLSD)             # Send cmd to LCD.
+        lcdCq.put(timeDict)           # Send cmd to lcdUpdateProc.
         try:
             rsp = lcdRq.get_nowait()  # Get rsp from LCD.
-            print(rsp)                # <-- Debug. Comment out in production.
+            #print(rsp)                # <-- Debug. Comment out in production.
         except mp.queues.Empty:
             pass
 
@@ -112,13 +164,13 @@ def clockCntrProc( procName, qLst, startTime ):
             actNumDataPoints = 1
             cumSumLoopTime   = actTime
 
-        if seconds == 0:
-            now      = dt.datetime.now()
-            currTime = now.strftime('%H:%M:%S')
-            print(' {:02}:{:02}:{:02} =? {}'.\
-                format( hours, minutes, seconds, currTime ))
-            print( ' time (req,act) = ({:.6f}, {:.6f}) sec. Num points = {}.'.\
-                    format(calTime,actTime,actNumDataPoints))
+        #if seconds == 0:
+        #    now      = dt.datetime.now()
+        #    currTime = now.strftime('%H:%M:%S')
+        #    print(' {:02}:{:02}:{:02} =? {}'.\
+        #        format( hours, minutes, seconds, currTime ))
+        #    print( ' time (req,act) = ({:.6f}, {:.6f}) sec. Num points = {}.'.\
+        #            format(calTime,actTime,actNumDataPoints))
 
         try:
             cmd = clkCq.get_nowait()  # Get any stop cmd from user.
