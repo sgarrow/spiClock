@@ -5,9 +5,11 @@ import makeScreen  as ms
 
 def runTest():
 
-    sr.hwReset()         # HW Reset
-    sr.swReset()         # SW Reset and the display initialization.
-    sr.setBackLight([1]) # Turn on backlight.
+    kLst = ['hrMSD','hrLSD','mnMSD','mnLSD','scMSD','scLSD']
+    displayID = kLst[-1]
+    sr.hwReset()          # HW Reset
+    sr.swReset(displayID) # SW Reset and the display initialization.
+    sr.setBackLight([1])  # Turn on backlight.
 
     rPixLst,rRowLst,rScrLst = ms.makeColoredPRSLstsOfBytes(0xFF0000)
     gPixLst,gRowLst,gScrLst = ms.makeColoredPRSLstsOfBytes(0x00FF00)
@@ -26,7 +28,7 @@ def runTest():
         kStart = time.time()
         for row in range(32):
             for col in range(24):
-                sr.setOnePixel(row, col, pl, sf)
+                sr.setOnePixel(displayID, row, col, pl, sf)
         print( ' Filling Screen via ( {:16} using {:16}) took {:7.3f} sec'.\
             format( 'setOnePixel', sf.__name__, time.time() - kStart ))
     ##################################################
@@ -38,7 +40,7 @@ def runTest():
     for sf,pl in zip( sendFuncs, pixLst ):
         kStart = time.time()
         for row in range(320):
-            sr.setOneRow(row, pl, sf)
+            sr.setOneRow(displayID, row, pl, sf)
         print( ' Filling Screen via ( {:16} using {:16}) took {:7.3f} sec'.\
             format( 'setOneRow', sf.__name__, time.time() - kStart ))
         time.sleep(1)
@@ -51,7 +53,7 @@ def runTest():
     pixLst    = [ rScrLst ]
     for sf,pl in zip( sendFuncs, pixLst ):
         kStart = time.time()
-        sr.setEntireDisplay(pl, sf)
+        sr.setEntireDisplay(displayID, pl, sf)
         print( ' Filling Screen via ( {:16} using {:16}) took {:7.3f} sec'.\
             format( 'setEntireDisplay', sf.__name__, time.time() - kStart ))
         time.sleep(1)
@@ -63,22 +65,22 @@ def runTest():
         textColor       = (  0,  0,  0)
         backgroundColor = (255,255,255)
         data = ms.makePilTextImage(text, textColor, backgroundColor)
-        sr.setEntireDisplay(data, sr.sendDat2ToSt7789)
+        sr.setEntireDisplay(displayID, data, sr.sendDat2ToSt7789)
         time.sleep(1)
 
     # Test 5 - Fill w/ rgb image.
     print('Begin test 5')
     data = ms.makePilRgbPicImage('pics/240x320.rgb')
-    sr.setEntireDisplay(data, sr.sendDat2ToSt7789)
+    sr.setEntireDisplay(displayID, data, sr.sendDat2ToSt7789)
     time.sleep(3)
 
     # Test 6 - Fill w/ jpeg image.
     print('Begin test 6')
     data = ms.makePilJpgPicImage('pics/240x320.jpg')
-    sr.setEntireDisplay(data, sr.sendDat2ToSt7789)
+    sr.setEntireDisplay(displayID, data, sr.sendDat2ToSt7789)
     time.sleep(3)
 
-    sr.setEntireDisplay(wScrLst, sr.sendDat2ToSt7789)
+    sr.setEntireDisplay(displayID, wScrLst, sr.sendDat2ToSt7789)
     sr.setBackLight([0]) # Turn off backlight.
 
     return ['Test Complete']

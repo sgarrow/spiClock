@@ -89,9 +89,17 @@ def lcdUpdateProc( procName, qLst, digitDict ):
     #clkCq = qLst[2]
     #clkRq = qLst[3]
 
+    # timeDict, which is placed in my cmdQ, has the same key names as the 
+    # displayIdDict. The displayIdDict is used by the functions in the 
+    # spiRoutines.py module to determine the CS pin to use.
+    kLst = ['hrMSD','hrLSD','mnMSD','mnLSD','scMSD','scLSD']
+    displayIdDict = sr.getDisplayIdDict()
+
     sr.setBackLight([1])     # Turn on backlight.
-    sr.hwReset()             # HW Reset
-    sr.swReset()             # SW Reset and the display initialization.
+    sr.hwReset()             # HW Reset. Common pin to all dislays.
+
+    for theKey in kLst:
+        sr.swReset(theKey)   # SW Reset and the display initialization.
 
     while True:
 
@@ -107,24 +115,24 @@ def lcdUpdateProc( procName, qLst, digitDict ):
         seconds = timeDict['scMSD']['value'] * 10 + timeDict['scLSD']['value']
 
         print('\n{:02}{:02}{:02}'.format(hours, minutes, seconds))
-        kLst = ['hrMSD','hrLSD','mnMSD','mnLSD','scMSD','scLSD']
         for theKey in kLst:
             if timeDict[theKey]['updated']:
                 print(1, end = '')
+                digit   = str(timeDict[theKey]['value'])
+                spiData = digitDict[digit]
+                sr.setEntireDisplay(theKey, spiData, sr.sendDat2ToSt7789)
             else:
                 print(0, end = '')
         print()
 
-        digit   = str(timeDict['scLSD']['value'])
-        spiData = digitDict[digit]
-        sr.setEntireDisplay(spiData, sr.sendDat2ToSt7789)
 
         lcdRq.put( ' LCD update time {:.6f} sec.'.\
                 format(time.perf_counter()-kStart)) # Put rsp back to clk.
 
     sr.setBackLight([0])     # Turn off backlight.
     sr.hwReset()             # HW Reset
-    sr.swReset()             # SW Reset and the display initialization.
+    for theKey in kLst:
+        sr.swReset(theKey)   # SW Reset and the display initialization.
 
     lcdRq.put(' {} {}'.format(procName, 'exiting'))  # Put rsp back to user.
 #############################################################################
