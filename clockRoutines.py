@@ -3,7 +3,7 @@ import datetime        as dt
 import multiprocessing as mp
 import cfgDict         as cd
 import spiRoutines     as sr
-import makeScreen      as ms
+#import makeScreen      as ms
 #############################################################################
 #############################################################################
 def getStartTime( startTime ):
@@ -332,6 +332,9 @@ if __name__ == '__main__':
     clkCqMain = mp.Queue()    # CLK Cmd Q. mp queue must be used here.
     clkRqMain = mp.Queue()    # CLK Rsp Q. mp queue must be used here.
 
+    kLst = ['hrMSD','hrLSD','mnMSD','mnLSD','scMSD','scLSD']
+    displayID = kLst[-1]
+
     resp = startClk(
                     [
                       [ ],
@@ -350,5 +353,5 @@ if __name__ == '__main__':
             time.sleep(2)
             sr.setBackLight([0])     # Turn off backlight.
             sr.hwReset()             # HW Reset
-            sr.swReset()             # SW Reset and the display initialization.
+            sr.swReset(displayID)    # SW Reset and the display initialization.
             break

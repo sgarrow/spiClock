@@ -147,17 +147,21 @@ if __name__ == '__main__':
     cd.runTest()
     #########################
 
-    sr.setBackLight([1]) # Turn on backlight.
-    sr.hwReset()         # HW Reset
-    sr.swReset()         # SW Reset and the display initialization.
+    kLst = ['hrMSD','hrLSD','mnMSD','mnLSD','scMSD','scLSD']
+    displayID = kLst[-1]
+    sr.setBackLight([1])  # Turn on backlight.
+    sr.hwReset()          # HW Reset
+    sr.swReset(displayID) # SW Reset and the display initialization.
 
     digitScreenDict = cfgDict['digitScreenDict']
 
     for style in digitScreenDict.keys():
         for k in textLst:
             data = digitScreenDict[style][k]
-            sr.setEntireDisplay(data, sr.sendDat2ToSt7789)
+            sr.setEntireDisplay(displayID, data, sr.sendDat2ToSt7789)
             time.sleep(.5)
 
-    sr.setBackLight([0]) # Turn off backlight.
-    sr.hwReset()         # HW Reset
+    sr.setBackLight([0])  # Turn off backlight.
+    sr.hwReset()          # HW Reset
+    sr.swReset(displayID) # SW Reset and the display initialization.
+
