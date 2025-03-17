@@ -45,10 +45,13 @@ def processKsCmd(clientSocket, clientAddress, client2ServerCmdQ):
     rspStr = ''
     # Client sending ks has to be terminated first, I don't know why.
     # Also stop and running profiles so no dangling threads left behind.
-    #rspStr += cv.vector('sp') # Can take upto 5 sec to return.
-    #rspStr += '\n\n' + cv.vector('or 12345678') # Open all relays.
-    rspStr += '\n handleClient {} set loop break for self RE: ks'.\
+
+    rspStr += cv.vector('pc'  ) + '\n ' # Can take upto 5 sec to return.
+    rspStr += cv.vector('sb 0') + '\n'  # Open all relays.
+    rspStr += ' handleClient {} set loop break for self RE: ks'.\
               format(clientAddress)
+    print('after add hard code string', rspStr)
+
     clientSocket.send(rspStr.encode()) # sends all even if > 1024.
     time.sleep(1.5) # Required so .send happens before socket closed.
 

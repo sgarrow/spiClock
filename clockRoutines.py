@@ -343,15 +343,12 @@ if __name__ == '__main__':
                   )
     print(resp)
 
-    while 'make screens' not in resp[0]:
-        try:
-            #print('main looping')
-            time.sleep(1)
-        except KeyboardInterrupt as e:
-            print(' clockRoutines main KeyboardInterrupt:', str(e))
-            stopClk([ lcdCqMain,lcdRqMain,clkCqMain,clkRqMain ] )
-            time.sleep(2)
-            sr.setBackLight([0])     # Turn off backlight.
-            sr.hwReset()             # HW Reset
-            sr.swReset(displayID)    # SW Reset and the display initialization.
-            break
+    if 'make screens' not in resp[0]:
+        for _ in range(10):
+            time.sleep(1.2)
+        stopClk([ lcdCqMain,lcdRqMain,clkCqMain,clkRqMain ] )
+        time.sleep(2)
+        sr.hwReset()             # HW Reset
+        sr.swReset(displayID)    # SW Reset and the display initialization.
+        sr.setBackLight([0])     # Turn off backlight.
+

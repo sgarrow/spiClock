@@ -25,7 +25,7 @@ def killSrvr():    # The ks handled directly in the handleClient func so it
 #############################################################################
 
 def getVer():
-    VER = ' v0.2.4 - 15-Mar-2025'
+    VER = ' v0.2.5 - 16-Mar-2025'
     return [VER]
 #############################################################################
 
@@ -35,7 +35,7 @@ def vector(inputStr): # called from handleClient. inputStr from client.
     vectorDict = {
     'lc'  :{'func':cmds.cmds,      'parm':None,   'menu': 'List Commands'},
     'hr'  :{'func':sr.hwReset,     'parm':None,   'menu': 'HW Reset'     },
-    'sr'  :{'func':sr.swReset,     'parm':None,   'menu': 'SW Reset'     },
+    'sr'  :{'func':sr.swReset,     'parm':'scLSD','menu': 'SW Reset'     },
     'sb'  :{'func':sr.setBackLight,'parm':[0],    'menu': 'Set Backlight'},
     'rt'  :{'func':tr.runTest,     'parm':None,   'menu': 'Run Test'     },
     'sc'  :{'func':cr.startClk,    'parm':[[],qs],'menu': 'Start Clock'  },
@@ -62,7 +62,7 @@ def vector(inputStr): # called from handleClient. inputStr from client.
             if len(optArgsStr) == 3:
                 params[0] = optArgsStr
 
-        if choice in ['cc', 'sbl']:
+        if choice in ['sb']:
             if len(optArgsStr) == 1:
                 params = optArgsStr
 

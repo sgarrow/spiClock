@@ -89,7 +89,7 @@ if __name__ == '__main__':
             clientSocket.send(message.encode())
 
         with threadLock:  # Same story.
-            readyToRead, _, _ = select.select([clientSocket], [], [], 1.75)
+            readyToRead, _, _ = select.select([clientSocket], [], [], None)
             if readyToRead:
                 rspStr = ''
                 while readyToRead:

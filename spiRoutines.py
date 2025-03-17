@@ -7,17 +7,23 @@ import time
 import spidev                     # pylint: disable=E0401
 import gpiozero as gp
 
+#               default           default
+# LED(pin=None, active_high=True, initial_value=False)
+# So with default constructor all the chip selects would be low and 
+# hence all the LCD would be selected simultaneously, not good.
+# So, init all the CS pins to high using initial_value=True.
+
 # GPIO pin assignments for the LCD's backlight, reset and data/command.
 BL_PIN   = gp.LED( 'J8:12' )      # Grey.  on() = 1 = Lit.  off()=0=Not Lit.
 RST_PIN  = gp.LED( 'J8:13' )      # Brown. Active low.
 DC_PIN   = gp.LED( 'J8:22' )      # Blue.  on() = 1 = Data. off()=0=Cmd.
 
-CS_PIN_HR_MSD = gp.LED( 'J8:29' ) # Yellow. GPIO-05. hr_msd.
-CS_PIN_HR_LSD = gp.LED( 'J8:31' ) # Yellow. GPIO-06. hr_lsd.
-CS_PIN_MN_MSD = gp.LED( 'J8:11' ) # Yellow. GPIO-17. mn_msd.
-CS_PIN_MN_LSD = gp.LED( 'J8:15' ) # Yellow. GPIO-22. mn_lsd.
-CS_PIN_SC_MSD = gp.LED( 'J8:16' ) # Yellow. GPIO-23. sc_msd.
-CS_PIN_SC_LSD = gp.LED( 'J8:37' ) # Yellow. GPIO-26. sc_lsd.
+CS_PIN_HR_MSD = gp.LED( 'J8:29', initial_value = True ) # Yellow. GPIO-05.
+CS_PIN_HR_LSD = gp.LED( 'J8:31', initial_value = True ) # Yellow. GPIO-06.
+CS_PIN_MN_MSD = gp.LED( 'J8:11', initial_value = True ) # Yellow. GPIO-17.
+CS_PIN_MN_LSD = gp.LED( 'J8:15', initial_value = True ) # Yellow. GPIO-22.
+CS_PIN_SC_MSD = gp.LED( 'J8:16', initial_value = True ) # Yellow. GPIO-23.
+CS_PIN_SC_LSD = gp.LED( 'J8:37', initial_value = True ) # Yellow. GPIO-26.
 
 csDict = { 'CS_PIN_HR_MSD' : CS_PIN_HR_MSD, 'CS_PIN_HR_LSD' : CS_PIN_HR_LSD,
            'CS_PIN_MN_MSD' : CS_PIN_MN_MSD, 'CS_PIN_MN_LSD' : CS_PIN_MN_LSD,
@@ -53,7 +59,7 @@ def setBackLight(parmLst):
         BL_PIN.off()
     elif dsrdState == 1:
         BL_PIN.on()
-    return ['done2']
+    return ['Backlight Set']
 #############################################################################
 
 def hwReset():
@@ -72,10 +78,10 @@ def swReset(displayID):
     sendCmdToSt7789( displayID, 0x01 )  # Software reset.
     time.sleep(0.2)
 
-    sendCmdToSt7789( displayID, 0x11 )  # Sleep out.
+    sendCmdToSt7789(displayID,  0x11 )  # Sleep out.
     time.sleep(0.2)
 
-    sendCmdToSt7789( displayID, 0x36 )  # Memory Data Access Control.
+    sendCmdToSt7789(displayID,  0x36 )  # Memory Data Access Control.
     sendDatToSt7789(displayID, [0xC0])  # Set orientation to portrait mode
 
     sendCmdToSt7789(displayID,  0x3A )  # Pixel Format to RGB565 (16-bit).
