@@ -7,8 +7,7 @@ This file can be run on the Rpi, a PC or a phone.
 
 try:
     import readline         # So up arrow will recall last entered command.
-    print(readline.backend) # This line just to eliminate a pylint error.
-except (ModuleNotFoundError, AttributeError):
+except (ModuleNotFoundError):
     print('\n Exception importing readline. ok to continue.\n')
 
 import sys
@@ -77,30 +76,33 @@ if __name__ == '__main__':
     inputThread = threading.Thread( target = getUserInput,
                                     args   = (Ui2MainQ,threadLock),
                                     daemon = True )
-    inputThread.start()
+    #inputThread.start()
 
     rspStr = ''
     while pwdIsOk:
-        try:
-            message = Ui2MainQ.get()
-        except queue.Empty:
-            pass
-        else:
-            clientSocket.send(message.encode())
+        prompt = '\n Choice (m=menu, q=quit) -> '
+        message = input( prompt )
+        clientSocket.send(message.encode())
+        #try:
+        #    message = Ui2MainQ.get()
+        #except queue.Empty:
+        #    pass
+        #else:
+        #    clientSocket.send(message.encode())
 
-        with threadLock:  # Same story.
-            readyToRead, _, _ = select.select([clientSocket], [], [], None)
-            if readyToRead:
-                rspStr = ''
-                while readyToRead:
-                    response = clientSocket.recv(1024)
-                    rspStr += response.decode()
+        #with threadLock:  # Same story.
+        readyToRead, _, _ = select.select([clientSocket], [], [], 0.7)
+        if readyToRead:
+            rspStr = ''
+            while readyToRead:
+                response = clientSocket.recv(1024)
+                rspStr += response.decode()
 
-                    if 'RE: ks' in rspStr:
-                        break
+                if 'RE: ks' in rspStr:
+                    break
 
-                    readyToRead,_, _=select.select([clientSocket],[],[],.25)
-                print('\n{}'.format(rspStr))
+                readyToRead,_, _=select.select([clientSocket],[],[],.25)
+            print('\n{}'.format(rspStr))
 
         if message == 'close' or 'RE: ks' in rspStr:
             break

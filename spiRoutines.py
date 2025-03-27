@@ -121,7 +121,7 @@ def sendDatToSt7789(displayID, datLst):
     return ['sendDatToSt7789 done.']
 #############################################################################
 
-def sendDat2ToSt7789(displayID, datLst):
+def sendDat2ToSt7789(displayID, datLst, debug = False):
     # Sends the passed in data to the st7789v controller.
     # Use the spi writebytes2 function, which handles arbitraily large lists.
     cs = lcdToCsXlateDict[displayID]      # Get cs pin.

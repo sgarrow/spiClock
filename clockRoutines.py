@@ -68,7 +68,7 @@ def updateCntr(timeDict):
     scMSD = seconds // 10
     scLSD = seconds  % 10
 
-    timeDict = { 
+    timeDict = {
     'hrMSD':{'value': hrMSD, 'updated': prevDict['hrMSD']['value'] != hrMSD},
     'hrLSD':{'value': hrLSD, 'updated': prevDict['hrLSD']['value'] != hrLSD},
     'mnMSD':{'value': mnMSD, 'updated': prevDict['mnMSD']['value'] != mnMSD},
@@ -81,25 +81,17 @@ def updateCntr(timeDict):
 #############################################################################
 
 def lcdUpdateProc( procName, qLst, digitDict ):
-
-    print(' {} {}'.format(procName, 'starting')) # <-- Debug.
+    print(' {} {}'.format(procName, 'starting'))
 
     lcdCq = qLst[0]
     lcdRq = qLst[1]
     #clkCq = qLst[2]
     #clkRq = qLst[3]
 
-    # timeDict, which is placed in my cmdQ, has the same key names as the 
-    # displayIdDict. The displayIdDict is used by the functions in the 
+    # timeDict, which is placed in my cmdQ, has the same key names as the
+    # displayIdDict. The displayIdDict is used by the functions in the
     # spiRoutines.py module to determine the CS pin to use.
     kLst = ['hrMSD','hrLSD','mnMSD','mnLSD','scMSD','scLSD']
-    displayIdDict = sr.getDisplayIdDict()
-
-    sr.setBackLight([1])     # Turn on backlight.
-    sr.hwReset()             # HW Reset. Common pin to all dislays.
-
-    for theKey in kLst:
-        sr.swReset(theKey)   # SW Reset and the display initialization.
 
     while True:
 
@@ -114,31 +106,30 @@ def lcdUpdateProc( procName, qLst, digitDict ):
         minutes = timeDict['mnMSD']['value'] * 10 + timeDict['mnLSD']['value']
         seconds = timeDict['scMSD']['value'] * 10 + timeDict['scLSD']['value']
 
-        print('\n{:02}{:02}{:02}'.format(hours, minutes, seconds))
-        for theKey in kLst:
+        displaysUpdatedStr = ' updated:' 
+        hmsChangeStr = ''
+        for ii,theKey in enumerate(kLst):
+            if ii==0:
+                hmsStr = '{:02}{:02}{:02}'.format(hours,minutes,seconds)
             if timeDict[theKey]['updated']:
-                print(1, end = '')
                 digit   = str(timeDict[theKey]['value'])
                 spiData = digitDict[digit]
                 sr.setEntireDisplay(theKey, spiData, sr.sendDat2ToSt7789)
+                displaysUpdatedStr += ' {}'.format(theKey)
+                hmsChangeStr += '1'
             else:
-                print(0, end = '')
-        print()
+                hmsChangeStr += '0'
 
-
-        lcdRq.put( ' LCD update time {:.6f} sec.'.\
-                format(time.perf_counter()-kStart)) # Put rsp back to clk.
-
-    sr.setBackLight([0])     # Turn off backlight.
-    sr.hwReset()             # HW Reset
-    for theKey in kLst:
-        sr.swReset(theKey)   # SW Reset and the display initialization.
+        # Put rsp back to clk. 
+        lcdRq.put( ' LCD update time {:.6f} sec. {} {} {}.'.\
+                format(time.perf_counter()-kStart, hmsStr, hmsChangeStr, displaysUpdatedStr))
 
     lcdRq.put(' {} {}'.format(procName, 'exiting'))  # Put rsp back to user.
 #############################################################################
 
 def clockCntrProc( procName, qLst, startTime ):
-    print(' {} {}'.format(procName, 'starting')) # <-- Debug.
+    debug = True
+    if debug: print(' {} {}'.format(procName, 'starting'))
 
     lcdCq, lcdRq, clkCq, clkRq = qLst[0], qLst[1], qLst[2], qLst[3]
     calTime          =  1
@@ -155,12 +146,21 @@ def clockCntrProc( procName, qLst, startTime ):
 
         timeDict = updateCntr(timeDict)
 
+        print(timeDict['scLSD']['value'])
         lcdCq.put(timeDict)           # Send cmd to lcdUpdateProc.
-        try:
-            rsp = lcdRq.get_nowait()  # Get rsp from LCD.
-            #print(rsp)                # <-- Debug. Comment out in production.
-        except mp.queues.Empty:
-            pass
+
+        doBreak = False
+        while not clkCq.empty():      # Get any stop cmd from user. 
+            cmd = clkCq.get_nowait()  
+            if cmd == 'stop':
+                doBreak = True
+                break
+        if doBreak:
+            break
+
+        while not lcdRq.empty():      # Get rsp from LCD. 
+            rsp = lcdRq.get_nowait()  
+            if debug: print(rsp,flush = True)      # execution time.
 
         actNumDataPoints += 1
         actTime = time.perf_counter()-kStart
@@ -180,13 +180,6 @@ def clockCntrProc( procName, qLst, startTime ):
         #    print( ' time (req,act) = ({:.6f}, {:.6f}) sec. Num points = {}.'.\
         #            format(calTime,actTime,actNumDataPoints))
 
-        try:
-            cmd = clkCq.get_nowait()  # Get any stop cmd from user.
-            if cmd == 'stop':
-                break
-        except mp.queues.Empty:
-            pass
-
     clkRq.put(' {} {}'.format(procName, 'exiting'))  # Put rsp back to user.
 ##############################################################################
 
@@ -194,6 +187,7 @@ procPidDict = {'clockCntrProc': None, 'lcdUpdateProc': None}
 
 def startLcdUpdateProc( qLst, digitDict ):
     procLst = []
+
     for _ in range(1):
         # Cannot access return value from proc directly.
         lcdProc = mp.Process(
@@ -236,6 +230,11 @@ def startClk(prmLst):
         return [rspStr]
 
     if procPidDict['lcdUpdateProc'] is None:
+        kLst = ['hrMSD','hrLSD','mnMSD','mnLSD','scMSD','scLSD']
+        sr.setBackLight([1])     # Turn on backlight.
+        sr.hwReset()             # HW Reset. Common pin to all dislays.
+        for theKey in kLst:
+            sr.swReset(theKey)   # SW Reset and the display initialization.
         startLcdUpdateProc( qLst, digitDict )
         rspStr += ' lcdUpdateProc started.'
     else:
@@ -282,6 +281,11 @@ def stopClk(prmLst):
             except mp.queues.Empty:
                 pass
         procPidDict['lcdUpdateProc'] = None
+        kLst = ['hrMSD','hrLSD','mnMSD','mnLSD','scMSD','scLSD']
+        sr.setBackLight([0])     # Turn off backlight.
+        sr.hwReset()             # HW Reset. Common pin to all dislays.
+        for theKey in kLst:
+            sr.swReset(theKey)   # SW Reset and the display initialization.
         rspStr += ' lcdUpdateProc stopped.'
     else:
         rspStr += ' lcdUpdateProc not running.'
@@ -332,8 +336,8 @@ if __name__ == '__main__':
     clkCqMain = mp.Queue()    # CLK Cmd Q. mp queue must be used here.
     clkRqMain = mp.Queue()    # CLK Rsp Q. mp queue must be used here.
 
-    kLst = ['hrMSD','hrLSD','mnMSD','mnLSD','scMSD','scLSD']
-    displayID = kLst[-1]
+    keyLst = ['hrMSD','hrLSD','mnMSD','mnLSD','scMSD','scLSD']
+    displayID = keyLst[-1]
 
     resp = startClk(
                     [
@@ -351,4 +355,3 @@ if __name__ == '__main__':
         sr.hwReset()             # HW Reset
         sr.swReset(displayID)    # SW Reset and the display initialization.
         sr.setBackLight([0])     # Turn off backlight.
-
