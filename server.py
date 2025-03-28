@@ -29,7 +29,7 @@ def listThreads(): # Daemon to startServer, terminates w/ kill server (ks).
 #############################################################################
 
 def processCloseCmd(clientSocket, clientAddress):
-    global openSocketsLst
+    global openSocketsLst # pylint: disable=W0602
 
     rspStr = ' handleClient {} set loop break RE: close'.format(clientAddress)
     clientSocket.send(rspStr.encode()) # sends all even if >1024.
@@ -40,7 +40,7 @@ def processCloseCmd(clientSocket, clientAddress):
 #############################################################################
 
 def processKsCmd(clientSocket, clientAddress, client2ServerCmdQ):
-    global openSocketsLst
+    global openSocketsLst # pylint: disable=W0603
 
     rspStr = ''
     # Client sending ks has to be terminated first, I don't know why.
@@ -69,7 +69,7 @@ def processKsCmd(clientSocket, clientAddress, client2ServerCmdQ):
 #############################################################################
 
 def handleClient(clientSocket, clientAddress, client2ServerCmdQ):
-    global openSocketsLst
+    global openSocketsLst # pylint: disable=W0602
 
     # Validate password
     data = clientSocket.recv(1024)

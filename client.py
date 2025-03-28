@@ -6,8 +6,8 @@ This file can be run on the Rpi, a PC or a phone.
 '''
 
 try:
-    import readline         # So up arrow will recall last entered command.
-except (ModuleNotFoundError):
+    import readline  # pylint: disable=W0611
+except ModuleNotFoundError:
     print('\n Exception importing readline. ok to continue.\n')
 
 import sys
@@ -32,8 +32,8 @@ def getUserInput( uiToMainQ, aLock ):
         with aLock:  # If I take just this out then after a command I get a
                      # get a prompt printed, then the rsp printed then need
                      # an extra return to get a prompt again.
-            prompt = '\n Choice (m=menu, q=quit) -> '
-            userInput = input( prompt )
+            thePrompt = '\n Choice (m=menu, q=quit) -> '
+            userInput = input( thePrompt )
 
         uiToMainQ.put(userInput)
         time.sleep(.01) # Gives 'main' a chance to run.
@@ -45,7 +45,7 @@ if __name__ == '__main__':
     clientSocket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 
     #connectType = input(' ssh, lan, internet (s,l,i) -> ')
-    connectType = 'l'
+    connectType = 'l' # pylint: disable=C0103
     #             {'s':'localhost','l':'lanAddr','i':'routerAddr'}
     connectDict = {'s':'localhost','l':'0.0.0.0','i':'00.00.00.00'}
     PORT = 0000
@@ -80,7 +80,7 @@ if __name__ == '__main__':
 
     rspStr = ''
     while pwdIsOk:
-        prompt = '\n Choice (m=menu, q=quit) -> '
+        prompt = '\n Choice (m=menu, q=quit) -> ' # pylint: disable=C0103
         message = input( prompt )
         clientSocket.send(message.encode())
         #try:

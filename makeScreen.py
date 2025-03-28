@@ -148,7 +148,7 @@ if __name__ == '__main__':
     #########################
 
     kLst = ['hrMSD','hrLSD','mnMSD','mnLSD','scMSD','scLSD']
-    displayID = kLst[-1]
+    displayID = kLst[-1]  # pylint: disable=C0103
     sr.setBackLight([1])  # Turn on backlight.
     sr.hwReset()          # HW Reset
     sr.swReset(displayID) # SW Reset and the display initialization.
@@ -164,4 +164,3 @@ if __name__ == '__main__':
     sr.setBackLight([0])  # Turn off backlight.
     sr.hwReset()          # HW Reset
     sr.swReset(displayID) # SW Reset and the display initialization.
-

@@ -11,11 +11,11 @@ def runTest():
     sr.swReset(displayID) # SW Reset and the display initialization.
     sr.setBackLight([1])  # Turn on backlight.
 
-    rPixLst,rRowLst,rScrLst = ms.makeColoredPRSLstsOfBytes(0xFF0000)
-    gPixLst,gRowLst,gScrLst = ms.makeColoredPRSLstsOfBytes(0x00FF00)
-    bPixLst,bRowLst,bScrLst = ms.makeColoredPRSLstsOfBytes(0x0000FF)
-    wPixLst,wRowLst,wScrLst = ms.makeColoredPRSLstsOfBytes(0xFFFFFF)
-    bPixLst,bRowLst,bScrLst = ms.makeColoredPRSLstsOfBytes(0x000000)
+    rPixLst,rRowLst,rScrLst = ms.makeColoredPRSLstsOfBytes(0xFF0000) # pylint: disable=W0612
+    gPixLst,gRowLst,gScrLst = ms.makeColoredPRSLstsOfBytes(0x00FF00) # pylint: disable=W0612
+    bPixLst,bRowLst,bScrLst = ms.makeColoredPRSLstsOfBytes(0x0000FF) # pylint: disable=W0612
+    wPixLst,wRowLst,wScrLst = ms.makeColoredPRSLstsOfBytes(0xFFFFFF) # pylint: disable=W0612
+    bPixLst,bRowLst,bScrLst = ms.makeColoredPRSLstsOfBytes(0x000000) # pylint: disable=W0612
 
     sendFuncs = [ sr.sendDatToSt7789, sr.sendDat2ToSt7789 ]
 

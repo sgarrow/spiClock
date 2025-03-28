@@ -1,15 +1,19 @@
 # This script sends various commands and data to the waveshare 320x240 LCD
 # module.  The LCD uses the st7789v controller.  The LCD is connected to the
 # Raspberry Pi 4 and they communicate via an SPI interface.
+#############################################################################
 
 # Import required modules.
 import time
-import spidev                     # pylint: disable=E0401
+import spidev # pylint: disable=E0401
 import gpiozero as gp
+#############################################################################
+
+# Assign GPIO Pins for Chip Selects, SPI, Pwr, etc to the 6 LCD displays.
 
 #               default           default
 # LED(pin=None, active_high=True, initial_value=False)
-# So with default constructor all the chip selects would be low and 
+# So with default constructor all the chip selects would be low and
 # hence all the LCD would be selected simultaneously, not good.
 # So, init all the CS pins to high using initial_value=True.
 
@@ -18,6 +22,7 @@ BL_PIN   = gp.LED( 'J8:12' )      # Grey.  on() = 1 = Lit.  off()=0=Not Lit.
 RST_PIN  = gp.LED( 'J8:13' )      # Brown. Active low.
 DC_PIN   = gp.LED( 'J8:22' )      # Blue.  on() = 1 = Data. off()=0=Cmd.
 
+# GPIO pin assignments for the 6 LCD's chip selects.
 CS_PIN_HR_MSD = gp.LED( 'J8:29', initial_value = True ) # Yellow. GPIO-05.
 CS_PIN_HR_LSD = gp.LED( 'J8:31', initial_value = True ) # Yellow. GPIO-06.
 CS_PIN_MN_MSD = gp.LED( 'J8:11', initial_value = True ) # Yellow. GPIO-17.
@@ -25,31 +30,28 @@ CS_PIN_MN_LSD = gp.LED( 'J8:15', initial_value = True ) # Yellow. GPIO-22.
 CS_PIN_SC_MSD = gp.LED( 'J8:16', initial_value = True ) # Yellow. GPIO-23.
 CS_PIN_SC_LSD = gp.LED( 'J8:37', initial_value = True ) # Yellow. GPIO-26.
 
-csDict = { 'CS_PIN_HR_MSD' : CS_PIN_HR_MSD, 'CS_PIN_HR_LSD' : CS_PIN_HR_LSD,
-           'CS_PIN_MN_MSD' : CS_PIN_MN_MSD, 'CS_PIN_MN_LSD' : CS_PIN_MN_LSD,
-           'CS_PIN_SC_MSD' : CS_PIN_SC_MSD, 'CS_PIN_SC_LSD' : CS_PIN_SC_LSD }
-
-lcdToCsXlateDict = { 'hrMSD' : 'CS_PIN_HR_MSD', 'hrLSD' : 'CS_PIN_HR_LSD',
-                     'mnMSD' : 'CS_PIN_MN_MSD', 'mnLSD' : 'CS_PIN_MN_LSD',
-                     'scMSD' : 'CS_PIN_SC_MSD', 'scLSD' : 'CS_PIN_SC_LSD'}
-
-# Some unused text strings.
+# Unused text strings just to document the wire colors for various signals
 PWR_PIN  = 'J8:1'                 # Purple.  3.3V.
 GND_PIN  = 'J8:6'                 # White.
 MOSI_PIN = 'J8:19'                # Green.
 CLK_PIN  = 'J8:23'                # Orange.
 CS_PIN   = 'J8:24'                # Yellow. Not used - supports only 1 device.
+#############################################################################
+
+# Create a dictionary that translates a displayID to a chip select pin.
+# External callers of the functions herein pass in a displayID.
+csDict = { 'hrMSD' : CS_PIN_HR_MSD, 'hrLSD' : CS_PIN_HR_LSD,
+           'mnMSD' : CS_PIN_MN_MSD, 'mnLSD' : CS_PIN_MN_LSD,
+           'scMSD' : CS_PIN_SC_MSD, 'scLSD' : CS_PIN_SC_LSD }
+#############################################################################
 
 # Open up the SPI channel (global to this script).
+# This code gets executed the first time someone imports this module.
 spi = spidev.SpiDev()
 spi.open(0, 0)                    # Open SPI bus 0, device 0 (CE0).
-#print('open')
 spi.mode = 0b00                   # SPI mode 0, CPOL = 0, CPHA = 0.
 spi.max_speed_hz = 20000000       # max = 20000000
 #############################################################################
-
-def getDisplayIdDict():           # For external users of these functions.
-    return lcdToCsXlateDict
 #############################################################################
 
 def setBackLight(parmLst):
@@ -96,12 +98,11 @@ def swReset(displayID):
 def sendCmdToSt7789(displayID, cmd):
     # Sends the passed in command to the st7789v controller.
     # Use the spi writebytes function, which has a 4096 byte list size limit.
-    cs = lcdToCsXlateDict[displayID]      # Get cs pin.
-    csDict[cs].off()                      # CS active lo.
+    csDict[displayID].off()               # CS active lo.
     DC_PIN.off()                          # Set st7789v to command mode.
     spi.writebytes([cmd])                 # Wrap the command in a list.
     time.sleep(0.001)                     # Ensure proper timing.
-    csDict[cs].on()
+    csDict[displayID].on()
     return ['sendCmdToSt7789 done.']
 #############################################################################
 
@@ -111,25 +112,23 @@ def sendDatToSt7789(displayID, datLst):
     chunkSize = 4096
     chunks = [ datLst[x:x+chunkSize] for x in range(0, len(datLst), chunkSize) ]
 
-    cs = lcdToCsXlateDict[displayID]      # Get cs pin.
-    csDict[cs].off()                      # CS active lo.
+    csDict[displayID].off()               # CS active lo.
     DC_PIN.on()                           # Set st7789v to data mode.
     for c in chunks:
         spi.writebytes(c)                 # Send a list of data.
         time.sleep(0.001)                 # Ensure proper timing.
-    csDict[cs].on()
+    csDict[displayID].on()
     return ['sendDatToSt7789 done.']
 #############################################################################
 
-def sendDat2ToSt7789(displayID, datLst, debug = False):
+def sendDat2ToSt7789(displayID, datLst):
     # Sends the passed in data to the st7789v controller.
     # Use the spi writebytes2 function, which handles arbitraily large lists.
-    cs = lcdToCsXlateDict[displayID]      # Get cs pin.
-    csDict[cs].off()                      # CS active lo.
+    csDict[displayID].off()               # CS active lo.
     DC_PIN.on()                           # Set st7789v to data mode.
     spi.writebytes2(datLst)               # Send a list of data.
     time.sleep(0.001)                     # Ensure proper timing.
-    csDict[cs].on()
+    csDict[displayID].on()
     return ['sendDat2ToSt7789 done.']
 #############################################################################
 

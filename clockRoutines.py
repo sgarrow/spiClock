@@ -13,25 +13,25 @@ def getStartTime( startTime ):
         seconds = int(startTime[2])
         while True:
             time.sleep(.2)
-            now = dt.datetime.now()
+            now    = dt.datetime.now()
             hour   = now.hour
             minute = now.minute
             second = now.second
             if (hours == hour and minute == minutes and second == seconds):
                 break
     else:
-        now = dt.datetime.now()
+        now    = dt.datetime.now()
         hour   = now.hour
         minute = now.minute
         second = now.second
         hours, minutes, seconds = hour, minute, second
 
-        hrMSD = hours   // 10
-        hrLSD = hours    % 10
-        mnMSD = minutes // 10
-        mnLSD = minutes  % 10
-        scMSD = seconds // 10
-        scLSD = seconds  % 10
+    hrMSD = hours   // 10
+    hrLSD = hours    % 10
+    mnMSD = minutes // 10
+    mnLSD = minutes  % 10
+    scMSD = seconds // 10
+    scLSD = seconds  % 10
 
     timeDict = { 'hrMSD' : { 'value' : hrMSD, 'updated' : True },
                  'hrLSD' : { 'value' : hrLSD, 'updated' : True },
@@ -105,12 +105,11 @@ def lcdUpdateProc( procName, qLst, digitDict ):
         hours   = timeDict['hrMSD']['value'] * 10 + timeDict['hrLSD']['value']
         minutes = timeDict['mnMSD']['value'] * 10 + timeDict['mnLSD']['value']
         seconds = timeDict['scMSD']['value'] * 10 + timeDict['scLSD']['value']
+        hmsStr  = '{:02}{:02}{:02}'.format(hours,minutes,seconds)
 
-        displaysUpdatedStr = ' updated:' 
+        displaysUpdatedStr = ' updated:'
         hmsChangeStr = ''
-        for ii,theKey in enumerate(kLst):
-            if ii==0:
-                hmsStr = '{:02}{:02}{:02}'.format(hours,minutes,seconds)
+        for theKey in kLst:
             if timeDict[theKey]['updated']:
                 digit   = str(timeDict[theKey]['value'])
                 spiData = digitDict[digit]
@@ -120,7 +119,7 @@ def lcdUpdateProc( procName, qLst, digitDict ):
             else:
                 hmsChangeStr += '0'
 
-        # Put rsp back to clk. 
+        # Put rsp back to clk.
         lcdRq.put( ' LCD update time {:.6f} sec. {} {} {}.'.\
                 format(time.perf_counter()-kStart, hmsStr, hmsChangeStr, displaysUpdatedStr))
 
@@ -150,16 +149,16 @@ def clockCntrProc( procName, qLst, startTime ):
         lcdCq.put(timeDict)           # Send cmd to lcdUpdateProc.
 
         doBreak = False
-        while not clkCq.empty():      # Get any stop cmd from user. 
-            cmd = clkCq.get_nowait()  
+        while not clkCq.empty():      # Get any stop cmd from user.
+            cmd = clkCq.get_nowait()
             if cmd == 'stop':
                 doBreak = True
                 break
         if doBreak:
             break
 
-        while not lcdRq.empty():      # Get rsp from LCD. 
-            rsp = lcdRq.get_nowait()  
+        while not lcdRq.empty():      # Get rsp from LCD.
+            rsp = lcdRq.get_nowait()
             if debug: print(rsp,flush = True)      # execution time.
 
         actNumDataPoints += 1
@@ -337,7 +336,7 @@ if __name__ == '__main__':
     clkRqMain = mp.Queue()    # CLK Rsp Q. mp queue must be used here.
 
     keyLst = ['hrMSD','hrLSD','mnMSD','mnLSD','scMSD','scLSD']
-    displayID = keyLst[-1]
+    displayID = keyLst[-1] # pylint: disable=C0103
 
     resp = startClk(
                     [
