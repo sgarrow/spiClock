@@ -1,6 +1,7 @@
 import time
 import spiRoutines as sr
 import makeScreen  as ms
+import cfgDict     as cd
 #############################################################################
 
 def runTest():
@@ -85,7 +86,31 @@ def runTest():
 
     return ['Test Complete']
 #############################################################################
+def runTest2():
 
+    cfgDict         = cd.loadCfgDict()
+    digitScreenDict = cfgDict['digitScreenDict']
+    kLst            = ['hrMSD','hrLSD','mnMSD','mnLSD','scMSD','scLSD']
+    textLst         = ['0','1','2','3','4','5','6','7','8','9']
+
+    sr.hwReset()              # HW Reset
+    for displayID in kLst:    # pylint: disable=C0103
+        sr.swReset(displayID) # SW Reset and the display initialization.
+    sr.setBackLight([1])      # Turn on backlight.
+
+    for style in digitScreenDict.keys():
+        for k in textLst:
+            for displayID in kLst:  # pylint: disable=C0103
+                data = digitScreenDict[style][k]
+                sr.setEntireDisplay(displayID, data, sr.sendDat2ToSt7789)
+
+    sr.hwReset()              # HW Reset
+    for displayID in kLst:    # pylint: disable=C0103
+        sr.swReset(displayID) # SW Reset and the display initialization.
+    sr.setBackLight([0])      # Turn off backlight.
+
+    return ['Test Complete']
+#############################################################################
 if __name__ == '__main__':
     #barLst = []
     #for _ in range(8):

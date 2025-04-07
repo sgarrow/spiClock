@@ -1,7 +1,5 @@
-import time
 from PIL import Image, ImageDraw, ImageFont # pylint: disable=E0401
-import cfgDict     as cd
-import spiRoutines as sr
+import cfgDict      as cd
 #############################################################################
 
 def makeColoredPRSLstsOfBytes(c):
@@ -26,6 +24,17 @@ def makePilTextImage(text, textColor, backgroundColor):
     draw  = ImageDraw.Draw(image)
 
     # Define a bounding box.
+    #
+    #
+    #  bbox[0],bbox[1]     bbox[2],bbox[1]
+    #    +-------------------+
+    #    |                   |
+    #    |                   |
+    #    |                   |
+    #    |                   |
+    #    +-------------------+
+    #  bbox[0],bbox[0]     bbox[0],bbox[0]
+    #
     bbox = draw.textbbox( (0, 0), text, font = font )
     textWidth  = bbox[2] - bbox[0]  # Calculate width  from bbox.
     textHeight = bbox[3] - bbox[1]  # Calculate height from bbox.
@@ -36,12 +45,16 @@ def makePilTextImage(text, textColor, backgroundColor):
     xPos = ( 240 - textWidth  ) // 2    # Move left/right
     yPos = ( 320 - textHeight ) // 2    # Move up/down
 
-    #print('textWidth  = {}'.format( textWidth  ))
-    #print('textHeight = {}'.format( textHeight ))
-    #print('xPos       = {}'.format( xPos       ))
-    #print('yPos       = {}'.format( yPos       ))
+    print( 'upperLeft  (x,y) = ({:3},{:3}))'.format( bbox[0] + xPos, bbox[1] + yPos-100 ))
+    print( 'lowerRight (x,y) = ({:3},{:3}))'.format( bbox[2] + xPos, bbox[3] + yPos-100 ))
+
+    print('textWidth  = {}'.format( textWidth  ))
+    print('textHeight = {}'.format( textHeight ))
+    print('xPos       = {}'.format( xPos       ))
+    print('yPos       = {}'.format( yPos       ))
 
     draw.text((xPos, yPos-100), text, font = font, fill = textColor )
+
 
     draw.rectangle( ( bbox[0] + xPos,
                       bbox[1] + yPos-100,
@@ -108,7 +121,6 @@ def makeDigitScreens( screenDict, styleName,
 #############################################################################
 
 if __name__ == '__main__':
-
     #cfgDict = { 'digitScreenDict' : { 'whiteOnBlack': { '0': data,
     #                                                    '1': data
     #                                                  },
@@ -124,7 +136,7 @@ if __name__ == '__main__':
     black     = ( 255, 255, 255 )
     orange    = ( 239, 144,   1 )
     turquoise = (  18, 151, 128 )
-    textLst = ['0','1','2','3','4','5','6','7','8','9']
+    textLst   = ['0','1','2','3','4','5','6','7','8','9']
 
     digitScreenDict = {}
 
@@ -144,23 +156,3 @@ if __name__ == '__main__':
     cfgDict = cd.loadCfgDict()
     cfgDict = cd.updateCfgDict( cfgDict, digitScreenDict = digitScreenDict )
     cfgDict = cd.saveCfgDict( cfgDict )
-    cd.runTest()
-    #########################
-
-    kLst = ['hrMSD','hrLSD','mnMSD','mnLSD','scMSD','scLSD']
-    displayID = kLst[-1]  # pylint: disable=C0103
-    sr.setBackLight([1])  # Turn on backlight.
-    sr.hwReset()          # HW Reset
-    sr.swReset(displayID) # SW Reset and the display initialization.
-
-    digitScreenDict = cfgDict['digitScreenDict']
-
-    for style in digitScreenDict.keys():
-        for k in textLst:
-            data = digitScreenDict[style][k]
-            sr.setEntireDisplay(displayID, data, sr.sendDat2ToSt7789)
-            time.sleep(.5)
-
-    sr.setBackLight([0])  # Turn off backlight.
-    sr.hwReset()          # HW Reset
-    sr.swReset(displayID) # SW Reset and the display initialization.

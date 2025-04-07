@@ -25,7 +25,7 @@ def killSrvr():    # The ks handled directly in the handleClient func so it
 #############################################################################
 
 def getVer():
-    VER = ' v0.2.7 - 27-Mar-2025'
+    VER = ' v0.3.0 - 6-Apr-2025'
     return [VER]
 #############################################################################
 
@@ -33,14 +33,17 @@ def vector(inputStr): # called from handleClient. inputStr from client.
 
     # This dictionary embodies the worker function vector (and menu) info.
     vectorDict = {
-    'lc'  :{'func':cmds.cmds,      'parm':None,   'menu': 'List Commands'},
-    'hr'  :{'func':sr.hwReset,     'parm':None,   'menu': 'HW Reset'     },
-    'sr'  :{'func':sr.swReset,     'parm':'scLSD','menu': 'SW Reset'     },
-    'sb'  :{'func':sr.setBackLight,'parm':[0],    'menu': 'Set Backlight'},
-    'rt'  :{'func':tr.runTest,     'parm':None,   'menu': 'Run Test'     },
-    'sc'  :{'func':cr.startClk,    'parm':[[],qs],'menu': 'Start Clock'  },
-    'pc'  :{'func':cr.stopClk,     'parm':qs,     'menu': 'stoP Clock'  },
-    'ks'  :{'func':killSrvr,       'parm':None,   'menu': 'Kill Server'  }
+    'lc'  :{'func':cmds.cmds,      'parm':None,   'mainMenu': 'List Commands'},
+    'hr'  :{'func':sr.hwReset,     'parm':None,   'mainMenu': 'HW Reset'     },
+    'sr'  :{'func':sr.swReset,     'parm':'scLSD','mainMenu': 'SW Reset'     },
+    'sb'  :{'func':sr.setBackLight,'parm':[0],    'mainMenu': 'Set Backlight'},
+    'sc'  :{'func':cr.startClk,    'parm':[[],qs],'mainMenu': 'Start Clock'  },
+    'pc'  :{'func':cr.stopClk,     'parm':qs,     'mainMenu': 'stoP Clock'   },
+    'ks'  :{'func':killSrvr,       'parm':None,   'mainMenu': 'Kill Server'  },
+    'tm'  :{'func':None,           'parm':None,   'mainMenu': 'Test Menu'    },
+
+    'rt'  :{'func':tr.runTest,     'parm':None,   'testMenu': 'Run Test'     },
+    'rt2' :{'func':tr.runTest2,    'parm':None,   'testMenu': 'Run Test 2'   },
     }
 
     # Process the string (command) passed to this function via the call
@@ -54,7 +57,7 @@ def vector(inputStr): # called from handleClient. inputStr from client.
     choice     = inputWords[0]
     optArgsStr = inputWords[1:]
 
-    if choice in vectorDict:
+    if choice in vectorDict and vectorDict[choice]['func'] is not None:
         func   = vectorDict[choice]['func']
         params = vectorDict[choice]['parm']
 
@@ -79,7 +82,15 @@ def vector(inputStr): # called from handleClient. inputStr from client.
     if choice == 'm':
         rspStr = ''
         for k,v in vectorDict.items():
-            rspStr += ' {:2} - {}\n'.format(k, v['menu'] )
+            if 'mainMenu' in v:
+                rspStr += ' {:2} - {}\n'.format(k, v['mainMenu'] )
+        return rspStr          # Return to srvr for forwarding to clnt.
+
+    if choice == 'tm':
+        rspStr = ''
+        for k,v in vectorDict.items():
+            if 'testMenu' in v:
+                rspStr += ' {:2} - {}\n'.format(k, v['testMenu'] )
         return rspStr          # Return to srvr for forwarding to clnt.
 
     rspStr = 'Invalid command'
