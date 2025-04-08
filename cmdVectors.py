@@ -6,10 +6,11 @@ is then vectored to in file cmdWorkers.py.
 '''
 
 import multiprocessing as mp
-import clockRoutines as cr
-import spiRoutines   as sr
-import testRoutines  as tr
-import cmds
+import clockRoutines   as cr
+import testRoutines    as tr
+import spiRoutines     as sr
+import cfgDict         as cd
+import cmds            as cm
 #############################################################################
 
 lcdCq = mp.Queue() # LCD Cmd Q. mp queue must be used here.
@@ -25,7 +26,7 @@ def killSrvr():    # The ks handled directly in the handleClient func so it
 #############################################################################
 
 def getVer():
-    VER = ' v0.3.0 - 6-Apr-2025'
+    VER = ' v0.3.1 - 7-Apr-2025'
     return [VER]
 #############################################################################
 
@@ -33,17 +34,28 @@ def vector(inputStr): # called from handleClient. inputStr from client.
 
     # This dictionary embodies the worker function vector (and menu) info.
     vectorDict = {
-    'lc'  :{'func':cmds.cmds,      'parm':None,   'mainMenu': 'List Commands'},
-    'hr'  :{'func':sr.hwReset,     'parm':None,   'mainMenu': 'HW Reset'     },
-    'sr'  :{'func':sr.swReset,     'parm':'scLSD','mainMenu': 'SW Reset'     },
-    'sb'  :{'func':sr.setBackLight,'parm':[0],    'mainMenu': 'Set Backlight'},
-    'sc'  :{'func':cr.startClk,    'parm':[[],qs],'mainMenu': 'Start Clock'  },
-    'pc'  :{'func':cr.stopClk,     'parm':qs,     'mainMenu': 'stoP Clock'   },
-    'ks'  :{'func':killSrvr,       'parm':None,   'mainMenu': 'Kill Server'  },
-    'tm'  :{'func':None,           'parm':None,   'mainMenu': 'Test Menu'    },
+    # Worker Function in clockRoutines.py.
+    'sc'  :{'func':cr.startClk,   'parm':[[],qs],'mainMnu': 'Start Clock'      },
+    'pc'  :{'func':cr.stopClk,    'parm':qs,     'mainMnu': 'stoP  Clock'      },
+    'tm'  :{'func':None,          'parm':None,   'mainMnu': 'Test  Menu'       },
 
-    'rt'  :{'func':tr.runTest,     'parm':None,   'testMenu': 'Run Test'     },
-    'rt2' :{'func':tr.runTest2,    'parm':None,   'testMenu': 'Run Test 2'   },
+    # Worker Function in testRoutines.py.
+    'rt1' :{'func':tr.runTest1,   'parm':None,   'testMnu': 'Run Test 1'       },
+    'rt2' :{'func':tr.runTest2,   'parm':None,   'testMnu': 'Run Test 2'       },
+
+    # Worker Function in spiRoutines.py.
+    'hr'  :{'func':sr.hwReset,    'parm':None,   'mainMnu': 'Reset LCD HW'     },
+    'sr'  :{'func':sr.swReset,    'parm':'scLSD','mainMnu': 'Reset LCD SW'     },
+    'sb'  :{'func':sr.setBkLight, 'parm':[0],    'mainMnu': 'Set   Backlight'  },
+
+    # Worker Function in cfgDict.py.
+    'rcd' :{'func':cd.readCfgDict,'parm':None,   'mainMnu': 'Read  Config Dict'},
+
+    # Worker Function in cmds.py.
+    'lc'  :{'func':cm.cmds,       'parm':None,   'mainMnu': 'List  Commands'   },
+
+    # Worker Function in this module.
+    'ks'  :{'func':killSrvr,      'parm':None,   'mainMnu': 'Kill  Server'     },
     }
 
     # Process the string (command) passed to this function via the call
@@ -61,36 +73,29 @@ def vector(inputStr): # called from handleClient. inputStr from client.
         func   = vectorDict[choice]['func']
         params = vectorDict[choice]['parm']
 
-        if choice in ['sc']:
-            if len(optArgsStr) == 3:
-                params[0] = optArgsStr
+        if choice in ['sc'] and len(optArgsStr) == 3:
+            params[0] = optArgsStr
 
-        if choice in ['sb']:
-            if len(optArgsStr) == 1:
-                params = optArgsStr
+        if choice in ['sb'] and len(optArgsStr) == 1:
+            params = optArgsStr
 
-        #try:
-        if params is None:
-            rsp = func()       # rsp[0] = rspStr. Vector to worker.
-            return rsp[0]      # return to srvr for forwarding to clnt.
+        try:                   # Catch exceptions in command procesing.
+            if params is None:
+                rsp = func()   # rsp[0] = rspStr. Vector to worker.
+                return rsp[0]  # return to srvr for forwarding to clnt.
 
-        rsp = func(params)     # rsp[0] = rspStr. Vector to worker.
-        return rsp[0]          # Return to srvr for forwarding to clnt.
-        #except Exception #as e:
-        #    return str(e)
+            rsp = func(params) # rsp[0] = rspStr. Vector to worker.
+            return rsp[0]      # Return to srvr for forwarding to clnt.
+        except Exception as e: # pylint: disable = W0718
+            return str(e)
 
-    if choice == 'm':
+    if choice in ['m','tm']:
         rspStr = ''
         for k,v in vectorDict.items():
-            if 'mainMenu' in v:
-                rspStr += ' {:2} - {}\n'.format(k, v['mainMenu'] )
-        return rspStr          # Return to srvr for forwarding to clnt.
-
-    if choice == 'tm':
-        rspStr = ''
-        for k,v in vectorDict.items():
-            if 'testMenu' in v:
-                rspStr += ' {:2} - {}\n'.format(k, v['testMenu'] )
+            if   choice == 'm'  and 'mainMnu' in v:
+                rspStr += ' {:3} - {}\n'.format(k, v['mainMnu'] )
+            elif choice == 'tm' and 'testMnu' in v:
+                rspStr += ' {:3} - {}\n'.format(k, v['testMnu'] )
         return rspStr          # Return to srvr for forwarding to clnt.
 
     rspStr = 'Invalid command'

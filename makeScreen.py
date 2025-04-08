@@ -45,13 +45,13 @@ def makePilTextImage(text, textColor, backgroundColor):
     xPos = ( 240 - textWidth  ) // 2    # Move left/right
     yPos = ( 320 - textHeight ) // 2    # Move up/down
 
-    print( 'upperLeft  (x,y) = ({:3},{:3}))'.format( bbox[0] + xPos, bbox[1] + yPos-100 ))
-    print( 'lowerRight (x,y) = ({:3},{:3}))'.format( bbox[2] + xPos, bbox[3] + yPos-100 ))
-
-    print('textWidth  = {}'.format( textWidth  ))
-    print('textHeight = {}'.format( textHeight ))
-    print('xPos       = {}'.format( xPos       ))
-    print('yPos       = {}'.format( yPos       ))
+    #print( 'upperLeft  (x,y) = ({:3},{:3}))'.format( bbox[0] + xPos, bbox[1] + yPos-100 ))
+    #print( 'lowerRight (x,y) = ({:3},{:3}))'.format( bbox[2] + xPos, bbox[3] + yPos-100 ))
+    #
+    #print('textWidth  = {}'.format( textWidth  ))
+    #print('textHeight = {}'.format( textHeight ))
+    #print('xPos       = {}'.format( xPos       ))
+    #print('yPos       = {}'.format( yPos       ))
 
     draw.text((xPos, yPos-100), text, font = font, fill = textColor )
 

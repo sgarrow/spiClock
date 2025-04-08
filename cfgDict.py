@@ -3,15 +3,17 @@ import pprint as pp
 
 #############################################################################
 def loadCfgDict():
+    rspStr = ''
     try:
         with open('cfgDict.pickle', 'rb') as f:
             cfgDict = pickle.load(f)
-        print(' pickle loaded from file')
+        rspStr += ' loadCfgDict: pickle loaded from file'
     except FileNotFoundError as e:
-        print(' loadCfgDict FileNotFoundError:', str(e))
-        print(' returning an empty dictionary')
+        rspStr += ' loadCfgDict: {}\n'.format(str(e))
+        rspStr += ' loadCfgDict: returning an empty dictionary'
         cfgDict = {}
-    return cfgDict
+    #print(rspStr)
+    return [rspStr, cfgDict]
 #############################################################################
 
 def saveCfgDict(cfgDict):
@@ -27,19 +29,26 @@ def updateCfgDict(cfgDict, **kwargs):
     return cfgDict
 #############################################################################
 
-def runTest():
+def readCfgDict():
 
-    cfgDict = loadCfgDict()
+    rspStr = ''
+    rsp = loadCfgDict()
+    rspStr += rsp[0]
+    cfgDict = rsp[1]
 
-    ppStr = pp.pformat(cfgDict.keys())
-    print(' {}'.format(ppStr))
+    ppStr = pp.pformat(list(cfgDict.keys()))
+    rspStr += '\n cfgDict keys:'
+    rspStr += ' {}\n'.format(ppStr)
 
     try:
-        ppStr = pp.pformat(cfgDict['digitScreenDict'].keys())
-        print(' {}'.format(ppStr))
+        ppStr = pp.pformat(list(cfgDict['digitScreenDict'].keys()))
+        rspStr += ' digitScreenDict keys:'
+        rspStr += ' {}\n'.format(ppStr)
     except KeyError as e:
-        print(' runTest KeyError:', str(e))
+        rspStr += ' readCfgDict KeyError: {}\n'.format(str(e))
+    return [rspStr]
 #############################################################################
 
 if __name__ == '__main__':
-    runTest()
+    rsp = readCfgDict()
+    print(rsp[0])
