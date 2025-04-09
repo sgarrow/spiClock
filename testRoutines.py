@@ -59,7 +59,7 @@ def runTest1():
         time.sleep(.5)
     ###################################################
 
-    rspStr += '\nBegin test 1.3 - Fill entire screen w/ solid colors in one shot.\n' 
+    rspStr += '\nBegin test 1.3 - Fill entire screen w/ solid colors in one shot.\n'
     pixLst    = [ rScrLst, gScrLst ]
     for sf,pl in zip( sendFuncs, pixLst ):
         kStart = time.time()
@@ -69,7 +69,7 @@ def runTest1():
         time.sleep(1)
     ####################################################
 
-    rspStr += '\nBegin test 1.4 - Fill entire screen w/ mixed colors in one shot.\n' 
+    rspStr += '\nBegin test 1.4 - Fill entire screen w/ mixed colors in one shot.\n'
     pixLst    = [ barLst, barRevLst ]
     for sf,pl in zip( sendFuncs, pixLst ):
         kStart = time.time()
@@ -79,7 +79,7 @@ def runTest1():
         time.sleep(1)
     ####################################################
 
-    rspStr += '\nBegin test 1.5 - Fill entire screen w/ constructed PIL images in one shot.\n' 
+    rspStr += '\nBegin test 1.5 - Fill entire screen w/ constructed PIL images in one shot.\n'
     textColor       = (  0,  0,  0)
     backgroundColor = (255,255,255)
     data1  = ms.makePilTextImage('1', textColor, backgroundColor)
@@ -93,7 +93,7 @@ def runTest1():
         time.sleep(1)
     ####################################################
 
-    rspStr += '\nBegin test 1.6 - Fill entire screen w/ constructed RGB/JPG images in one shot.\n' 
+    rspStr += '\nBegin test 1.6 - Fill entire screen w/ constructed RGB/JPG images in one shot.\n'
     data1  = ms.makePilRgbPicImage('pics/240x320.rgb')
     data2  = ms.makePilJpgPicImage('pics/240x320.jpg')
     pixLst = [ data1, data2 ]
@@ -116,8 +116,14 @@ def runTest2():
     # Displays all characters stored in the digitScreenDict on all displays.
     # digitScreenDict is made by running 'python3 makescreen.py' from the RPi\
     # command line.
-    cfgDict         = cd.loadCfgDict()
-    digitScreenDict = cfgDict['digitScreenDict']
+    rsp = cd.loadCfgDict()
+    #rspStr += rsp[0]
+    cfgDict = rsp[1]
+    try:
+        digitScreenDict = cfgDict['digitScreenDict']
+    except KeyError as e:
+        rspStr = ' runTest2 KeyError: {}'.format(str(e))
+        return [rspStr]
     kLst            = ['hrMSD','hrLSD','mnMSD','mnLSD','scMSD','scLSD']
     textLst         = ['0','1','2','3','4','5','6','7','8','9']
 
@@ -146,8 +152,7 @@ def runTest2():
     return [rspStr]
 #############################################################################
 if __name__ == '__main__':
-    rsp = runTest1()
-    print(rsp[0])
-    rsp = runTest2()
-    print(rsp[0])
-
+    resp = runTest1()
+    print(resp[0])
+    resp = runTest2()
+    print(resp[0])

@@ -110,25 +110,59 @@ def makePilJpgPicImage(fName):
     return byteLst
 #############################################################################
 
-def makeDigitScreens( screenDict, styleName,
-                      txtLst, textColor, backgroundColor):
+def makeDigitScreens( styleName, txtLst, textColor, backgroundColor ):
+
     print('making',styleName)
-    screenDict[styleName] = {}
+
+    rsp = cd.loadCfgDict()
+    #rspStr += rsp[0]
+    cfgDict = rsp[1]
+
+    if 'digitScreenDict' not in cfgDict:
+        print('creating new digitScreenDict')
+        digitScreenDict = {}
+    else:
+        print('updating digitScreenDict')
+        digitScreenDict = cfgDict['digitScreenDict']
+
+    digitScreenDict[styleName] = {}
     for t in txtLst:
-        screenDict[styleName][t] = \
+        digitScreenDict[styleName][t] = \
         makePilTextImage( t, textColor, backgroundColor )
-    return screenDict
+
+    cfgDict = cd.updateCfgDict( cfgDict, digitScreenDict = digitScreenDict )
+    cfgDict = cd.saveCfgDict( cfgDict )
+    return ['{} made.'.format(styleName)]
+#############################################################################
+
+def mkDigScr(parmLst):
+    if len(parmLst) < 7:
+        print('too few parms')
+        return ['done']
+    if not all( s.isdigit() for s in parmLst[1:] ):
+        print('non digit detected')
+        return ['done']
+    sixNums = [ int(ii) for ii in parmLst[1:] ]
+    if not all(x < 256 for x in sixNums):
+        print('> 255 detected')
+        return ['done']
+
+    textLst = ['0','1','2','3','4','5','6','7','8','9']
+    st  = parmLst[0]
+    tc  = ( sixNums[0],sixNums[1],sixNums[2] )
+    bc  = ( sixNums[3],sixNums[4],sixNums[5] )
+    rsp = makeDigitScreens(st, textLst, tc, bc)
+
+    return ['{} made.'.format(st)]
 #############################################################################
 
 if __name__ == '__main__':
+
     #cfgDict = { 'digitScreenDict' : { 'whiteOnBlack': { '0': data,
-    #                                                    '1': data
-    #                                                  },
+    #                                                    '1': data  },
     #                                  'blackOnWhite': { '0': data,
-    #                                                    '1': data
-    #                                                  }
+    #                                                    '1': data  }
     #                                },
-    #
     #            'someOtherDict'   : someOtherValue
     #          }
 
@@ -138,21 +172,11 @@ if __name__ == '__main__':
     turquoise = (  18, 151, 128 )
     textLst   = ['0','1','2','3','4','5','6','7','8','9']
 
-    digitScreenDict = {}
+    styleNames = [ 'whiteOnBlack',      'blackOnWhite',
+                   'orangeOnTurquoise', 'turquoiseOnOrange']
+    textColors = [ white, black, orange,    turquoise ]
+    backColors = [ black, white, turquoise, orange    ]
 
-    digitScreenDict = makeDigitScreens(
-    digitScreenDict, 'whiteOnBlack',      textLst, white,     black     )
-
-    digitScreenDict = makeDigitScreens(
-    digitScreenDict, 'blackOnWhite',      textLst, black,     white     )
-
-    digitScreenDict = makeDigitScreens(
-    digitScreenDict, 'orangeOnTurquoise', textLst, orange,    turquoise )
-
-    digitScreenDict = makeDigitScreens(
-    digitScreenDict, 'turquoiseOnOrange', textLst, turquoise, orange    )
-
-
-    cfgDict = cd.loadCfgDict()
-    cfgDict = cd.updateCfgDict( cfgDict, digitScreenDict = digitScreenDict )
-    cfgDict = cd.saveCfgDict( cfgDict )
+    for st,tc,bc in zip(styleNames, textColors, backColors):
+        resp = makeDigitScreens(st, textLst, tc, bc)
+        print(resp)

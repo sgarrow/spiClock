@@ -9,6 +9,7 @@ import multiprocessing as mp
 import clockRoutines   as cr
 import testRoutines    as tr
 import spiRoutines     as sr
+import makeScreen      as ms
 import cfgDict         as cd
 import cmds            as cm
 #############################################################################
@@ -26,7 +27,7 @@ def killSrvr():    # The ks handled directly in the handleClient func so it
 #############################################################################
 
 def getVer():
-    VER = ' v0.3.1 - 7-Apr-2025'
+    VER = ' v0.3.2 - 8-Apr-2025'
     return [VER]
 #############################################################################
 
@@ -35,27 +36,42 @@ def vector(inputStr): # called from handleClient. inputStr from client.
     # This dictionary embodies the worker function vector (and menu) info.
     vectorDict = {
     # Worker Function in clockRoutines.py.
-    'sc'  :{'func':cr.startClk,   'parm':[[],qs],'mainMnu': 'Start Clock'      },
-    'pc'  :{'func':cr.stopClk,    'parm':qs,     'mainMnu': 'stoP  Clock'      },
-    'tm'  :{'func':None,          'parm':None,   'mainMnu': 'Test  Menu'       },
+    'sc'  : { 'func'    : cr.startClk,   'parm' : [[],qs],
+              'mainMnu' : 'Start Clock'                    },
+    'pc'  : { 'func'    : cr.stopClk,    'parm' : qs,     
+              'mainMnu' : 'stoP  Clock'                    },
+    'tm'  : { 'func'    : None,          'parm' : None,   
+              'mainMnu' : 'Test  Menu'                     },
 
     # Worker Function in testRoutines.py.
-    'rt1' :{'func':tr.runTest1,   'parm':None,   'testMnu': 'Run Test 1'       },
-    'rt2' :{'func':tr.runTest2,   'parm':None,   'testMnu': 'Run Test 2'       },
+    'rt1' : { 'func'    : tr.runTest1,   'parm' : None,   
+              'testMnu' : 'Run Test 1'                     },
+    'rt2' : { 'func'    : tr.runTest2,   'parm' : None,   
+              'testMnu' : 'Run Test 2'                     },
 
     # Worker Function in spiRoutines.py.
-    'hr'  :{'func':sr.hwReset,    'parm':None,   'mainMnu': 'Reset LCD HW'     },
-    'sr'  :{'func':sr.swReset,    'parm':'scLSD','mainMnu': 'Reset LCD SW'     },
-    'sb'  :{'func':sr.setBkLight, 'parm':[0],    'mainMnu': 'Set   Backlight'  },
+    'rh'  : { 'func'    : sr.hwReset,    'parm' : None,   
+              'mainMnu' : 'Reset LCD HW'                   },
+    'rs'  : { 'func'    : sr.swReset,    'parm' : 'scLSD',
+              'mainMnu' : 'Reset LCD SW'                   },
+    'sb'  : { 'func'    : sr.setBkLight, 'parm' : [0],    
+              'mainMnu' : 'Set   Backlight'                },
+
+    # Worker Function in makeScreens.py.
+    'mds' : { 'func'    : ms.mkDigScr,   'parm' : ['redOnGreen', '255','0','0', '0','0','255'],   
+              'mainMnu' : 'Make  Digit  Screen'            },
 
     # Worker Function in cfgDict.py.
-    'rcd' :{'func':cd.readCfgDict,'parm':None,   'mainMnu': 'Read  Config Dict'},
+    'rcd' : { 'func'    : cd.readCfgDict,'parm' : None,   
+              'mainMnu' : 'Read  Config Dict'              },
 
     # Worker Function in cmds.py.
-    'lc'  :{'func':cm.cmds,       'parm':None,   'mainMnu': 'List  Commands'   },
+    'lc'  : { 'func'    : cm.cmds,       'parm' : None,   
+              'mainMnu' : 'List  Commands'                 },
 
     # Worker Function in this module.
-    'ks'  :{'func':killSrvr,      'parm':None,   'mainMnu': 'Kill  Server'     },
+    'ks'  : { 'func'    : killSrvr,      'parm' : None,   
+              'mainMnu' : 'Kill  Server'                   },
     }
 
     # Process the string (command) passed to this function via the call
@@ -79,15 +95,18 @@ def vector(inputStr): # called from handleClient. inputStr from client.
         if choice in ['sb'] and len(optArgsStr) == 1:
             params = optArgsStr
 
-        try:                   # Catch exceptions in command procesing.
-            if params is None:
-                rsp = func()   # rsp[0] = rspStr. Vector to worker.
-                return rsp[0]  # return to srvr for forwarding to clnt.
+        if choice in ['mds'] and len(optArgsStr) > 0:
+            params = optArgsStr
 
-            rsp = func(params) # rsp[0] = rspStr. Vector to worker.
-            return rsp[0]      # Return to srvr for forwarding to clnt.
-        except Exception as e: # pylint: disable = W0718
-            return str(e)
+        #try:                   # Catch exceptions in command procesing.
+        if params is None:
+            rsp = func()   # rsp[0] = rspStr. Vector to worker.
+            return rsp[0]  # return to srvr for forwarding to clnt.
+
+        rsp = func(params) # rsp[0] = rspStr. Vector to worker.
+        return rsp[0]      # Return to srvr for forwarding to clnt.
+        #except Exception as e: # pylint: disable = W0718
+        #    return str(e)
 
     if choice in ['m','tm']:
         rspStr = ''

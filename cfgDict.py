@@ -50,5 +50,5 @@ def readCfgDict():
 #############################################################################
 
 if __name__ == '__main__':
-    rsp = readCfgDict()
-    print(rsp[0])
+    resp = readCfgDict()
+    print(resp[0])

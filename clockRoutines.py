@@ -226,11 +226,13 @@ def startClk(prmLst):
     qLst      = prmLst[1]
     rspStr    = ''
 
+    rsp = cd.loadCfgDict()
+    #rspStr += rsp[0]
+    cfgDict = rsp[1]
     try:
-        cfgDict   = cd.loadCfgDict()
         digitDict = cfgDict['digitScreenDict']['blackOnWhite']
     except KeyError as e:
-        rspStr += ' startClock KeyError:', str(e)
+        rspStr += ' startClock KeyError: {}'.format(str(e))
         return [rspStr]
 
     if procPidDict['lcdUpdateProc'] is None:
