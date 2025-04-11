@@ -1,10 +1,10 @@
-import socket              # For creating and managing sockets.
-import threading           # For handling multiple clients concurrently.
-import queue               # For Killing Server.
-import time                # For Killing Server and listThreads.
-import clockRoutines as cr
-import cmdVectors    as cv # Contains vectors to "worker" functions.
-openSocketsLst = []        # Needed for processing close and ks commands.
+import socket           # For creating and managing sockets.
+import threading        # For handling multiple clients concurrently.
+import queue            # For Killing Server.
+import time             # For Killing Server and listThreads.
+import datetime   as dt # For logging server start/stop times.
+import cmdVectors as cv # Contains vectors to "worker" functions.
+openSocketsLst = []     # Needed for processing close and ks commands.
 #############################################################################
 
 def listThreads(): # Daemon to startServer, terminates w/ kill server (ks).
@@ -139,9 +139,8 @@ def printSocketInfo(sSocket):
 #############################################################################
 
 def startServer():
-    rspLst = cr.getTimeDate(False)
-    curDT  = rspLst[1]
-    cDT = '{}'.format(curDT['now'].isoformat( timespec = 'seconds' ))
+    now = dt.datetime.now()
+    cDT = '{}'.format(now.isoformat( timespec = 'seconds' ))
     with open('log.txt', 'a',encoding='utf-8') as f:
         f.write( 'Server started at {} \n'.format(cDT))
 
@@ -198,13 +197,13 @@ def startServer():
                                                format(clientAddress) )
             cThrd.start()
     print('Server breaking.')
-    rspLst = cr.getTimeDate(False)
-    curDT  = rspLst[1]
-    cDT = '{}'.format(curDT['now'].isoformat( timespec = 'seconds' ))
+
+    now = dt.datetime.now()
+    cDT = '{}'.format(now.isoformat( timespec = 'seconds' ))
     with open('log.txt', 'a',encoding='utf-8') as f:
         f.write( 'Server stopped at {} \n'.format(cDT))
 #############################################################################
 
 if __name__ == '__main__':
-    #cv.vector('rp')
+    #cv.vector('sc')
     startServer()

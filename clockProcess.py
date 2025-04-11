@@ -1,10 +1,8 @@
 import time
-import datetime        as dt
-import multiprocessing as mp
-import cfgDict         as cd
-import spiRoutines     as sr
+import datetime as dt
 #############################################################################
 #############################################################################
+
 def getStartTime( startTime ):
     if len(startTime) == 3:
         hours   = int(startTime[0])
@@ -137,27 +135,3 @@ def clockCntrProc( procName, qLst, startTime ):
 
 if __name__ == '__main__':
     pass
-    #lcdCqMain = mp.Queue()    # LCD Cmd Q. mp queue must be used here.
-    #lcdRqMain = mp.Queue()    # LCD Rsp Q. mp queue must be used here.
-    #clkCqMain = mp.Queue()    # CLK Cmd Q. mp queue must be used here.
-    #clkRqMain = mp.Queue()    # CLK Rsp Q. mp queue must be used here.
-    #
-    #keyLst = ['hrMSD','hrLSD','mnMSD','mnLSD','scMSD','scLSD']
-    #displayID = keyLst[-1] # pylint: disable=C0103
-    #
-    #resp = startClk(
-    #                [
-    #                  [ ],
-    #                  [ lcdCqMain,lcdRqMain,clkCqMain,clkRqMain ]
-    #                ]
-    #              )
-    #print(resp)
-    #
-    #if 'make screens' not in resp[0]:
-    #    for _ in range(10):
-    #        time.sleep(1.2)
-    #    stopClk([ lcdCqMain,lcdRqMain,clkCqMain,clkRqMain ] )
-    #    time.sleep(2)
-    #    sr.hwReset()           # HW Reset
-    #    sr.swReset(displayID)  # SW Reset and the display initialization.
-    #    sr.setBkLight([0])     # Turn off backlight.

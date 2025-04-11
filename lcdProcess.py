@@ -1,18 +1,13 @@
 import time
-import datetime        as dt
-import multiprocessing as mp
-import cfgDict         as cd
-import spiRoutines     as sr
+import spiRoutines as sr
 #############################################################################
 #############################################################################
 
 def lcdUpdateProc( procName, qLst, digitDict ):
-    print(' {} {}'.format(procName, 'starting'))
+    debug = True
+    if debug: print(' {} {}'.format(procName, 'starting'))
 
-    lcdCq = qLst[0]
-    lcdRq = qLst[1]
-    #clkCq = qLst[2]
-    #clkRq = qLst[3]
+    lcdCq, lcdRq = qLst[0], qLst[1]  # clkCq, clkRq = qLst[2], qLst[3] 
 
     # timeDict, which is placed in my cmdQ, has the same key names as the
     # displayIdDict. The displayIdDict is used by the functions in the
@@ -53,34 +48,11 @@ def lcdUpdateProc( procName, qLst, digitDict ):
 
         # Put rsp back to clk.
         lcdRq.put( ' LCD update time {:.6f} sec. {} {} {}.'.\
-                format(time.perf_counter()-kStart, hmsStr, hmsChangeStr, displaysUpdatedStr))
+                format( time.perf_counter()-kStart, hmsStr, 
+                        hmsChangeStr, displaysUpdatedStr ))
 
     lcdRq.put(' {} {}'.format(procName, 'exiting'))  # Put rsp back to user.
 #############################################################################
 
 if __name__ == '__main__':
     pass
-    #lcdCqMain = mp.Queue()    # LCD Cmd Q. mp queue must be used here.
-    #lcdRqMain = mp.Queue()    # LCD Rsp Q. mp queue must be used here.
-    #clkCqMain = mp.Queue()    # CLK Cmd Q. mp queue must be used here.
-    #clkRqMain = mp.Queue()    # CLK Rsp Q. mp queue must be used here.
-    #
-    #keyLst = ['hrMSD','hrLSD','mnMSD','mnLSD','scMSD','scLSD']
-    #displayID = keyLst[-1] # pylint: disable=C0103
-    #
-    #resp = startClk(
-    #                [
-    #                  [ ],
-    #                  [ lcdCqMain,lcdRqMain,clkCqMain,clkRqMain ]
-    #                ]
-    #              )
-    #print(resp)
-    #
-    #if 'make screens' not in resp[0]:
-    #    for _ in range(10):
-    #        time.sleep(1.2)
-    #    stopClk([ lcdCqMain,lcdRqMain,clkCqMain,clkRqMain ] )
-    #    time.sleep(2)
-    #    sr.hwReset()           # HW Reset
-    #    sr.swReset(displayID)  # SW Reset and the display initialization.
-    #    sr.setBkLight([0])     # Turn off backlight.

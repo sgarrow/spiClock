@@ -110,7 +110,7 @@ def makePilJpgPicImage(fName):
     return byteLst
 #############################################################################
 
-def makeDigitScreens( styleName, txtLst, textColor, backgroundColor ):
+def makeDigitScreens( styleName, textLst, textColor, backgroundColor ):
 
     print('making',styleName)
 
@@ -126,7 +126,7 @@ def makeDigitScreens( styleName, txtLst, textColor, backgroundColor ):
         digitScreenDict = cfgDict['digitScreenDict']
 
     digitScreenDict[styleName] = {}
-    for t in txtLst:
+    for t in textLst:
         digitScreenDict[styleName][t] = \
         makePilTextImage( t, textColor, backgroundColor )
 
@@ -153,7 +153,7 @@ def mkDigScr(parmLst):
     bc  = ( sixNums[3],sixNums[4],sixNums[5] )
     rsp = makeDigitScreens(st, textLst, tc, bc)
 
-    return ['{} made.'.format(st)]
+    return rsp
 #############################################################################
 
 if __name__ == '__main__':
@@ -170,13 +170,13 @@ if __name__ == '__main__':
     black     = ( 255, 255, 255 )
     orange    = ( 239, 144,   1 )
     turquoise = (  18, 151, 128 )
-    textLst   = ['0','1','2','3','4','5','6','7','8','9']
+    txtLst   = ['0','1','2','3','4','5','6','7','8','9']
 
     styleNames = [ 'whiteOnBlack',      'blackOnWhite',
                    'orangeOnTurquoise', 'turquoiseOnOrange']
-    textColors = [ white, black, orange,    turquoise ]
+    txtColors  = [ white, black, orange,    turquoise ]
     backColors = [ black, white, turquoise, orange    ]
 
-    for st,tc,bc in zip(styleNames, textColors, backColors):
-        resp = makeDigitScreens(st, textLst, tc, bc)
+    for style,tColor,bColor in zip(styleNames, txtColors, backColors):
+        resp = makeDigitScreens(style, txtLst, tColor, bColor)
         print(resp)

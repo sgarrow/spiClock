@@ -6,7 +6,7 @@ is then vectored to in file cmdWorkers.py.
 '''
 
 import multiprocessing as mp
-import clockRoutines   as cr
+import startStopClock  as cr
 import testRoutines    as tr
 import spiRoutines     as sr
 import makeScreen      as ms
@@ -20,6 +20,7 @@ clkCq = mp.Queue() # CLK Cmd Q. mp queue must be used here.
 clkRq = mp.Queue() # CLK Rsp Q. mp queue must be used here.
 qs    = [ lcdCq, lcdRq, clkCq, clkRq ]
 #############################################################################
+#############################################################################
 
 def killSrvr():    # The ks handled directly in the handleClient func so it
     return         # doesn't need a wrk funct, but because of way vectoring
@@ -27,7 +28,7 @@ def killSrvr():    # The ks handled directly in the handleClient func so it
 #############################################################################
 
 def getVer():
-    VER = ' v0.3.4 - 9-Apr-2025'
+    VER = ' v0.3.5 - 10-Apr-2025'
     return [VER]
 #############################################################################
 
