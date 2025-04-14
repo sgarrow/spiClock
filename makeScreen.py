@@ -155,6 +155,14 @@ def mkDigScr(parmLst):
 
     return rsp
 #############################################################################
+activeDigitStyle = 'whiteOnBlack'
+def getDigStyle():
+    return [activeDigitStyle]
+def setDigStyle(dsrdDigitStyle):
+    global activeDigitStyle
+    activeDigitStyle = dsrdDigitStyle
+    return [activeDigitStyle]
+#############################################################################
 
 if __name__ == '__main__':
 
@@ -166,8 +174,8 @@ if __name__ == '__main__':
     #            'someOtherDict'   : someOtherValue
     #          }
 
-    white     = (   0,   0,   0 )
-    black     = ( 255, 255, 255 )
+    black     = (   0,   0,   0 )
+    white     = ( 255, 255, 255 )
     orange    = ( 239, 144,   1 )
     turquoise = (  18, 151, 128 )
     txtLst   = ['0','1','2','3','4','5','6','7','8','9']

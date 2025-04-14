@@ -28,51 +28,59 @@ def killSrvr():    # The ks handled directly in the handleClient func so it
 #############################################################################
 
 def getVer():
-    VER = ' v0.3.5 - 10-Apr-2025'
+    VER = ' v0.3.6 - 13-Apr-2025'
     return [VER]
 #############################################################################
 
 def vector(inputStr): # called from handleClient. inputStr from client.
 
+    menuTxt = {
+    'sc'  : 'Start Clock',
+    'pc'  : 'stoP  Clock',
+    'tm'  : 'Test  Menu',
+    'rt1' : 'Run Test 1',
+    'rt2' : 'Run Test 2',
+    'rh'  : 'Reset LCD HW',
+    'rs'  : 'Reset LCD SW',
+    'sb'  : 'Set   Backlight',
+    'mds' : 'Make  Digit  Screen',
+    'gas' : 'Get   Active Digit Style',
+    'sas' : 'Set   Active Digit Style',
+    'rcd' : 'Read  Config Dict',
+    'lc'  : 'List  Commands',
+    'ks'  : 'Kill  Server',
+    }
+    dfltMDSPrm = ['redOnGreen', '255','0','0', '0','0','255']
+
     # This dictionary embodies the worker function vector (and menu) info.
     vectorDict = {
     # Worker Function in clockRoutines.py.
-    'sc'  : { 'func'    : cr.startClk,   'parm' : [[],qs],
-              'mainMnu' : 'Start Clock'                    },
-    'pc'  : { 'func'    : cr.stopClk,    'parm' : qs,     
-              'mainMnu' : 'stoP  Clock'                    },
-    'tm'  : { 'func'    : None,          'parm' : None,   
-              'mainMnu' : 'Test  Menu'                     },
+    'sc' : { 'func': cr.startClk,    'parm': [[],qs],   'mainMnu': menuTxt['sc' ]},
+    'pc' : { 'func': cr.stopClk,     'parm': qs,        'mainMnu': menuTxt['pc' ]},
+    'tm' : { 'func': None,           'parm': None,      'mainMnu': menuTxt['tm' ]},
 
     # Worker Function in testRoutines.py.
-    'rt1' : { 'func'    : tr.runTest1,   'parm' : None,   
-              'testMnu' : 'Run Test 1'                     },
-    'rt2' : { 'func'    : tr.runTest2,   'parm' : None,   
-              'testMnu' : 'Run Test 2'                     },
+    'rt1': { 'func': tr.runTest1,    'parm': None,      'testMnu': menuTxt['rt1']},
+    'rt2': { 'func': tr.runTest2,    'parm': None,      'testMnu': menuTxt['rt2']},
 
     # Worker Function in spiRoutines.py.
-    'rh'  : { 'func'    : sr.hwReset,    'parm' : None,   
-              'mainMnu' : 'Reset LCD HW'                   },
-    'rs'  : { 'func'    : sr.swReset,    'parm' : 'scLSD',
-              'mainMnu' : 'Reset LCD SW'                   },
-    'sb'  : { 'func'    : sr.setBkLight, 'parm' : [0],    
-              'mainMnu' : 'Set   Backlight'                },
+    'rh' : { 'func': sr.hwReset,     'parm': None,      'mainMnu': menuTxt['rh' ]},
+    'rs' : { 'func': sr.swReset,     'parm': 'scLSD',   'mainMnu': menuTxt['rs' ]},
+    'sb' : { 'func': sr.setBkLight,  'parm': [0],       'mainMnu': menuTxt['sb' ]},
 
     # Worker Function in makeScreens.py.
-    'mds' : { 'func'    : ms.mkDigScr,   'parm' : ['redOnGreen', '255','0','0', '0','0','255'],   
-              'mainMnu' : 'Make  Digit  Screen'            },
+    'mds': { 'func': ms.mkDigScr,    'parm': dfltMDSPrm,'mainMnu': menuTxt['mds']},
+    'gas': { 'func': ms.getDigStyle, 'parm': None,      'mainMnu': menuTxt['gas']},
+    'sas': { 'func': ms.setDigStyle, 'parm': 'blackOnWhite',      'mainMnu': menuTxt['sas']},
 
     # Worker Function in cfgDict.py.
-    'rcd' : { 'func'    : cd.readCfgDict,'parm' : None,   
-              'mainMnu' : 'Read  Config Dict'              },
+    'rcd': { 'func': cd.readCfgDict, 'parm': None,      'mainMnu': menuTxt['rcd']},
 
     # Worker Function in cmds.py.
-    'lc'  : { 'func'    : cm.cmds,       'parm' : None,   
-              'mainMnu' : 'List  Commands'                 },
+    'lc' : { 'func': cm.cmds,        'parm': None,      'mainMnu': menuTxt['lc' ]},
 
     # Worker Function in this module.
-    'ks'  : { 'func'    : killSrvr,      'parm' : None,   
-              'mainMnu' : 'Kill  Server'                   },
+    'ks' : { 'func': killSrvr,       'parm': None,      'mainMnu': menuTxt['ks' ]},
     }
 
     # Process the string (command) passed to this function via the call

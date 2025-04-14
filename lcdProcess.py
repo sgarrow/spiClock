@@ -7,7 +7,7 @@ def lcdUpdateProc( procName, qLst, digitDict ):
     debug = True
     if debug: print(' {} {}'.format(procName, 'starting'))
 
-    lcdCq, lcdRq = qLst[0], qLst[1]  # clkCq, clkRq = qLst[2], qLst[3] 
+    lcdCq, lcdRq = qLst[0], qLst[1]  # clkCq, clkRq = qLst[2], qLst[3]
 
     # timeDict, which is placed in my cmdQ, has the same key names as the
     # displayIdDict. The displayIdDict is used by the functions in the
@@ -48,7 +48,7 @@ def lcdUpdateProc( procName, qLst, digitDict ):
 
         # Put rsp back to clk.
         lcdRq.put( ' LCD update time {:.6f} sec. {} {} {}.'.\
-                format( time.perf_counter()-kStart, hmsStr, 
+                format( time.perf_counter()-kStart, hmsStr,
                         hmsChangeStr, displaysUpdatedStr ))
 
     lcdRq.put(' {} {}'.format(procName, 'exiting'))  # Put rsp back to user.

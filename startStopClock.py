@@ -3,6 +3,7 @@ import multiprocessing as mp
 import clockProcess    as cp
 import spiRoutines     as sr
 import lcdProcess      as lp
+import makeScreen      as ms
 import cfgDict         as cd
 ######################################################################
 ######################################################################
@@ -49,8 +50,9 @@ def startClk(prmLst):
     rsp = cd.loadCfgDict()
     #rspStr += rsp[0]
     cfgDict = rsp[1]
+    activeStyle = ms.getDigStyle()
     try:
-        digitDict = cfgDict['digitScreenDict']['blackOnWhite']
+        digitDict = cfgDict['digitScreenDict'][activeStyle[0]]
     except KeyError as e:
         rspStr += ' startClock KeyError: {}'.format(str(e))
         return [rspStr]
@@ -95,7 +97,7 @@ def stopClk(prmLst):
     # meant for clockCntrProc which was killed above.
     if procPidDict['lcdUpdateProc'] is not None:
         lcdCq.put('stop')                   # Queue Put.
-        matchStr = 'exiting'     
+        matchStr = 'exiting'
         while True:
             try:
                 time.sleep(.1)
