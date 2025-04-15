@@ -1,10 +1,11 @@
+import os
 import time
+import pickle
 import multiprocessing as mp
 import clockProcess    as cp
 import spiRoutines     as sr
 import lcdProcess      as lp
 import makeScreen      as ms
-import cfgDict         as cd
 ######################################################################
 ######################################################################
 
@@ -47,15 +48,12 @@ def startClk(prmLst):
     qLst      = prmLst[1]
     rspStr    = ''
 
-    rsp = cd.loadCfgDict()
-    #rspStr += rsp[0]
-    cfgDict = rsp[1]
     activeStyle = ms.getDigStyle()
-    try:
-        digitDict = cfgDict['digitScreenDict'][activeStyle[0]]
-    except KeyError as e:
-        rspStr += ' startClock KeyError: {}'.format(str(e))
-        return [rspStr]
+    dirPath = 'digitScreenStyles'
+    fullFileName = os.path.join(dirPath, activeStyle[0]+'.pickle')
+    print(fullFileName)
+    with open(fullFileName, 'rb') as f:
+        digitDict = pickle.load(f)
 
     if procPidDict['lcdUpdateProc'] is None:
         kLst = ['hrMSD','hrLSD','mnMSD','mnLSD','scMSD','scLSD']

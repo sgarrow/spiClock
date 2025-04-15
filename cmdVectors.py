@@ -28,7 +28,7 @@ def killSrvr():    # The ks handled directly in the handleClient func so it
 #############################################################################
 
 def getVer():
-    VER = ' v0.3.6 - 13-Apr-2025'
+    VER = ' v0.3.7 - 14-Apr-2025'
     return [VER]
 #############################################################################
 
@@ -71,7 +71,7 @@ def vector(inputStr): # called from handleClient. inputStr from client.
     # Worker Function in makeScreens.py.
     'mds': { 'func': ms.mkDigScr,    'parm': dfltMDSPrm,'mainMnu': menuTxt['mds']},
     'gas': { 'func': ms.getDigStyle, 'parm': None,      'mainMnu': menuTxt['gas']},
-    'sas': { 'func': ms.setDigStyle, 'parm': 'blackOnWhite',      'mainMnu': menuTxt['sas']},
+    'sas': { 'func': ms.setDigStyle, 'parm': ['None'],  'mainMnu': menuTxt['sas']},
 
     # Worker Function in cfgDict.py.
     'rcd': { 'func': cd.readCfgDict, 'parm': None,      'mainMnu': menuTxt['rcd']},
@@ -101,7 +101,7 @@ def vector(inputStr): # called from handleClient. inputStr from client.
         if choice in ['sc'] and len(optArgsStr) == 3:
             params[0] = optArgsStr
 
-        if choice in ['sb'] and len(optArgsStr) == 1:
+        if choice in ['sb', 'sas'] and len(optArgsStr) == 1:
             params = optArgsStr
 
         if choice in ['mds'] and len(optArgsStr) > 0:

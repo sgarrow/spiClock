@@ -1,3 +1,5 @@
+import os
+import pickle
 from PIL import Image, ImageDraw, ImageFont # pylint: disable=E0401
 import cfgDict      as cd
 #############################################################################
@@ -126,12 +128,21 @@ def makeDigitScreens( styleName, textLst, textColor, backgroundColor ):
         digitScreenDict = cfgDict['digitScreenDict']
 
     digitScreenDict[styleName] = {}
+    digitScreenDict2 = {}
     for t in textLst:
-        digitScreenDict[styleName][t] = \
-        makePilTextImage( t, textColor, backgroundColor )
+        tData = makePilTextImage( t, textColor, backgroundColor )
+
+        digitScreenDict[styleName][t] = tData
+        digitScreenDict2[t] = tData
 
     cfgDict = cd.updateCfgDict( cfgDict, digitScreenDict = digitScreenDict )
     cfgDict = cd.saveCfgDict( cfgDict )
+
+    fName = 'digitScreenStyles/{}.pickle'.format(styleName)
+    with open(fName, 'wb') as handle:
+        pickle.dump(digitScreenDict2, handle)
+    print(' {} saved.'.format(fName))
+
     return ['{} made.'.format(styleName)]
 #############################################################################
 
@@ -158,10 +169,34 @@ def mkDigScr(parmLst):
 activeDigitStyle = 'whiteOnBlack'
 def getDigStyle():
     return [activeDigitStyle]
-def setDigStyle(dsrdDigitStyle):
+#############################################################################
+
+def setDigStyle(prmLst):
     global activeDigitStyle
-    activeDigitStyle = dsrdDigitStyle
-    return [activeDigitStyle]
+
+    if len(prmLst) > 0:
+        dsrdDigitStyle = prmLst[0]
+    else:
+        rspStr  = ' Digit Style not set.\n'
+        rspStr += ' No style specified.'
+        return [rspStr, activeDigitStyle]
+
+    dPath = 'digitScreenStyles'
+    try:
+        fileNameLst = os.listdir(dPath)
+    except FileNotFoundError:
+        rspStr  = ' Digit Style not set.\n'
+        rspStr += ' Directory {} not found.'.format(dPath)
+    else:
+        if dsrdDigitStyle + '.pickle' in fileNameLst:
+            rspStr  = ' Digit Style set to {}.'.format(dsrdDigitStyle)
+            activeDigitStyle = dsrdDigitStyle
+        else:
+            rspStr  = ' Digit Style not set.\n'
+            rspStr += ' Invalid style ({}), try on of these:\n'.format(dsrdDigitStyle)
+            rspStr += str(fileNameLst)
+
+    return [rspStr, activeDigitStyle]
 #############################################################################
 
 if __name__ == '__main__':
@@ -188,3 +223,17 @@ if __name__ == '__main__':
     for style,tColor,bColor in zip(styleNames, txtColors, backColors):
         resp = makeDigitScreens(style, txtLst, tColor, bColor)
         print(resp)
+
+    dirPath = 'digitScreenStyles'
+    try:
+        for fileName in os.listdir(dirPath):
+            fullFileName = os.path.join(dirPath, fileName)
+            if os.path.isfile(fullFileName):
+                print('Processing file: {}'.format(fullFileName))
+                with open(fullFileName, 'rb') as f:
+                    styleDict = pickle.load(f)
+                    print(styleDict.keys())
+    except FileNotFoundError:
+        print(f"Error: Directory '{dirPath}' not found.")
+    except Exception as e:
+        print(f"An error occurred: {e}")
