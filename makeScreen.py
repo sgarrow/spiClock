@@ -1,7 +1,7 @@
 import os
 import pickle
 from PIL import Image, ImageDraw, ImageFont # pylint: disable=E0401
-import cfgDict      as cd
+#import cfgDict as cd
 #############################################################################
 
 def makeColoredPRSLstsOfBytes(c):
@@ -154,6 +154,22 @@ def getDigStyle():
     return [activeDigitStyle]
 #############################################################################
 
+def readCfgDict():
+
+    dPath = 'digitScreenStyles'
+    try:
+        fileNameLst = os.listdir(dPath)
+    except FileNotFoundError:
+        fileNameLstNoExt = []
+        rspStr = ' Directory {} not found.'.format(dPath)
+    else:
+        fileNameLstNoExt = [os.path.splitext(file)[0] for file in fileNameLst]
+        rspStr  = ' '
+        rspStr += ' \n '.join(fileNameLstNoExt)
+
+    return [rspStr,fileNameLstNoExt]
+#############################################################################
+
 def setDigStyle(prmLst):
     global activeDigitStyle
 
@@ -164,7 +180,7 @@ def setDigStyle(prmLst):
         rspStr += ' No style specified.'
         return [rspStr, activeDigitStyle]
 
-    rspLst     = cd.readCfgDict()
+    rspLst     = readCfgDict()
     funcRspStr = rspLst[0]
     styleLst   = rspLst[1]
 

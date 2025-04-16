@@ -10,7 +10,7 @@ import startStopClock  as cr
 import testRoutines    as tr
 import spiRoutines     as sr
 import makeScreen      as ms
-import cfgDict         as cd
+#import cfgDict         as cd
 import cmds            as cm
 #############################################################################
 
@@ -28,7 +28,7 @@ def killSrvr():    # The ks handled directly in the handleClient func so it
 #############################################################################
 
 def getVer():
-    VER = ' v0.3.9 - 15-Apr-2025'
+    VER = ' v0.3.10 - 16-Apr-2025'
     return [VER]
 #############################################################################
 
@@ -74,7 +74,7 @@ def vector(inputStr): # called from handleClient. inputStr from client.
     'sas': { 'func': ms.setDigStyle, 'parm': ['None'],      'mainMnu': menuTxt['sas']},
 
     # Worker Function in cfgDict.py.
-    'rcd': { 'func': cd.readCfgDict, 'parm': None,      'mainMnu': menuTxt['rcd']},
+    'rcd': { 'func': ms.readCfgDict, 'parm': None,      'mainMnu': menuTxt['rcd']},
 
     # Worker Function in cmds.py.
     'lc' : { 'func': cm.cmds,        'parm': None,      'mainMnu': menuTxt['lc' ]},

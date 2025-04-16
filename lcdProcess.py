@@ -1,13 +1,17 @@
 import time
+import makeScreen  as ms
 import spiRoutines as sr
 #############################################################################
 #############################################################################
 
-def lcdUpdateProc( procName, qLst, digitDict ):
+def lcdUpdateProc( procName, qLst ):
     debug = True
     if debug: print(' {} {}'.format(procName, 'starting'))
 
     lcdCq, lcdRq = qLst[0], qLst[1]  # clkCq, clkRq = qLst[2], qLst[3]
+
+    rspLst = ms.loadActiveStyleStyle()
+    digitDict = rspLst[1]
 
     # timeDict, which is placed in my cmdQ, has the same key names as the
     # displayIdDict. The displayIdDict is used by the functions in the

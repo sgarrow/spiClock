@@ -1,17 +1,14 @@
-import os
 import time
-import pickle
 import multiprocessing as mp
 import clockProcess    as cp
 import spiRoutines     as sr
 import lcdProcess      as lp
-import makeScreen      as ms
 ######################################################################
 ######################################################################
 
 procPidDict = {'clockCntrProc': None, 'lcdUpdateProc': None}
 
-def startLcdUpdateProc( qLst, digitDict ):
+def startLcdUpdateProc( qLst ):
     procLst = []
 
     for _ in range(1):
@@ -19,8 +16,7 @@ def startLcdUpdateProc( qLst, digitDict ):
         lcdProc = mp.Process(
                target = lp.lcdUpdateProc,
                args   = ( 'lcdUpdateProc', # Process Name.
-                          qLst,            # [lcdCq,lcdRq,clkCq,clkRq]
-                          digitDict ))     # Dict of LCD Display Data.
+                          qLst ))          # [lcdCq,lcdRq,clkCq,clkRq]
 
         lcdProc.daemon = True
         lcdProc.start()
@@ -48,21 +44,13 @@ def startClk(prmLst):
     qLst      = prmLst[1]
     rspStr    = ''
 
-    # TODO use loadActiveStyleStyle.
-    activeStyle = ms.getDigStyle()
-    dirPath = 'digitScreenStyles'
-    fullFileName = os.path.join(dirPath, activeStyle[0]+'.pickle')
-    print(fullFileName)
-    with open(fullFileName, 'rb') as f:
-        digitDict = pickle.load(f)
-
     if procPidDict['lcdUpdateProc'] is None:
         kLst = ['hrMSD','hrLSD','mnMSD','mnLSD','scMSD','scLSD']
         sr.hwReset()           # HW Reset. Common pin to all dislays.
         for theKey in kLst:
             sr.swReset(theKey) # SW Reset & display initialization.
         sr.setBkLight([1])     # Turn on backlight.
-        startLcdUpdateProc( qLst, digitDict )
+        startLcdUpdateProc( qLst )
         rspStr += ' lcdUpdateProc started.'
     else:
         rspStr += ' lcdUpdateProc already started.'

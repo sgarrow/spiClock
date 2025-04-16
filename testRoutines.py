@@ -1,7 +1,7 @@
 import time
 import spiRoutines as sr
 import makeScreen  as ms
-import cfgDict     as cd
+#import cfgDict     as cd
 #############################################################################
 
 def runTest1():
@@ -120,7 +120,7 @@ def runTest2():
     kLst            = ['hrMSD','hrLSD','mnMSD','mnLSD','scMSD','scLSD']
     textLst         = ['0','1','2','3','4','5','6','7','8','9']
 
-    rspLst     = cd.readCfgDict()
+    rspLst     = ms.readCfgDict()
     funcRspStr = rspLst[0]
     styleLst   = rspLst[1]
 
