@@ -116,16 +116,13 @@ def runTest2():
     # Displays all characters stored in the digitScreenDict on all displays.
     # digitScreenDict is made by running 'python3 makescreen.py' from the RPi\
     # command line.
-    rsp = cd.loadCfgDict()
-    #rspStr += rsp[0]
-    cfgDict = rsp[1]
-    try:
-        digitScreenDict = cfgDict['digitScreenDict']
-    except KeyError as e:
-        rspStr = ' runTest2 KeyError: {}'.format(str(e))
-        return [rspStr]
+
     kLst            = ['hrMSD','hrLSD','mnMSD','mnLSD','scMSD','scLSD']
     textLst         = ['0','1','2','3','4','5','6','7','8','9']
+
+    rspLst     = cd.readCfgDict()
+    funcRspStr = rspLst[0]
+    styleLst   = rspLst[1]
 
     sr.hwReset()              # HW Reset
     for displayID in kLst:    # pylint: disable=C0103
@@ -133,10 +130,13 @@ def runTest2():
     sr.setBkLight([1])        # Turn on backlight.
 
     rspStr = ''
-    for style in digitScreenDict.keys():
+    for style in styleLst:
+        rspLst = ms.setDigStyle([style])
+        rspLst = ms.loadActiveStyleStyle()
+        digitScreenDict = rspLst[1]
         for k in textLst:
             for displayID in kLst:  # pylint: disable=C0103
-                data = digitScreenDict[style][k]
+                data = digitScreenDict[k]
                 kStart = time.perf_counter()
                 sr.setEntireDisplay(displayID, data, sr.sendDat2ToSt7789)
                 delta = time.perf_counter()-kStart

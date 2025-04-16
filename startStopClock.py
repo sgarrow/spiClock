@@ -48,6 +48,7 @@ def startClk(prmLst):
     qLst      = prmLst[1]
     rspStr    = ''
 
+    # TODO use loadActiveStyleStyle.
     activeStyle = ms.getDigStyle()
     dirPath = 'digitScreenStyles'
     fullFileName = os.path.join(dirPath, activeStyle[0]+'.pickle')

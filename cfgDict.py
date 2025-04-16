@@ -1,52 +1,21 @@
-import pickle
-import pprint as pp
+import os
 
-#############################################################################
-def loadCfgDict():
-    rspStr = ''
-    try:
-        with open('cfgDict.pickle', 'rb') as f:
-            cfgDict = pickle.load(f)
-        rspStr += ' loadCfgDict: pickle loaded from file'
-    except FileNotFoundError as e:
-        rspStr += ' loadCfgDict: {}\n'.format(str(e))
-        rspStr += ' loadCfgDict: returning an empty dictionary'
-        cfgDict = {}
-    #print(rspStr)
-    return [rspStr, cfgDict]
-#############################################################################
-
-def saveCfgDict(cfgDict):
-    with open('cfgDict.pickle', 'wb') as handle:
-        pickle.dump(cfgDict, handle)
-    print(' pickle saved to file')
-    return cfgDict
-#############################################################################
-
-def updateCfgDict(cfgDict, **kwargs):
-    cfgDict.update(kwargs)
-    print(' pickle updated')
-    return cfgDict
 #############################################################################
 
 def readCfgDict():
 
-    rspStr = ''
-    rsp = loadCfgDict()
-    rspStr += rsp[0]
-    cfgDict = rsp[1]
-
-    ppStr = pp.pformat(list(cfgDict.keys()))
-    rspStr += '\n cfgDict keys:'
-    rspStr += ' {}\n'.format(ppStr)
-
+    dPath = 'digitScreenStyles'
     try:
-        ppStr = pp.pformat(list(cfgDict['digitScreenDict'].keys()))
-        rspStr += ' digitScreenDict keys:'
-        rspStr += ' {}\n'.format(ppStr)
-    except KeyError as e:
-        rspStr += ' readCfgDict KeyError: {}\n'.format(str(e))
-    return [rspStr]
+        fileNameLst = os.listdir(dPath)
+    except FileNotFoundError:
+        fileNameLstNoExt = []
+        rspStr += ' Directory {} not found.'.format(dPath)
+    else:
+        fileNameLstNoExt = [os.path.splitext(file)[0] for file in fileNameLst]
+        rspStr  = ' '
+        rspStr += ' \n '.join(fileNameLstNoExt)
+
+    return [rspStr,fileNameLstNoExt]
 #############################################################################
 
 if __name__ == '__main__':

@@ -116,27 +116,10 @@ def makeDigitScreens( styleName, textLst, textColor, backgroundColor ):
 
     print('making',styleName)
 
-    rsp = cd.loadCfgDict()
-    #rspStr += rsp[0]
-    cfgDict = rsp[1]
-
-    if 'digitScreenDict' not in cfgDict:
-        print('creating new digitScreenDict')
-        digitScreenDict = {}
-    else:
-        print('updating digitScreenDict')
-        digitScreenDict = cfgDict['digitScreenDict']
-
-    digitScreenDict[styleName] = {}
     digitScreenDict2 = {}
     for t in textLst:
         tData = makePilTextImage( t, textColor, backgroundColor )
-
-        digitScreenDict[styleName][t] = tData
         digitScreenDict2[t] = tData
-
-    cfgDict = cd.updateCfgDict( cfgDict, digitScreenDict = digitScreenDict )
-    cfgDict = cd.saveCfgDict( cfgDict )
 
     fName = 'digitScreenStyles/{}.pickle'.format(styleName)
     with open(fName, 'wb') as handle:
@@ -181,33 +164,36 @@ def setDigStyle(prmLst):
         rspStr += ' No style specified.'
         return [rspStr, activeDigitStyle]
 
-    dPath = 'digitScreenStyles'
-    try:
-        fileNameLst = os.listdir(dPath)
-    except FileNotFoundError:
-        rspStr  = ' Digit Style not set.\n'
-        rspStr += ' Directory {} not found.'.format(dPath)
-    else:
-        if dsrdDigitStyle + '.pickle' in fileNameLst:
+    rspLst     = cd.readCfgDict()
+    funcRspStr = rspLst[0]
+    styleLst   = rspLst[1]
+
+    if len(styleLst) > 0:
+        if dsrdDigitStyle in styleLst:
             rspStr  = ' Digit Style set to {}.'.format(dsrdDigitStyle)
             activeDigitStyle = dsrdDigitStyle
         else:
             rspStr  = ' Digit Style not set.\n'
-            rspStr += ' Invalid style ({}), try on of these:\n'.format(dsrdDigitStyle)
-            rspStr += str(fileNameLst)
+            rspStr += ' Invalid style ({}), try on of these:\n\n{}'.\
+                format(dsrdDigitStyle, funcRspStr)
+    else:
+        rspStr  = ' Digit Style not set.\n'
+        rspStr += ' No styles found in directory spiClock/digitScreenStyles.'
 
     return [rspStr, activeDigitStyle]
 #############################################################################
+def loadActiveStyleStyle():
+    activeStyle = getDigStyle()
+    dirPath = 'digitScreenStyles'
+    fullFileName = os.path.join(dirPath, activeStyle[0]+'.pickle')
+    print(fullFileName)
+    with open(fullFileName, 'rb') as f:
+        digitDict = pickle.load(f)
+    rspStr = ' {} loaded'.format(activeStyle)
+    return [rspStr, digitDict]
+#############################################################################
 
 if __name__ == '__main__':
-
-    #cfgDict = { 'digitScreenDict' : { 'whiteOnBlack': { '0': data,
-    #                                                    '1': data  },
-    #                                  'blackOnWhite': { '0': data,
-    #                                                    '1': data  }
-    #                                },
-    #            'someOtherDict'   : someOtherValue
-    #          }
 
     black     = (   0,   0,   0 )
     white     = ( 255, 255, 255 )

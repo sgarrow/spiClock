@@ -28,7 +28,7 @@ def killSrvr():    # The ks handled directly in the handleClient func so it
 #############################################################################
 
 def getVer():
-    VER = ' v0.3.7 - 14-Apr-2025'
+    VER = ' v0.3.8 - 14-Apr-2025'
     return [VER]
 #############################################################################
 
@@ -71,7 +71,7 @@ def vector(inputStr): # called from handleClient. inputStr from client.
     # Worker Function in makeScreens.py.
     'mds': { 'func': ms.mkDigScr,    'parm': dfltMDSPrm,'mainMnu': menuTxt['mds']},
     'gas': { 'func': ms.getDigStyle, 'parm': None,      'mainMnu': menuTxt['gas']},
-    'sas': { 'func': ms.setDigStyle, 'parm': ['None'],  'mainMnu': menuTxt['sas']},
+    'sas': { 'func': ms.setDigStyle, 'parm': ['None'],      'mainMnu': menuTxt['sas']},
 
     # Worker Function in cfgDict.py.
     'rcd': { 'func': cd.readCfgDict, 'parm': None,      'mainMnu': menuTxt['rcd']},
