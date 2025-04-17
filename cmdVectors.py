@@ -27,7 +27,7 @@ def killSrvr():    # The ks handled directly in the handleClient func so it
 #############################################################################
 
 def getVer():
-    VER = ' v0.3.11 - 16-Apr-2025'
+    VER = ' v0.4.0 - 16-Apr-2025'
     return [VER]
 #############################################################################
 
@@ -64,7 +64,7 @@ def vector(inputStr): # called from handleClient. inputStr from client.
 
     # Worker Function in testRoutines.py.
     'rt1': { 'func': tr.runTest1,         'parm': None,       'testMnu': menuTxt['rt1']},
-    'rt2': { 'func': tr.runTest2,         'parm': None,       'testMnu': menuTxt['rt2']},
+    'rt2': { 'func': tr.runTest2,         'parm': qs,         'testMnu': menuTxt['rt2']},
 
     # Worker Function in spiRoutines.py.
     'rh' : { 'func': sr.hwReset,          'parm': None,       'mainMnu': menuTxt['rh' ]},

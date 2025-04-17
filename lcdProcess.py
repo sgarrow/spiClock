@@ -19,31 +19,37 @@ def lcdUpdateProc( procName, qLst ):
     # displayIdDict. The displayIdDict is used by the functions in the
     # spiRoutines.py module to determine the CS pin to use.
     kLst = ['hrMSD','hrLSD','mnMSD','mnLSD','scMSD','scLSD']
+    refreshAllScreens = None
 
     while True:
 
+        print('lcdCq.qsize =', lcdCq.qsize())
         data = lcdCq.get()   # Block here. Get digit/stop from clk/user.
         kStart = time.perf_counter()
-        print('lcdUpdateProc', ms.getActiveStyle()[0])
 
 
         gotStop  = False
         gotTime  = False
         if isinstance(data,str):
             if data == 'stop':
-                print('got stop')
                 gotStop = True
             else:
                 dirPath = 'digitScreenStyles'
                 fullFileName = os.path.join(dirPath, data+'.pickle')
                 with open(fullFileName, 'rb') as f:
                     digitDict = pickle.load(f)
+                refreshAllScreens = True
+            print('got str = {}'.format(data))
 
         elif isinstance(data,dict):
             if 'hrMSD' in data:
                 print('got timeDict')
                 gotTime = True
                 timeDict = data
+                if refreshAllScreens == True:
+                    for v in timeDict.values():
+                        v['updated'] = True
+                    refreshAllScreens = False
         else:
             print('ERROR')
 

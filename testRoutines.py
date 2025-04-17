@@ -109,7 +109,7 @@ def runTest1():
 
     return [rspStr]
 #############################################################################
-def runTest2():
+def runTest2(qs):
 
     # Performs 1 test on all displays.
     # Displays all characters stored in the digitScreenDict on all displays.
@@ -130,7 +130,7 @@ def runTest2():
 
     rspStr = ''
     for style in styleLst:
-        rspLst = ms.setActiveStyle([style])
+        rspLst = ms.setActiveStyle([style,qs])
         rspLst = ms.loadActiveStyle()
         digitScreenDict = rspLst[1]
         for k in textLst:
@@ -151,7 +151,14 @@ def runTest2():
     return [rspStr]
 #############################################################################
 if __name__ == '__main__':
+    import multiprocessing as mp
+    lcdCq = mp.Queue() # LCD Cmd Q. mp queue must be used here.
+    lcdRq = mp.Queue() # LCD Rsp Q. mp queue must be used here.
+    clkCq = mp.Queue() # CLK Cmd Q. mp queue must be used here.
+    clkRq = mp.Queue() # CLK Rsp Q. mp queue must be used here.
+    msQs  = [ lcdCq, lcdRq, clkCq, clkRq ]
+
     resp = runTest1()
     print(resp[0])
-    resp = runTest2()
+    resp = runTest2(msQs)
     print(resp[0])
