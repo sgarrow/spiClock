@@ -3,11 +3,12 @@ import time
 import pickle
 import makeScreen  as ms
 import spiRoutines as sr
-#############################################################################
+############################################################################
 #############################################################################
 
 def lcdUpdateProc( procName, qLst ):
     debug = True
+    debug = False
     if debug: print(' {} {}'.format(procName, 'starting'))
 
     lcdCq, lcdRq = qLst[0], qLst[1]  # clkCq, clkRq = qLst[2], qLst[3]
@@ -23,7 +24,7 @@ def lcdUpdateProc( procName, qLst ):
 
     while True:
 
-        print('lcdCq.qsize =', lcdCq.qsize())
+        if debug: print('lcdCq.qsize =', lcdCq.qsize())
         data = lcdCq.get()   # Block here. Get digit/stop from clk/user.
         kStart = time.perf_counter()
 
@@ -39,19 +40,19 @@ def lcdUpdateProc( procName, qLst ):
                 with open(fullFileName, 'rb') as f:
                     digitDict = pickle.load(f)
                 refreshAllScreens = True
-            print('got str = {}'.format(data))
+            if debug: print('got str = {}'.format(data))
 
         elif isinstance(data,dict):
             if 'hrMSD' in data:
-                print('got timeDict')
+                if debug: print('got timeDict')
                 gotTime = True
                 timeDict = data
-                if refreshAllScreens == True:
+                if refreshAllScreens:
                     for v in timeDict.values():
                         v['updated'] = True
                     refreshAllScreens = False
         else:
-            print('ERROR')
+            if debug: print('ERROR')
 
         if gotStop:
             break

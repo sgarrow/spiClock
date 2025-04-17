@@ -3,7 +3,7 @@ import multiprocessing as mp
 import clockProcess    as cp
 import spiRoutines     as sr
 import lcdProcess      as lp
-######################################################################
+#####################################################################
 ######################################################################
 
 procPidDict = {'clockCntrProc': None, 'lcdUpdateProc': None}

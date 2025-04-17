@@ -2,6 +2,7 @@ import os
 import pickle
 from PIL import Image, ImageDraw, ImageFont # pylint: disable=E0401
 #############################################################################
+#############################################################################
 
 def makeColoredPRSLstsOfBytes(c):
 
@@ -70,12 +71,12 @@ def makePilTextImage(text, textColor, backgroundColor):
     draw.text((xPos, yPos-100), text, font = font, fill = textColor )
 
 
-    draw.rectangle( ( bbox[0] + xPos,
-                      bbox[1] + yPos-100,
-                      bbox[2] + xPos,
-                      bbox[3] + yPos-100 ),
-
-                      outline='red' )
+    #draw.rectangle( ( bbox[0] + xPos,
+    #                  bbox[1] + yPos-100,
+    #                  bbox[2] + xPos,
+    #                  bbox[3] + yPos-100 ),
+    #
+    #                  outline='red' )
 
     #width, height = image.size
     pixels = list(image.getdata())

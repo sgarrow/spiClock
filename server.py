@@ -6,6 +6,7 @@ import datetime   as dt # For logging server start/stop times.
 import cmdVectors as cv # Contains vectors to "worker" functions.
 openSocketsLst = []     # Needed for processing close and ks commands.
 #############################################################################
+#############################################################################
 
 def listThreads(): # Daemon to startServer, terminates w/ kill server (ks).
     while True:
@@ -205,5 +206,5 @@ def startServer():
 #############################################################################
 
 if __name__ == '__main__':
-    #cv.vector('sc')
+    cv.vector('sc')
     startServer()

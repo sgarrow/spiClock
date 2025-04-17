@@ -1,6 +1,6 @@
 import time
 import datetime as dt
-#############################################################################
+############################################################################
 #############################################################################
 
 def getStartTime( startTime ):
@@ -79,6 +79,7 @@ def updateCntr(timeDict):
 
 def clockCntrProc( procName, qLst, startTime ):
     debug = True
+    debug = False
     if debug: print(' {} {}'.format(procName, 'starting'))
 
     lcdCq, lcdRq, clkCq, clkRq = qLst[0], qLst[1], qLst[2], qLst[3]
@@ -88,7 +89,7 @@ def clockCntrProc( procName, qLst, startTime ):
     cumSumLoopTime   =  0
 
     timeDict = getStartTime(startTime)
-    lcdCq.put(timeDict)               # Send cmd to lcdUpdateProc.
+    lcdCq.put(timeDict)                 # Send cmd to lcdUpdateProc.
 
     while True:
         kStart = time.perf_counter()
@@ -97,10 +98,10 @@ def clockCntrProc( procName, qLst, startTime ):
         timeDict = updateCntr(timeDict)
 
         #print(timeDict['scLSD']['value'])
-        lcdCq.put(timeDict)           # Send cmd to lcdUpdateProc.
+        lcdCq.put(timeDict)             # Send cmd to lcdUpdateProc.
 
         doBreak = False
-        while not clkCq.empty():      # Get any stop cmd from user.
+        while not clkCq.empty():        # Get any stop cmd from user.
             cmd = clkCq.get_nowait()
             if cmd == 'stop':
                 doBreak = True
@@ -108,9 +109,10 @@ def clockCntrProc( procName, qLst, startTime ):
         if doBreak:
             break
 
-        while not lcdRq.empty():      # Get rsp from LCD.
+        while not lcdRq.empty():        # Get all pending responses from LCD.
             rsp = lcdRq.get_nowait()
-            if debug: print(rsp,flush = True)      # execution time.
+            if debug:
+                print(rsp,flush = True) # Execution time.
 
         actNumDataPoints += 1
         actTime = time.perf_counter()-kStart

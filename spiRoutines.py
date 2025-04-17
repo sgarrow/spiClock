@@ -8,6 +8,7 @@ import time
 import spidev # pylint: disable=E0401
 import gpiozero as gp
 #############################################################################
+#############################################################################
 
 # Assign GPIO Pins for Chip Selects, SPI, Pwr, etc to the 6 LCD displays.
 

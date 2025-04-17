@@ -18,7 +18,7 @@ lcdRq = mp.Queue() # LCD Rsp Q. mp queue must be used here.
 clkCq = mp.Queue() # CLK Cmd Q. mp queue must be used here.
 clkRq = mp.Queue() # CLK Rsp Q. mp queue must be used here.
 qs    = [ lcdCq, lcdRq, clkCq, clkRq ]
-#############################################################################
+############################################################################
 #############################################################################
 
 def killSrvr():    # The ks handled directly in the handleClient func so it
@@ -27,7 +27,7 @@ def killSrvr():    # The ks handled directly in the handleClient func so it
 #############################################################################
 
 def getVer():
-    VER = ' v0.4.1 - 16-Apr-2025'
+    VER = ' v1.0.0 - 16-Apr-2025'
     return [VER]
 #############################################################################
 

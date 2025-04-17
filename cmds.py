@@ -1,6 +1,6 @@
 def cmds():
     commands = [
-    # (ID, NAME,        W, R, "DESC")
+    #( ID, NAME,        W, R, "DESC")
     (0x01, 'SWRESET',   0, 0, 'Software Reset'),
     (0x04, 'RDDID',     0, 4, 'Read Display ID'),
     (0x05, 'RDDST',     0, 5, 'Read Display Status'),
