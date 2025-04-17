@@ -1,4 +1,6 @@
+import os
 import time
+import pickle
 import makeScreen  as ms
 import spiRoutines as sr
 #############################################################################
@@ -10,7 +12,7 @@ def lcdUpdateProc( procName, qLst ):
 
     lcdCq, lcdRq = qLst[0], qLst[1]  # clkCq, clkRq = qLst[2], qLst[3]
 
-    rspLst = ms.loadActiveStyleStyle()
+    rspLst = ms.loadActiveStyle()
     digitDict = rspLst[1]
 
     # timeDict, which is placed in my cmdQ, has the same key names as the
@@ -22,10 +24,33 @@ def lcdUpdateProc( procName, qLst ):
 
         data = lcdCq.get()   # Block here. Get digit/stop from clk/user.
         kStart = time.perf_counter()
+        print('lcdUpdateProc', ms.getActiveStyle()[0])
 
-        if data == 'stop':
+
+        gotStop  = False
+        gotTime  = False
+        if isinstance(data,str):
+            if data == 'stop':
+                print('got stop')
+                gotStop = True
+            else:
+                dirPath = 'digitScreenStyles'
+                fullFileName = os.path.join(dirPath, data+'.pickle')
+                with open(fullFileName, 'rb') as f:
+                    digitDict = pickle.load(f)
+
+        elif isinstance(data,dict):
+            if 'hrMSD' in data:
+                print('got timeDict')
+                gotTime = True
+                timeDict = data
+        else:
+            print('ERROR')
+
+        if gotStop:
             break
-        timeDict = data
+        if not gotTime:
+            continue
 
         hours   = timeDict['hrMSD']['value'] * 10 + timeDict['hrLSD']['value']
         minutes = timeDict['mnMSD']['value'] * 10 + timeDict['mnLSD']['value']

@@ -1,7 +1,6 @@
 import time
 import spiRoutines as sr
 import makeScreen  as ms
-#import cfgDict     as cd
 #############################################################################
 
 def runTest1():
@@ -120,7 +119,7 @@ def runTest2():
     kLst            = ['hrMSD','hrLSD','mnMSD','mnLSD','scMSD','scLSD']
     textLst         = ['0','1','2','3','4','5','6','7','8','9']
 
-    rspLst     = ms.readCfgDict()
+    rspLst     = ms.getAllStyles()
     funcRspStr = rspLst[0]
     styleLst   = rspLst[1]
 
@@ -131,8 +130,8 @@ def runTest2():
 
     rspStr = ''
     for style in styleLst:
-        rspLst = ms.setDigStyle([style])
-        rspLst = ms.loadActiveStyleStyle()
+        rspLst = ms.setActiveStyle([style])
+        rspLst = ms.loadActiveStyle()
         digitScreenDict = rspLst[1]
         for k in textLst:
             for displayID in kLst:  # pylint: disable=C0103

@@ -1,10 +1,14 @@
 import os
 import pickle
 from PIL import Image, ImageDraw, ImageFont # pylint: disable=E0401
-#import cfgDict as cd
 #############################################################################
 
 def makeColoredPRSLstsOfBytes(c):
+
+    # Creates and returns a pixel, a row and a screens worth of LCD data of
+    # the specified color.
+    #
+    # Only called by functions in testRoutines.py.
 
     # red       green     blue      white     black
     # 0xFF0000, 0x00FF00, 0x0000FF, 0xFFFFFF, 0x000000
@@ -18,6 +22,14 @@ def makeColoredPRSLstsOfBytes(c):
 #############################################################################
 
 def makePilTextImage(text, textColor, backgroundColor):
+
+    # Creates and returns a screens worth of LCD data.  The LCD data is
+    # created by the PIL module.  The LCD image created is typically a
+    # colored digit ('0'-'9') on colored background.
+    #
+    # Called by mkDigPikFile(), below, to make the digits for the clock.
+    #
+    # Also called by functions in testRoutines.py.
 
     font = ImageFont.truetype('fonts/Font00.ttf' , 300)  # Set font size to 80
 
@@ -82,6 +94,12 @@ def makePilTextImage(text, textColor, backgroundColor):
 #############################################################################
 
 def makePilRgbPicImage(fName):
+
+    # Creates and returns a screens worth of LCD data.  The LCD data is
+    # created from an RGB image.
+    #
+    # Only called by functions in testRoutines.py.
+
     rgb565Lst = []
     with open(fName, 'rb') as file:
         while True:
@@ -98,6 +116,12 @@ def makePilRgbPicImage(fName):
 #############################################################################
 
 def makePilJpgPicImage(fName):
+
+    # Creates and returns a screens worth of LCD data.  The LCD data is
+    # created from a jpg image.
+    #
+    # Only called by functions in testRoutines.py.
+
     with Image.open(fName) as img:
         rgbImage = img.convert('RGB')
     pixels = list(rgbImage.getdata())
@@ -112,7 +136,21 @@ def makePilJpgPicImage(fName):
     return byteLst
 #############################################################################
 
-def makeDigitScreens( styleName, textLst, textColor, backgroundColor ):
+def mkDigPikFile( styleName, textLst, textColor, backgroundColor ):
+
+    # Makes a dict & saves it to a pik file in the digitScreenStyles subdir.
+    # The dict keys are (typically) '0'-'9' and the corresponding vals are a
+    # whole screens worth of data containing the corresponding key image, in
+    # the specfied textColor, on the specified background color.
+    #
+    # This func is called by this module's 'main'.  So when this module is
+    # run stand-alone on the command line the default digit styles are all
+    # created.
+    #
+    # This func is called by mkUserDigPikFile which is available to the user
+    # (client), giving users the ablity to create their own digit styles.
+    #
+    # This function is also called by functions in testRoutines.py.
 
     print('making',styleName)
 
@@ -129,7 +167,10 @@ def makeDigitScreens( styleName, textLst, textColor, backgroundColor ):
     return ['{} made.'.format(styleName)]
 #############################################################################
 
-def mkDigScr(parmLst):
+def mkUserDigPikFile(parmLst):
+
+    # User interface to mkDigPikFile, see comment therein.
+
     if len(parmLst) < 7:
         print('too few parms')
         return ['done']
@@ -145,16 +186,58 @@ def mkDigScr(parmLst):
     st  = parmLst[0]
     tc  = ( sixNums[0],sixNums[1],sixNums[2] )
     bc  = ( sixNums[3],sixNums[4],sixNums[5] )
-    rsp = makeDigitScreens(st, textLst, tc, bc)
+    rsp = mkDigPikFile(st, textLst, tc, bc)
 
     return rsp
 #############################################################################
+
+# The active digit style is what the clock will use.  This module global
+# variable can be read and changed by the user and system internals via the
+# get/set functions, below.
+
 activeDigitStyle = 'whiteOnBlack'
-def getDigStyle():
+
+def getActiveStyle():           ######################
     return [activeDigitStyle]
+
+def setActiveStyle(prmLst):     ######################
+    global activeDigitStyle
+
+    if len(prmLst) > 0:
+        dsrdDigitStyle = prmLst[0]
+        #lcdCq, lcdRq, clkCq, clkRq = qLst[1][0], qLst[1][1], qLst[1][2], qLst[1][3]
+        lcdCq = prmLst[1][0]
+    else:
+        rspStr  = ' Digit Style not set.\n'
+        rspStr += ' No style specified.'
+        return [rspStr, activeDigitStyle]
+
+    rspLst     = getAllStyles()
+    funcRspStr = rspLst[0]
+    styleLst   = rspLst[1]
+
+    if len(styleLst) > 0:
+        if dsrdDigitStyle in styleLst:
+            rspStr  = ' Digit Style set to {}.'.format(dsrdDigitStyle)
+            activeDigitStyle = dsrdDigitStyle
+            lcdCq.put(activeDigitStyle)     # Send cmd to lcdUpdateProc.
+        else:
+            rspStr  = ' Digit Style not set.\n'
+            rspStr += ' Invalid style ({}), try on of these:\n\n{}'.\
+                format(dsrdDigitStyle, funcRspStr)
+    else:
+        rspStr  = ' Digit Style not set.\n'
+        rspStr += ' No styles found in directory spiClock/digitScreenStyles.'
+
+    return [rspStr, activeDigitStyle]
 #############################################################################
 
-def readCfgDict():
+def getAllStyles():
+
+    # Basically just returns a list of all files in digitScreenStyles subdir.
+    # Can be called by the user (client) and also called by functions in
+    # testRoutines.py and by setActiveStyle(), above.  If the user specifies
+    # a non-existant style the a list of available styles is given to them.
 
     dPath = 'digitScreenStyles'
     try:
@@ -170,36 +253,13 @@ def readCfgDict():
     return [rspStr,fileNameLstNoExt]
 #############################################################################
 
-def setDigStyle(prmLst):
-    global activeDigitStyle
+def loadActiveStyle():
 
-    if len(prmLst) > 0:
-        dsrdDigitStyle = prmLst[0]
-    else:
-        rspStr  = ' Digit Style not set.\n'
-        rspStr += ' No style specified.'
-        return [rspStr, activeDigitStyle]
+    # Loads the dictionary (of digits/data) from the assocoated pickle file.
+    # Called at clock startup (lcdUpdateProc start).  Also called when the
+    # clock is alreadt running but the user changes the active style.
 
-    rspLst     = readCfgDict()
-    funcRspStr = rspLst[0]
-    styleLst   = rspLst[1]
-
-    if len(styleLst) > 0:
-        if dsrdDigitStyle in styleLst:
-            rspStr  = ' Digit Style set to {}.'.format(dsrdDigitStyle)
-            activeDigitStyle = dsrdDigitStyle
-        else:
-            rspStr  = ' Digit Style not set.\n'
-            rspStr += ' Invalid style ({}), try on of these:\n\n{}'.\
-                format(dsrdDigitStyle, funcRspStr)
-    else:
-        rspStr  = ' Digit Style not set.\n'
-        rspStr += ' No styles found in directory spiClock/digitScreenStyles.'
-
-    return [rspStr, activeDigitStyle]
-#############################################################################
-def loadActiveStyleStyle():
-    activeStyle = getDigStyle()
+    activeStyle = getActiveStyle()
     dirPath = 'digitScreenStyles'
     fullFileName = os.path.join(dirPath, activeStyle[0]+'.pickle')
     print(fullFileName)
@@ -223,19 +283,19 @@ if __name__ == '__main__':
     backColors = [ black, white, turquoise, orange    ]
 
     for style,tColor,bColor in zip(styleNames, txtColors, backColors):
-        resp = makeDigitScreens(style, txtLst, tColor, bColor)
+        resp = mkDigPikFile(style, txtLst, tColor, bColor)
         print(resp)
 
-    dirPath = 'digitScreenStyles'
+    mnDirPath = 'digitScreenStyles'
     try:
-        for fileName in os.listdir(dirPath):
-            fullFileName = os.path.join(dirPath, fileName)
-            if os.path.isfile(fullFileName):
-                print('Processing file: {}'.format(fullFileName))
-                with open(fullFileName, 'rb') as f:
-                    styleDict = pickle.load(f)
+        for fileName in os.listdir(mnDirPath):
+            mnFullFileName = os.path.join(mnDirPath, fileName)
+            if os.path.isfile(mnFullFileName):
+                print('Processing file: {}'.format(mnFullFileName))
+                with open(mnFullFileName, 'rb') as fn:
+                    styleDict = pickle.load(fn)
                     print(styleDict.keys())
     except FileNotFoundError:
-        print(f"Error: Directory '{dirPath}' not found.")
+        print(f"Error: Directory '{mnDirPath}' not found.")
     except Exception as e:
         print(f"An error occurred: {e}")

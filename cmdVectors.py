@@ -10,7 +10,6 @@ import startStopClock  as cr
 import testRoutines    as tr
 import spiRoutines     as sr
 import makeScreen      as ms
-#import cfgDict         as cd
 import cmds            as cm
 #############################################################################
 
@@ -28,7 +27,7 @@ def killSrvr():    # The ks handled directly in the handleClient func so it
 #############################################################################
 
 def getVer():
-    VER = ' v0.3.10 - 16-Apr-2025'
+    VER = ' v0.3.11 - 16-Apr-2025'
     return [VER]
 #############################################################################
 
@@ -38,15 +37,19 @@ def vector(inputStr): # called from handleClient. inputStr from client.
     'sc'  : 'Start Clock',
     'pc'  : 'stoP  Clock',
     'tm'  : 'Test  Menu',
+
     'rt1' : 'Run Test 1',
     'rt2' : 'Run Test 2',
+
     'rh'  : 'Reset LCD HW',
     'rs'  : 'Reset LCD SW',
     'sb'  : 'Set   Backlight',
-    'mds' : 'Make  Digit  Screen',
-    'gas' : 'Get   Active Digit Style',
-    'sas' : 'Set   Active Digit Style',
-    'rcd' : 'Read  Config Dict',
+
+    'gas' : 'Get   Active Style',
+    'sas' : 'Set   Active Style',
+    'gAs' : 'Get   ALL    Styles',
+    'mus' : 'Make  User   Style',
+
     'lc'  : 'List  Commands',
     'ks'  : 'Kill  Server',
     }
@@ -55,32 +58,30 @@ def vector(inputStr): # called from handleClient. inputStr from client.
     # This dictionary embodies the worker function vector (and menu) info.
     vectorDict = {
     # Worker Function in clockRoutines.py.
-    'sc' : { 'func': cr.startClk,    'parm': [[],qs],   'mainMnu': menuTxt['sc' ]},
-    'pc' : { 'func': cr.stopClk,     'parm': qs,        'mainMnu': menuTxt['pc' ]},
-    'tm' : { 'func': None,           'parm': None,      'mainMnu': menuTxt['tm' ]},
+    'sc' : { 'func': cr.startClk,         'parm': [[],qs],    'mainMnu': menuTxt['sc' ]},
+    'pc' : { 'func': cr.stopClk,          'parm': qs,         'mainMnu': menuTxt['pc' ]},
+    'tm' : { 'func': None,                'parm': None,       'mainMnu': menuTxt['tm' ]},
 
     # Worker Function in testRoutines.py.
-    'rt1': { 'func': tr.runTest1,    'parm': None,      'testMnu': menuTxt['rt1']},
-    'rt2': { 'func': tr.runTest2,    'parm': None,      'testMnu': menuTxt['rt2']},
+    'rt1': { 'func': tr.runTest1,         'parm': None,       'testMnu': menuTxt['rt1']},
+    'rt2': { 'func': tr.runTest2,         'parm': None,       'testMnu': menuTxt['rt2']},
 
     # Worker Function in spiRoutines.py.
-    'rh' : { 'func': sr.hwReset,     'parm': None,      'mainMnu': menuTxt['rh' ]},
-    'rs' : { 'func': sr.swReset,     'parm': 'scLSD',   'mainMnu': menuTxt['rs' ]},
-    'sb' : { 'func': sr.setBkLight,  'parm': [0],       'mainMnu': menuTxt['sb' ]},
+    'rh' : { 'func': sr.hwReset,          'parm': None,       'mainMnu': menuTxt['rh' ]},
+    'rs' : { 'func': sr.swReset,          'parm': 'scLSD',    'mainMnu': menuTxt['rs' ]},
+    'sb' : { 'func': sr.setBkLight,       'parm': [0],        'mainMnu': menuTxt['sb' ]},
 
     # Worker Function in makeScreens.py.
-    'mds': { 'func': ms.mkDigScr,    'parm': dfltMDSPrm,'mainMnu': menuTxt['mds']},
-    'gas': { 'func': ms.getDigStyle, 'parm': None,      'mainMnu': menuTxt['gas']},
-    'sas': { 'func': ms.setDigStyle, 'parm': ['None'],      'mainMnu': menuTxt['sas']},
-
-    # Worker Function in cfgDict.py.
-    'rcd': { 'func': ms.readCfgDict, 'parm': None,      'mainMnu': menuTxt['rcd']},
+    'gas': { 'func': ms.getActiveStyle,   'parm': None,       'mainMnu': menuTxt['gas']},
+    'sas': { 'func': ms.setActiveStyle,   'parm': ['None',qs],   'mainMnu': menuTxt['sas']},
+    'gAs': { 'func': ms.getAllStyles,     'parm': None,       'mainMnu': menuTxt['gAs']},
+    'mus': { 'func': ms.mkUserDigPikFile, 'parm': dfltMDSPrm, 'mainMnu': menuTxt['mus']},
 
     # Worker Function in cmds.py.
-    'lc' : { 'func': cm.cmds,        'parm': None,      'mainMnu': menuTxt['lc' ]},
+    'lc' : { 'func': cm.cmds,             'parm': None,       'mainMnu': menuTxt['lc' ]},
 
     # Worker Function in this module.
-    'ks' : { 'func': killSrvr,       'parm': None,      'mainMnu': menuTxt['ks' ]},
+    'ks' : { 'func': killSrvr,            'parm': None,       'mainMnu': menuTxt['ks' ]},
     }
 
     # Process the string (command) passed to this function via the call
@@ -101,8 +102,11 @@ def vector(inputStr): # called from handleClient. inputStr from client.
         if choice in ['sc'] and len(optArgsStr) == 3:
             params[0] = optArgsStr
 
-        if choice in ['sb', 'sas'] and len(optArgsStr) == 1:
+        if choice in ['sb'] and len(optArgsStr) == 1:
             params = optArgsStr
+
+        if choice in ['sas'] and len(optArgsStr) == 1:
+            params[0] = optArgsStr[0]
 
         if choice in ['mds'] and len(optArgsStr) > 0:
             params = optArgsStr
