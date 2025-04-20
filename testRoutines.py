@@ -121,7 +121,7 @@ def runTest2(qs):
     textLst         = ['0','1','2','3','4','5','6','7','8','9']
 
     rspLst     = ms.getAllStyles()
-    funcRspStr = rspLst[0]
+    #funcRspStr = rspLst[0]
     styleLst   = rspLst[1]
 
     sr.hwReset()              # HW Reset
@@ -130,11 +130,11 @@ def runTest2(qs):
     sr.setBkLight([1])        # Turn on backlight.
 
     rspStr = ''
-    for style in styleLst:
+    for style in styleLst[2:]:
         rspLst = ms.setActiveStyle([style,qs])
         rspLst = ms.loadActiveStyle()
         digitScreenDict = rspLst[1]
-        for k in textLst:
+        for k in textLst[9:]:
             for displayID in kLst:  # pylint: disable=C0103
                 data = digitScreenDict[k]
                 kStart = time.perf_counter()
@@ -144,13 +144,23 @@ def runTest2(qs):
                     rspStr += ' LCD update time {:.6f} sec. {} {} {}.\n'.\
                         format(delta, style, k, displayID)
 
-    sr.hwReset()              # HW Reset
-    for displayID in kLst:    # pylint: disable=C0103
-        sr.swReset(displayID) # SW Reset and the display initialization.
-    sr.setBkLight([0])        # Turn off backlight.
+    #sr.hwReset()              # HW Reset
+    #for displayID in kLst:    # pylint: disable=C0103
+    #    sr.swReset(displayID) # SW Reset and the display initialization.
+    #sr.setBkLight([0])        # Turn off backlight.
 
     return [rspStr]
 #############################################################################
+
+def runTest3():
+    rspStr = ''
+    for b in range(255,0,-5):  # pylint: disable=C0103
+        r = sr.writeDisplayBrightness(b)[0] + '\n'
+        print(r)
+        rspStr += r
+    return [rspStr]
+#############################################################################
+
 if __name__ == '__main__':
     import multiprocessing as mp
     lcdCq = mp.Queue() # LCD Cmd Q. mp queue must be used here.
@@ -159,7 +169,16 @@ if __name__ == '__main__':
     clkRq = mp.Queue() # CLK Rsp Q. mp queue must be used here.
     msQs  = [ lcdCq, lcdRq, clkCq, clkRq ]
 
-    resp = runTest1()
-    print(resp[0])
+    #resp = runTest1()
+    #print(resp[0])
+    print('T2')
     resp = runTest2(msQs)
     print(resp[0])
+    
+    #time.sleep(2)
+
+    #print('T3')
+    #resp = runTest3()
+    #print(resp[0])
+    #print('done')
+

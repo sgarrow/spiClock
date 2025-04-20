@@ -113,6 +113,23 @@ def stopClk(prmLst):
     return [rspStr]
 ######################################################################
 
+def controlBrightness(prmLst):
+
+    rspStr = ''
+    try:
+        dsrdBrightness = int(prmLst[0])
+    except ValueError:
+        rspStr += ' ERROR: Non-integer input ({})'.format(prmLst[0])
+
+    if rspStr == '' and not 0 <= dsrdBrightness <=255:
+        rspStr += ' ERROR: Input not in range 0-255 ({})'.format(prmLst[0])
+
+    if rspStr == '':
+        rspStr = sr.writeDisplayBrightness(dsrdBrightness)[0]
+
+    return [rspStr]
+######################################################################
+
 if __name__ == '__main__':
     lcdCqMain = mp.Queue() # LCD Cmd Q. mp queue must be used here.
     lcdRqMain = mp.Queue() # LCD Rsp Q. mp queue must be used here.

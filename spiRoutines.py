@@ -187,3 +187,23 @@ def setEntireDisplay(displayID, pixelDataListOfBytes, sendFunc):
     sendFunc(displayID, pixelDataListOfBytes) # Send pixel data.
     return ['setEntireDisplay done.']
 #############################################################################
+
+def writeDisplayBrightness(dsrdBrightness):
+    #for displayID in ['scLSD']: #csDict:
+
+        #print('writing 51')
+        #sendCmdToSt7789( displayID, 0x51   )
+        #sendDatToSt7789( displayID, [dsrdBrightness])
+        #print(dsrdBrightness)
+        #print('wrote 51')
+        #time.sleep(.1)
+        #
+        #print('writing 53')
+        #sendCmdToSt7789( displayID, 0x53   )
+        #sendDatToSt7789( displayID, [0x2C] )
+        #print('wrote 53')
+        #time.sleep(.1)
+
+    return [' Not yet implemented, brightness not set.']
+    #return [' Brightness Set to {}'.format(dsrdBrightness)]
+#############################################################################

@@ -206,5 +206,5 @@ def startServer():
 #############################################################################
 
 if __name__ == '__main__':
-    cv.vector('sc')
+    #cv.vector('sc')
     startServer()

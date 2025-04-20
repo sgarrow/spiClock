@@ -27,7 +27,7 @@ def killSrvr():    # The ks handled directly in the handleClient func so it
 #############################################################################
 
 def getVer():
-    VER = ' v1.0.2 - 16-Apr-2025'
+    VER = ' v1.0.3 - 19-Apr-2025'
     return [VER]
 #############################################################################
 
@@ -36,10 +36,12 @@ def vector(inputStr): # called from handleClient. inputStr from client.
     menuTxt = {
     'sc'  : 'Start Clock',
     'pc'  : 'stoP  Clock',
+    'cb'  : 'Ctrl  Brightness',
     'tm'  : 'Test  Menu',
 
     'rt1' : 'Run Test 1',
     'rt2' : 'Run Test 2',
+    'rt3' : 'Run Test 3',
 
     'rh'  : 'Reset LCD HW',
     'rs'  : 'Reset LCD SW',
@@ -60,11 +62,13 @@ def vector(inputStr): # called from handleClient. inputStr from client.
     # Worker Function in clockRoutines.py.
     'sc' : { 'func': cr.startClk,         'parm': [[],qs],    'mainMnu': menuTxt['sc' ]},
     'pc' : { 'func': cr.stopClk,          'parm': qs,         'mainMnu': menuTxt['pc' ]},
+    'cb' : { 'func': cr.controlBrightness,'parm': ['None'],   'mainMnu': menuTxt['cb' ]},
     'tm' : { 'func': None,                'parm': None,       'mainMnu': menuTxt['tm' ]},
 
     # Worker Function in testRoutines.py.
     'rt1': { 'func': tr.runTest1,         'parm': None,       'testMnu': menuTxt['rt1']},
     'rt2': { 'func': tr.runTest2,         'parm': qs,         'testMnu': menuTxt['rt2']},
+    'rt3': { 'func': tr.runTest3,         'parm': None,       'testMnu': menuTxt['rt3']},
 
     # Worker Function in spiRoutines.py.
     'rh' : { 'func': sr.hwReset,          'parm': None,       'mainMnu': menuTxt['rh' ]},
@@ -73,7 +77,7 @@ def vector(inputStr): # called from handleClient. inputStr from client.
 
     # Worker Function in makeScreens.py.
     'gas': { 'func': ms.getActiveStyle,   'parm': None,       'mainMnu': menuTxt['gas']},
-    'sas': { 'func': ms.setActiveStyle,   'parm': ['None',qs],   'mainMnu': menuTxt['sas']},
+    'sas': { 'func': ms.setActiveStyle,   'parm': ['None',qs],'mainMnu': menuTxt['sas']},
     'gAs': { 'func': ms.getAllStyles,     'parm': None,       'mainMnu': menuTxt['gAs']},
     'mus': { 'func': ms.mkUserDigPikFile, 'parm': dfltMDSPrm, 'mainMnu': menuTxt['mus']},
 
@@ -108,7 +112,7 @@ def vector(inputStr): # called from handleClient. inputStr from client.
         if choice in ['sas'] and len(optArgsStr) == 1:
             params[0] = optArgsStr[0]
 
-        if choice in ['mds'] and len(optArgsStr) > 0:
+        if choice in ['mus', 'cb'] and len(optArgsStr) > 0:
             params = optArgsStr
 
         #try:                   # Catch exceptions in command procesing.
