@@ -122,7 +122,7 @@ def runTest2(qs):
 
     rspLst     = ms.getAllStyles()
     #funcRspStr = rspLst[0]
-    styleLst   = rspLst[1]
+    styleDic   = rspLst[1]
 
     sr.hwReset()              # HW Reset
     for displayID in kLst:
@@ -130,34 +130,34 @@ def runTest2(qs):
     sr.setBkLight([1])        # Turn on backlight.
 
     rspStr = ''
-    for style in styleLst[2:]:
-        rspLst = ms.setActiveStyle([style,qs])
+    for styleIdx in styleDic:
+        rspLst = ms.setActiveStyle([str(styleIdx),qs])
         rspLst = ms.loadActiveStyle()
         digitScreenDict = rspLst[1]
-        for k in textLst[9:]:
+        for txt in textLst[5:]:
             for displayID in kLst:
-                data = digitScreenDict[k]
+                data = digitScreenDict[txt]
                 kStart = time.perf_counter()
                 sr.setEntireDisplay(displayID, data, sr.sendDat2ToSt7789)
                 delta = time.perf_counter()-kStart
                 if delta > .008:
                     rspStr += ' LCD update time {:.6f} sec. {} {} {}.\n'.\
-                        format(delta, style, k, displayID)
+                        format(delta, styleDic[styleIdx], txt, displayID)
 
-    #sr.hwReset()              # HW Reset
-    #for displayID in kLst:
-    #    sr.swReset(displayID) # SW Reset and the display initialization.
-    #sr.setBkLight([0])        # Turn off backlight.
+    sr.hwReset()              # HW Reset
+    for displayID in kLst:
+        sr.swReset(displayID) # SW Reset and the display initialization.
+    sr.setBkLight([0])        # Turn off backlight.
 
     return [rspStr]
 #############################################################################
 
 def runTest3():
-    rspStr = ''
-    for b in range(255,0,-5):
-        r = sr.writeDisplayBrightness(b)[0] + '\n'
-        print(r)
-        rspStr += r
+    rspStr = ' Not Implemented'
+    #for b in range(255,0,-5):
+    #    r = sr.writeDisplayBrightness(b)[0] + '\n'
+    #    print(r)
+    #    rspStr += r
     return [rspStr]
 #############################################################################
 

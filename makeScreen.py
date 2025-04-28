@@ -205,27 +205,27 @@ def setActiveStyle(prmLst):     ######################
     global activeDigitStyle
 
     if len(prmLst) > 0:
-        dsrdDigitStyle = prmLst[0]
+        dsrdDigitStyleIdx = prmLst[0]
         #lcdCq, lcdRq, clkCq, clkRq = qLst[1][0], qLst[1][1], qLst[1][2], qLst[1][3]
         lcdCq = prmLst[1][0]
     else:
         rspStr  = ' Digit Style not set.\n'
-        rspStr += ' No style specified.'
+        rspStr += ' No style number specified.'
         return [rspStr, activeDigitStyle]
 
     rspLst     = getAllStyles()
     funcRspStr = rspLst[0]
-    styleLst   = rspLst[1]
+    styleDic   = rspLst[1]
 
-    if len(styleLst) > 0:
-        if dsrdDigitStyle in styleLst:
-            rspStr  = ' Digit Style set to {}.'.format(dsrdDigitStyle)
-            activeDigitStyle = dsrdDigitStyle
+    if len(styleDic) > 0:
+        if dsrdDigitStyleIdx.isnumeric() and int(dsrdDigitStyleIdx) < len(styleDic):
+            rspStr  = ' Digit Style set to {}.'.format(styleDic[int(dsrdDigitStyleIdx)])
+            activeDigitStyle = styleDic[int(dsrdDigitStyleIdx)]
             lcdCq.put(activeDigitStyle)     # Send cmd to lcdUpdateProc.
         else:
             rspStr  = ' Digit Style not set.\n'
-            rspStr += ' Invalid style ({}), try on of these:\n\n{}'.\
-                format(dsrdDigitStyle, funcRspStr)
+            rspStr += ' Invalid style number ({}), try on of these (enter number):\n\n{}'.\
+                format(dsrdDigitStyleIdx, funcRspStr)
     else:
         rspStr  = ' Digit Style not set.\n'
         rspStr += ' No styles found in directory spiClock/digitScreenStyles.'
@@ -247,11 +247,13 @@ def getAllStyles():
         fileNameLstNoExt = []
         rspStr = ' Directory {} not found.'.format(dPath)
     else:
+        rspStr  = ''
         fileNameLstNoExt = [os.path.splitext(file)[0] for file in fileNameLst]
-        rspStr  = ' '
-        rspStr += ' \n '.join(fileNameLstNoExt)
+        fileNameDicNoExt = dict(enumerate(fileNameLstNoExt))
+        for k,v in fileNameDicNoExt.items():
+            rspStr += ' {} - {}\n'.format(k,v)
 
-    return [rspStr,fileNameLstNoExt]
+    return [rspStr,fileNameDicNoExt]
 #############################################################################
 
 def loadActiveStyle():
