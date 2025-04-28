@@ -6,6 +6,7 @@ is then vectored to in file cmdWorkers.py.
 '''
 
 import multiprocessing as mp
+import threading       as th
 import startStopClock  as cr
 import testRoutines    as tr
 import spiRoutines     as sr
@@ -18,6 +19,8 @@ lcdRq = mp.Queue() # LCD Rsp Q. mp queue must be used here.
 clkCq = mp.Queue() # CLK Cmd Q. mp queue must be used here.
 clkRq = mp.Queue() # CLK Rsp Q. mp queue must be used here.
 qs    = [ lcdCq, lcdRq, clkCq, clkRq ]
+
+openSocketsLst = []     # Needed for processing close and ks commands.
 ############################################################################
 #############################################################################
 
@@ -27,10 +30,26 @@ def killSrvr():    # The ks handled directly in the handleClient func so it
 #############################################################################
 
 def getVer():
-    VER = ' v1.0.3 - 19-Apr-2025'
+    VER = ' v1.0.4 - 28-Apr-2025'
     return [VER]
 #############################################################################
 
+def getActiveThreads():
+
+    rspStr = ' Running Threads:\n'
+    for t in th.enumerate():
+        rspStr += '   {}\n'.format(t.name)
+
+    rspStr += '\n Open Sockets:\n'
+    for openS in openSocketsLst:
+        rspStr += '   {}\n'.format(openS['ca'])
+
+    rspStr += '\n Running Processes:\n'
+    for k,v in cr.procPidDict.items():
+        if v is not None:
+            rspStr += '   {}\n'.format(k)
+    return [rspStr]
+#############################################################################
 def vector(inputStr): # called from handleClient. inputStr from client.
 
     menuTxt = {
@@ -54,6 +73,7 @@ def vector(inputStr): # called from handleClient. inputStr from client.
 
     'lc'  : 'List  Commands',
     'ks'  : 'Kill  Server',
+    'gat' : 'Get Active Threads',
     }
     dfltMDSPrm = ['redOnGreen', '255','0','0', '0','0','255']
 
@@ -86,6 +106,7 @@ def vector(inputStr): # called from handleClient. inputStr from client.
 
     # Worker Function in this module.
     'ks' : { 'func': killSrvr,            'parm': None,       'mainMnu': menuTxt['ks' ]},
+    'gat': { 'func': getActiveThreads,    'parm': None,       'mainMnu': menuTxt['gat']},
     }
 
     # Process the string (command) passed to this function via the call

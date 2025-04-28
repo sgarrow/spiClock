@@ -4,14 +4,13 @@ import queue            # For Killing Server.
 import time             # For Killing Server and listThreads.
 import datetime   as dt # For logging server start/stop times.
 import cmdVectors as cv # Contains vectors to "worker" functions.
-openSocketsLst = []     # Needed for processing close and ks commands.
 #############################################################################
 #############################################################################
 
 def listThreads(): # Daemon to startServer, terminates w/ kill server (ks).
     while True:
 
-        #time.sleep(30)
+        #time.sleep(10)
         time.sleep(60*60*24*7) # Once a week.
 
         print(' ##################')
@@ -25,24 +24,20 @@ def listThreads(): # Daemon to startServer, terminates w/ kill server (ks).
 
         print(' ##################')
         print(' Open Sockets: ')
-        for openS in openSocketsLst:
+        for openS in cv.openSocketsLst:
             print('   {}'.format(openS['ca']))
 #############################################################################
 
 def processCloseCmd(clientSocket, clientAddress):
-    global openSocketsLst # pylint: disable=W0602
-
     rspStr = ' handleClient {} set loop break RE: close'.format(clientAddress)
     clientSocket.send(rspStr.encode()) # sends all even if >1024.
     time.sleep(1) # Required so .send happens before socket closed.
     print(rspStr)
     # Breaks the loop, connection closes and thread stops.
-    openSocketsLst.remove({'cs':clientSocket,'ca':clientAddress})
+    cv.openSocketsLst.remove({'cs':clientSocket,'ca':clientAddress})
 #############################################################################
 
 def processKsCmd(clientSocket, clientAddress, client2ServerCmdQ):
-    global openSocketsLst # pylint: disable=W0603
-
     rspStr = ''
     # Client sending ks has to be terminated first, I don't know why.
     # Also stop and running profiles so no dangling threads left behind.
@@ -57,21 +52,19 @@ def processKsCmd(clientSocket, clientAddress, client2ServerCmdQ):
     time.sleep(1.5) # Required so .send happens before socket closed.
 
     # Breaks the ALL loops, ALL connections close and ALL thread stops.
-    for el in openSocketsLst:
+    for el in cv.openSocketsLst:
         if el['ca'] != clientAddress:
             rspStr = ' handleClient {} set loop break for {} RE: ks'.\
                 format(clientAddress, el['ca'])
             el['cs'].send(rspStr.encode()) # sends all even if > 1024.
             time.sleep(1) # Required so .send happens before socket closed.
             print(rspStr)
-    openSocketsLst = []
+    cv.openSocketsLst.clear()
     client2ServerCmdQ.put('ks')
     return 0
 #############################################################################
 
 def handleClient(clientSocket, clientAddress, client2ServerCmdQ):
-    global openSocketsLst # pylint: disable=W0602
-
     # Validate password
     data = clientSocket.recv(1024)
     if data.decode() == 'tempPW':
@@ -86,10 +79,10 @@ def handleClient(clientSocket, clientAddress, client2ServerCmdQ):
 
     if passwordIsOk:
         clientSocket.settimeout(3.0)   # Sets the .recv timeout - ks processing.
-        openSocketsLst.append({'cs':clientSocket,'ca':clientAddress})
+        cv.openSocketsLst.append({'cs':clientSocket,'ca':clientAddress})
 
     # The while condition is made false by the close and ks command.
-    while {'cs':clientSocket,'ca':clientAddress} in openSocketsLst:
+    while {'cs':clientSocket,'ca':clientAddress} in cv.openSocketsLst:
 
         # Recieve msg from the client (and look (try) for UNEXPECTED EVENT).
         try: # In case user closed client window (x) instead of by close cmd.
@@ -97,11 +90,11 @@ def handleClient(clientSocket, clientAddress, client2ServerCmdQ):
         except ConnectionResetError: # Windows throws this on (x).
             print(' handleClient {} ConnectRstErr except in s.recv'.format(clientAddress))
             # Breaks the loop. handler/thread stops. Connection closed.
-            openSocketsLst.remove({'cs':clientSocket,'ca':clientAddress})
+            cv.openSocketsLst.remove({'cs':clientSocket,'ca':clientAddress})
             break
         except ConnectionAbortedError: # Test-NetConnection xxx.xxx.x.xxx -p xxxx throws this
             print(' handleClient {} ConnectAbtErr except in s.recv'.format(clientAddress))
-            openSocketsLst.remove({'cs':clientSocket,'ca':clientAddress})
+            cv.openSocketsLst.remove({'cs':clientSocket,'ca':clientAddress})
             break
         except socket.timeout: # Can't block on recv - won't be able to break
             continue           # loop if another client has issued a ks cmd.
@@ -126,7 +119,7 @@ def handleClient(clientSocket, clientAddress, client2ServerCmdQ):
             except BrokenPipeError:      # RPi throws this on (x).
                 print(' handleClient {} BrokePipeErr except in s.send'.format(clientAddress))
                 # Breaks the loop. handler/thread stops. Connection closed.
-                openSocketsLst.remove({'cs':clientSocket,'ca':clientAddress})
+                cv.openSocketsLst.remove({'cs':clientSocket,'ca':clientAddress})
 
     print(' handleClient {} closing socket and breaking loop'.format(clientAddress))
     clientSocket.close()

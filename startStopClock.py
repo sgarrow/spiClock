@@ -3,16 +3,15 @@ import multiprocessing as mp
 import clockProcess    as cp
 import spiRoutines     as sr
 import lcdProcess      as lp
-#####################################################################
-######################################################################
 
 procPidDict = {'clockCntrProc': None, 'lcdUpdateProc': None}
+#####################################################################
+######################################################################
 
 def isClockRunning():
     return procPidDict['clockCntrProc'] is not None and \
            procPidDict['lcdUpdateProc'] is not None
 ######################################################################
-
 
 def startLcdUpdateProc( qLst ):
     procLst = []

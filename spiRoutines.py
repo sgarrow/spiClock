@@ -204,6 +204,6 @@ def writeDisplayBrightness(dsrdBrightness):
         #print('wrote 53')
         #time.sleep(.1)
 
-    return [' Not yet implemented, brightness not set.']
+    return [' Not yet implemented, brightness not set.{}'.format(dsrdBrightness)]
     #return [' Brightness Set to {}'.format(dsrdBrightness)]
 #############################################################################

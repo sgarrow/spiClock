@@ -125,7 +125,7 @@ def runTest2(qs):
     styleLst   = rspLst[1]
 
     sr.hwReset()              # HW Reset
-    for displayID in kLst:    # pylint: disable=C0103
+    for displayID in kLst:
         sr.swReset(displayID) # SW Reset and the display initialization.
     sr.setBkLight([1])        # Turn on backlight.
 
@@ -135,7 +135,7 @@ def runTest2(qs):
         rspLst = ms.loadActiveStyle()
         digitScreenDict = rspLst[1]
         for k in textLst[9:]:
-            for displayID in kLst:  # pylint: disable=C0103
+            for displayID in kLst:
                 data = digitScreenDict[k]
                 kStart = time.perf_counter()
                 sr.setEntireDisplay(displayID, data, sr.sendDat2ToSt7789)
@@ -145,7 +145,7 @@ def runTest2(qs):
                         format(delta, style, k, displayID)
 
     #sr.hwReset()              # HW Reset
-    #for displayID in kLst:    # pylint: disable=C0103
+    #for displayID in kLst:
     #    sr.swReset(displayID) # SW Reset and the display initialization.
     #sr.setBkLight([0])        # Turn off backlight.
 
@@ -154,7 +154,7 @@ def runTest2(qs):
 
 def runTest3():
     rspStr = ''
-    for b in range(255,0,-5):  # pylint: disable=C0103
+    for b in range(255,0,-5):
         r = sr.writeDisplayBrightness(b)[0] + '\n'
         print(r)
         rspStr += r
@@ -174,11 +174,10 @@ if __name__ == '__main__':
     print('T2')
     resp = runTest2(msQs)
     print(resp[0])
-    
+
     #time.sleep(2)
 
     #print('T3')
     #resp = runTest3()
     #print(resp[0])
     #print('done')
-

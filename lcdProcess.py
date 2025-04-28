@@ -6,7 +6,7 @@ import spiRoutines as sr
 ############################################################################
 #############################################################################
 
-def lcdUpdateProc( procName, qLst ):
+def lcdUpdateProc( procName, qLst ): # pylint: disable=R0912, disable=R0915
     debug = True
     debug = False
     if debug: print(' {} {}'.format(procName, 'starting'))

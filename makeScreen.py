@@ -196,7 +196,7 @@ def mkUserDigPikFile(parmLst):
 # variable can be read and changed by the user and system internals via the
 # get/set functions, below.
 
-activeDigitStyle = 'whiteOnBlack'
+activeDigitStyle = 'whiteOnBlack' # pylint: disable=C0103
 
 def getActiveStyle():           ######################
     return [activeDigitStyle]
@@ -287,7 +287,7 @@ if __name__ == '__main__':
         resp = mkDigPikFile(style, txtLst, tColor, bColor)
         print(resp)
 
-    mnDirPath = 'digitScreenStyles'
+    mnDirPath = 'digitScreenStyles' # pylint: disable=C0103
     try:
         for fileName in os.listdir(mnDirPath):
             mnFullFileName = os.path.join(mnDirPath, fileName)
@@ -298,5 +298,5 @@ if __name__ == '__main__':
                     print(styleDict.keys())
     except FileNotFoundError:
         print(f"Error: Directory '{mnDirPath}' not found.")
-    except Exception as e:
+    except Exception as e: # pylint: disable=W0718
         print(f"An error occurred: {e}")
