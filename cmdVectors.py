@@ -31,7 +31,7 @@ def killSrvr():    # The ks handled directly in the handleClient func so it
 #############################################################################
 
 def getVer():
-    VER = ' v1.0.6 - 28-Apr-2025'
+    VER = ' v1.0.7 - 28-Apr-2025'
     return [VER]
 #############################################################################
 
@@ -70,6 +70,10 @@ def vector(inputStr): # called from handleClient. inputStr from client.
     'gas' : 'Get   Active Style',
     'sas' : 'Set   Active Style',
     'gAs' : 'Get   ALL    Styles',
+    'gds' : 'Get   Day    Style',
+    'sds' : 'Set   Day    Style',
+    'gns' : 'Get   Night  Style',
+    'sns' : 'Set   Night  Style',
 
     'mus' : 'Make  User   Style',
 
@@ -101,6 +105,10 @@ def vector(inputStr): # called from handleClient. inputStr from client.
     'gas': { 'func': sm.getActiveStyle,   'parm': None,       'mainMnu': menuTxt['gas']},
     'sas': { 'func': sm.setActiveStyle,   'parm': ['None',qs],'mainMnu': menuTxt['sas']},
     'gAs': { 'func': sm.getAllStyles,     'parm': None,       'mainMnu': menuTxt['gAs']},
+    'gds': { 'func': sm.getDayStyle,      'parm': None,       'mainMnu': menuTxt['gds']},
+    'sds': { 'func': sm.setDayStyle,      'parm': ['None'],   'mainMnu': menuTxt['sds']},
+    'gns': { 'func': sm.getNightStyle,    'parm': None,       'mainMnu': menuTxt['gns']},
+    'sns': { 'func': sm.setNightStyle,    'parm': ['None'],   'mainMnu': menuTxt['sns']},
 
     # Worker Function in makeScreens.py.
     'mus': { 'func': ms.mkUserDigPikFile, 'parm': dfltMDSPrm, 'mainMnu': menuTxt['mus']},
@@ -134,7 +142,7 @@ def vector(inputStr): # called from handleClient. inputStr from client.
         if choice in ['sb'] and len(optArgsStr) == 1:
             params = optArgsStr
 
-        if choice in ['sas'] and len(optArgsStr) == 1:
+        if choice in ['sas','sds','sns'] and len(optArgsStr) == 1:
             params[0] = optArgsStr[0]
 
         if choice in ['mus', 'cb'] and len(optArgsStr) > 0:

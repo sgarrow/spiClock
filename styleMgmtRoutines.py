@@ -1,23 +1,78 @@
 import os
 import pickle
-# The active digit style is what the clock will use.  This module global
-# variable can be read and changed by the user and system internals via the
-# get/set functions, below.
+import inspect
 
-activeDigitStyle = 'whiteOnBlack' # pylint: disable=C0103
+activeDigitStyle = 'whiteOnBlack'      # pylint: disable=C0103
+dayDigitStyle    = 'orangeOnTurquoise' # pylint: disable=C0103
+nightDigitStyle  = 'greyOnBlack'       # pylint: disable=C0103
+#############################################################################
+#############################################################################
 
-def getActiveStyle():           ######################
+def getDayStyle():
+    return [dayDigitStyle]
+def getNightStyle():
+    return [nightDigitStyle]
+def getActiveStyle():
     return [activeDigitStyle]
+#############################################################################
 
-def setActiveStyle(prmLst):     ######################
+def setStyleDriver(prmLst):
+
+    whoCalledMeFuncNameStr = inspect.stack()[1][3]
+    if whoCalledMeFuncNameStr == 'setDayStyle':
+        digitStyle = dayDigitStyle
+    elif whoCalledMeFuncNameStr == 'setNightStyle':
+        digitStyle = nightDigitStyle
+    else:
+        digitStyle = 'ERROR'
+
+    if len(prmLst) > 0:
+        dsrdStyleIdx = prmLst[0]
+    else:
+        rspStr  = ' Style not set.\n'
+        rspStr += ' No style number specified.'
+
+        return [rspStr, digitStyle]
+
+    rspLst     = getAllStyles()
+    funcRspStr = rspLst[0]
+    styleDic   = rspLst[1]
+
+    if len(styleDic) > 0:
+        if dsrdStyleIdx.isnumeric() and int(dsrdStyleIdx) < len(styleDic):
+            rspStr  = ' Style set to {}.'.format(styleDic[int(dsrdStyleIdx)])
+            digitStyle = styleDic[int(dsrdStyleIdx)]
+        else:
+            rspStr  = ' Style not set.\n'
+            rspStr += ' Invalid style number ({}), try on of these (enter number):\n\n{}'.\
+                format(dsrdStyleIdx, funcRspStr)
+    else:
+        rspStr  = ' Style not set.\n'
+        rspStr += ' No styles found in directory spiClock/digitScreenStyles.'
+
+    return rspStr, digitStyle
+#############################################################################
+
+def setDayStyle(prmLst):
+    global dayDigitStyle
+    rspStr, dayDigitStyle = setStyleDriver(prmLst)
+    return [rspStr, dayDigitStyle]
+#############################################################################
+
+def setNightStyle(prmLst):
+    global nightDigitStyle
+    rspStr, nightDigitStyle = setStyleDriver(prmLst)
+    return [rspStr, dayDigitStyle]
+#############################################################################
+
+def setActiveStyle(prmLst):
     global activeDigitStyle
 
     if len(prmLst) > 0:
         dsrdDigitStyleIdx = prmLst[0]
-        #lcdCq, lcdRq, clkCq, clkRq = qLst[1][0], qLst[1][1], qLst[1][2], qLst[1][3]
         lcdCq = prmLst[1][0]
     else:
-        rspStr  = ' Digit Style not set.\n'
+        rspStr  = ' Active Style not set.\n'
         rspStr += ' No style number specified.'
         return [rspStr, activeDigitStyle]
 
@@ -27,15 +82,15 @@ def setActiveStyle(prmLst):     ######################
 
     if len(styleDic) > 0:
         if dsrdDigitStyleIdx.isnumeric() and int(dsrdDigitStyleIdx) < len(styleDic):
-            rspStr  = ' Digit Style set to {}.'.format(styleDic[int(dsrdDigitStyleIdx)])
+            rspStr  = ' Active Style set to {}.'.format(styleDic[int(dsrdDigitStyleIdx)])
             activeDigitStyle = styleDic[int(dsrdDigitStyleIdx)]
             lcdCq.put(activeDigitStyle)     # Send cmd to lcdUpdateProc.
         else:
-            rspStr  = ' Digit Style not set.\n'
+            rspStr  = ' Active Style not set.\n'
             rspStr += ' Invalid style number ({}), try on of these (enter number):\n\n{}'.\
                 format(dsrdDigitStyleIdx, funcRspStr)
     else:
-        rspStr  = ' Digit Style not set.\n'
+        rspStr  = ' Active Style not set.\n'
         rspStr += ' No styles found in directory spiClock/digitScreenStyles.'
 
     return [rspStr, activeDigitStyle]
