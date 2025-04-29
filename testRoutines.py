@@ -1,6 +1,7 @@
 import time
-import spiRoutines as sr
-import makeScreen  as ms
+import styleMgmtRoutines as sm
+import spiRoutines       as sr
+import makeScreen        as ms
 #############################################################################
 #############################################################################
 
@@ -120,7 +121,7 @@ def runTest2(qs):
     kLst            = ['hrMSD','hrLSD','mnMSD','mnLSD','scMSD','scLSD']
     textLst         = ['0','1','2','3','4','5','6','7','8','9']
 
-    rspLst     = ms.getAllStyles()
+    rspLst     = sm.getAllStyles()
     #funcRspStr = rspLst[0]
     styleDic   = rspLst[1]
 
@@ -131,8 +132,8 @@ def runTest2(qs):
 
     rspStr = ''
     for styleIdx in styleDic:
-        rspLst = ms.setActiveStyle([str(styleIdx),qs])
-        rspLst = ms.loadActiveStyle()
+        rspLst = sm.setActiveStyle([str(styleIdx),qs])
+        rspLst = sm.loadActiveStyle()
         digitScreenDict = rspLst[1]
         for txt in textLst[5:]:
             for displayID in kLst:

@@ -1,8 +1,8 @@
 import os
 import time
 import pickle
-import makeScreen  as ms
-import spiRoutines as sr
+import spiRoutines       as sr
+import styleMgmtRoutines as sm
 ############################################################################
 #############################################################################
 
@@ -13,7 +13,7 @@ def lcdUpdateProc( procName, qLst ): # pylint: disable=R0912, disable=R0915
 
     lcdCq, lcdRq = qLst[0], qLst[1]  # clkCq, clkRq = qLst[2], qLst[3]
 
-    rspLst = ms.loadActiveStyle()
+    rspLst = sm.loadActiveStyle()
     digitDict = rspLst[1]
 
     # timeDict, which is placed in my cmdQ, has the same key names as the

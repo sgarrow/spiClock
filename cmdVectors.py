@@ -5,13 +5,14 @@ function "vector" (in this file) and the appropriate "worker" function
 is then vectored to in file cmdWorkers.py.
 '''
 
-import multiprocessing as mp
-import threading       as th
-import startStopClock  as cr
-import testRoutines    as tr
-import spiRoutines     as sr
-import makeScreen      as ms
-import cmds            as cm
+import multiprocessing   as mp
+import threading         as th
+import styleMgmtRoutines as sm
+import startStopClock    as cr
+import testRoutines      as tr
+import spiRoutines       as sr
+import makeScreen        as ms
+import cmds              as cm
 #############################################################################
 
 lcdCq = mp.Queue() # LCD Cmd Q. mp queue must be used here.
@@ -30,7 +31,7 @@ def killSrvr():    # The ks handled directly in the handleClient func so it
 #############################################################################
 
 def getVer():
-    VER = ' v1.0.5 - 28-Apr-2025'
+    VER = ' v1.0.6 - 28-Apr-2025'
     return [VER]
 #############################################################################
 
@@ -69,6 +70,7 @@ def vector(inputStr): # called from handleClient. inputStr from client.
     'gas' : 'Get   Active Style',
     'sas' : 'Set   Active Style',
     'gAs' : 'Get   ALL    Styles',
+
     'mus' : 'Make  User   Style',
 
     'lc'  : 'List  Commands',
@@ -95,10 +97,12 @@ def vector(inputStr): # called from handleClient. inputStr from client.
     'rs' : { 'func': sr.swReset,          'parm': 'scLSD',    'mainMnu': menuTxt['rs' ]},
     'sb' : { 'func': sr.setBkLight,       'parm': [0],        'mainMnu': menuTxt['sb' ]},
 
+    # Worker Function in styleMgmtRoutines.py.
+    'gas': { 'func': sm.getActiveStyle,   'parm': None,       'mainMnu': menuTxt['gas']},
+    'sas': { 'func': sm.setActiveStyle,   'parm': ['None',qs],'mainMnu': menuTxt['sas']},
+    'gAs': { 'func': sm.getAllStyles,     'parm': None,       'mainMnu': menuTxt['gAs']},
+
     # Worker Function in makeScreens.py.
-    'gas': { 'func': ms.getActiveStyle,   'parm': None,       'mainMnu': menuTxt['gas']},
-    'sas': { 'func': ms.setActiveStyle,   'parm': ['None',qs],'mainMnu': menuTxt['sas']},
-    'gAs': { 'func': ms.getAllStyles,     'parm': None,       'mainMnu': menuTxt['gAs']},
     'mus': { 'func': ms.mkUserDigPikFile, 'parm': dfltMDSPrm, 'mainMnu': menuTxt['mus']},
 
     # Worker Function in cmds.py.
