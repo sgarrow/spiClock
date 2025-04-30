@@ -19,9 +19,11 @@ def getActiveStyle():
 def setStyleDriver(prmLst):
 
     whoCalledMeFuncNameStr = inspect.stack()[1][3]
-    if whoCalledMeFuncNameStr == 'setDayStyle':
+    if whoCalledMeFuncNameStr   == 'setDayStyle':
         digitStyle = dayDigitStyle
     elif whoCalledMeFuncNameStr == 'setNightStyle':
+        digitStyle = nightDigitStyle
+    elif whoCalledMeFuncNameStr == 'setActiveStyle':
         digitStyle = nightDigitStyle
     else:
         digitStyle = 'ERROR'
@@ -31,7 +33,6 @@ def setStyleDriver(prmLst):
     else:
         rspStr  = ' Style not set.\n'
         rspStr += ' No style number specified.'
-
         return [rspStr, digitStyle]
 
     rspLst     = getAllStyles()
@@ -67,32 +68,10 @@ def setNightStyle(prmLst):
 
 def setActiveStyle(prmLst):
     global activeDigitStyle
-
-    if len(prmLst) > 0:
-        dsrdDigitStyleIdx = prmLst[0]
-        lcdCq = prmLst[1][0]
-    else:
-        rspStr  = ' Active Style not set.\n'
-        rspStr += ' No style number specified.'
-        return [rspStr, activeDigitStyle]
-
-    rspLst     = getAllStyles()
-    funcRspStr = rspLst[0]
-    styleDic   = rspLst[1]
-
-    if len(styleDic) > 0:
-        if dsrdDigitStyleIdx.isnumeric() and int(dsrdDigitStyleIdx) < len(styleDic):
-            rspStr  = ' Active Style set to {}.'.format(styleDic[int(dsrdDigitStyleIdx)])
-            activeDigitStyle = styleDic[int(dsrdDigitStyleIdx)]
-            lcdCq.put(activeDigitStyle)     # Send cmd to lcdUpdateProc.
-        else:
-            rspStr  = ' Active Style not set.\n'
-            rspStr += ' Invalid style number ({}), try on of these (enter number):\n\n{}'.\
-                format(dsrdDigitStyleIdx, funcRspStr)
-    else:
-        rspStr  = ' Active Style not set.\n'
-        rspStr += ' No styles found in directory spiClock/digitScreenStyles.'
-
+    lcdCq = prmLst[1]
+    rspStr, activeDigitStyle = setStyleDriver(prmLst)
+    if activeDigitStyle != 'None':
+        lcdCq.put(activeDigitStyle)     # Send cmd to lcdUpdateProc.
     return [rspStr, activeDigitStyle]
 #############################################################################
 

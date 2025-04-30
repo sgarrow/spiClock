@@ -1,5 +1,6 @@
 import time
-import datetime as dt
+import datetime          as dt
+import styleMgmtRoutines as sm
 ############################################################################
 #############################################################################
 
@@ -65,6 +66,15 @@ def updateCntr(timeDict):
     scMSD = seconds // 10
     scLSD = seconds  % 10
 
+    setDayStyleTime   = [ 0, 7, 0, 0, 0, 0 ] # 7:00 AM
+    setNightStyleTime = [ 2, 1, 0, 0, 0, 0 ] # 9:00 PM
+    if   [ hrMSD, hrLSD, mnMSD, mnLSD, scMSD, scLSD ] == setDayStyleTime:
+        style = sm.getDayStyle()[0]
+    elif [ hrMSD, hrLSD, mnMSD, mnLSD, scMSD, scLSD ] == setNightStyleTime:
+        style = sm.getNightStyle()[0]
+    else:
+        style = None
+
     timeDict = {
     'hrMSD':{'value': hrMSD, 'updated': prevDict['hrMSD']['value'] != hrMSD},
     'hrLSD':{'value': hrLSD, 'updated': prevDict['hrLSD']['value'] != hrLSD},
@@ -73,7 +83,7 @@ def updateCntr(timeDict):
     'scMSD':{'value': scMSD, 'updated': prevDict['scMSD']['value'] != scMSD},
     'scLSD':{'value': scLSD, 'updated': prevDict['scLSD']['value'] != scLSD}}
 
-    return timeDict
+    return timeDict,style
 #############################################################################
 #############################################################################
 
@@ -89,19 +99,24 @@ def clockCntrProc( procName, qLst, startTime ):
     cumSumLoopTime   =  0
 
     timeDict = getStartTime(startTime)
-    lcdCq.put(timeDict)                 # Send cmd to lcdUpdateProc.
+    lcdCq.put(timeDict)               # Send cmd to lcdUpdateProc.
 
     while True:
         kStart = time.perf_counter()
         time.sleep( calTime )
 
-        timeDict = updateCntr(timeDict)
+        timeDict, style = updateCntr(timeDict)
+        if style is not None:
+            rspLst   = sm.getAllStyles()
+            fRspStr  = rspLst[0]
+            styleDic = rspLst[1]
+            theKey   = [ k for k,v in styleDic.items() if v == style ]
+            rspLst   = sm.setActiveStyle([str(theKey[0]),lcdCq])
 
-        #print(timeDict['scLSD']['value'])
-        lcdCq.put(timeDict)             # Send cmd to lcdUpdateProc.
+        lcdCq.put(timeDict)           # Send cmd to lcdUpdateProc.
 
         doBreak = False
-        while not clkCq.empty():        # Get any stop cmd from user.
+        while not clkCq.empty():      # Get any stop cmd from user.
             cmd = clkCq.get_nowait()
             if cmd == 'stop':
                 doBreak = True
@@ -109,10 +124,10 @@ def clockCntrProc( procName, qLst, startTime ):
         if doBreak:
             break
 
-        while not lcdRq.empty():        # Get all pending responses from LCD.
+        while not lcdRq.empty():      # Get all pending responses from LCD.
             rsp = lcdRq.get_nowait()
             if debug:
-                print(rsp,flush = True) # Execution time.
+                print(rsp,flush=True) # Execution time.
 
         actNumDataPoints += 1
         actTime = time.perf_counter()-kStart

@@ -31,7 +31,7 @@ def killSrvr():    # The ks handled directly in the handleClient func so it
 #############################################################################
 
 def getVer():
-    VER = ' v1.0.7 - 28-Apr-2025'
+    VER = ' v1.0.8 - 29-Apr-2025'
     return [VER]
 #############################################################################
 
@@ -86,39 +86,42 @@ def vector(inputStr): # called from handleClient. inputStr from client.
     # This dictionary embodies the worker function vector (and menu) info.
     vectorDict = {
     # Worker Function in clockRoutines.py.
-    'sc' : { 'func': cr.startClk,         'parm': [[],qs],    'mainMnu': menuTxt['sc' ]},
-    'pc' : { 'func': cr.stopClk,          'parm': qs,         'mainMnu': menuTxt['pc' ]},
-    'cb' : { 'func': cr.controlBrightness,'parm': ['None'],   'mainMnu': menuTxt['cb' ]},
-    'tm' : { 'func': None,                'parm': None,       'mainMnu': menuTxt['tm' ]},
+    'sc' : { 'func': cr.startClk,         'parm': [[],qs],       'mainMnu': menuTxt['sc' ]},
+    'pc' : { 'func': cr.stopClk,          'parm': qs,            'mainMnu': menuTxt['pc' ]},
+    'cb' : { 'func': cr.controlBrightness,'parm': ['None'],      'mainMnu': menuTxt['cb' ]},
+    'tm' : { 'func': None,                'parm': None,          'mainMnu': menuTxt['tm' ]},
 
     # Worker Function in testRoutines.py.
-    'rt1': { 'func': tr.runTest1,         'parm': None,       'testMnu': menuTxt['rt1']},
-    'rt2': { 'func': tr.runTest2,         'parm': qs,         'testMnu': menuTxt['rt2']},
-    'rt3': { 'func': tr.runTest3,         'parm': None,       'testMnu': menuTxt['rt3']},
+    'rt1': { 'func': tr.runTest1,         'parm': None,          'testMnu': menuTxt['rt1']},
+    'rt2': { 'func': tr.runTest2,         'parm': lcdCq,         'testMnu': menuTxt['rt2']},
+    'rt3': { 'func': tr.runTest3,         'parm': None,          'testMnu': menuTxt['rt3']},
 
     # Worker Function in spiRoutines.py.
-    'rh' : { 'func': sr.hwReset,          'parm': None,       'mainMnu': menuTxt['rh' ]},
-    'rs' : { 'func': sr.swReset,          'parm': 'scLSD',    'mainMnu': menuTxt['rs' ]},
-    'sb' : { 'func': sr.setBkLight,       'parm': [0],        'mainMnu': menuTxt['sb' ]},
+    'rh' : { 'func': sr.hwReset,          'parm': None,          'mainMnu': menuTxt['rh' ]},
+    'rs' : { 'func': sr.swReset,          'parm': 'scLSD',       'mainMnu': menuTxt['rs' ]},
+    'sb' : { 'func': sr.setBkLight,       'parm': [0],           'mainMnu': menuTxt['sb' ]},
 
     # Worker Function in styleMgmtRoutines.py.
-    'gas': { 'func': sm.getActiveStyle,   'parm': None,       'mainMnu': menuTxt['gas']},
-    'sas': { 'func': sm.setActiveStyle,   'parm': ['None',qs],'mainMnu': menuTxt['sas']},
-    'gAs': { 'func': sm.getAllStyles,     'parm': None,       'mainMnu': menuTxt['gAs']},
-    'gds': { 'func': sm.getDayStyle,      'parm': None,       'mainMnu': menuTxt['gds']},
-    'sds': { 'func': sm.setDayStyle,      'parm': ['None'],   'mainMnu': menuTxt['sds']},
-    'gns': { 'func': sm.getNightStyle,    'parm': None,       'mainMnu': menuTxt['gns']},
-    'sns': { 'func': sm.setNightStyle,    'parm': ['None'],   'mainMnu': menuTxt['sns']},
+    'gas': { 'func': sm.getActiveStyle,   'parm': None,          'mainMnu': menuTxt['gas']},
+    'sas': { 'func': sm.setActiveStyle,   'parm': ['None',lcdCq],'mainMnu': menuTxt['sas']},
+
+    'gAs': { 'func': sm.getAllStyles,     'parm': None,          'mainMnu': menuTxt['gAs']},
+
+    'gds': { 'func': sm.getDayStyle,      'parm': None,          'mainMnu': menuTxt['gds']},
+    'sds': { 'func': sm.setDayStyle,      'parm': ['None'],      'mainMnu': menuTxt['sds']},
+
+    'gns': { 'func': sm.getNightStyle,    'parm': None,          'mainMnu': menuTxt['gns']},
+    'sns': { 'func': sm.setNightStyle,    'parm': ['None'],      'mainMnu': menuTxt['sns']},
 
     # Worker Function in makeScreens.py.
-    'mus': { 'func': ms.mkUserDigPikFile, 'parm': dfltMDSPrm, 'mainMnu': menuTxt['mus']},
+    'mus': { 'func': ms.mkUserDigPikFile, 'parm': dfltMDSPrm,    'mainMnu': menuTxt['mus']},
 
     # Worker Function in cmds.py.
-    'lc' : { 'func': cm.cmds,             'parm': None,       'mainMnu': menuTxt['lc' ]},
+    'lc' : { 'func': cm.cmds,             'parm': None,          'mainMnu': menuTxt['lc' ]},
 
     # Worker Function in this module.
-    'ks' : { 'func': killSrvr,            'parm': None,       'mainMnu': menuTxt['ks' ]},
-    'gat': { 'func': getActiveThreads,    'parm': None,       'mainMnu': menuTxt['gat']},
+    'ks' : { 'func': killSrvr,            'parm': None,          'mainMnu': menuTxt['ks' ]},
+    'gat': { 'func': getActiveThreads,    'parm': None,          'mainMnu': menuTxt['gat']},
     }
 
     # Process the string (command) passed to this function via the call
