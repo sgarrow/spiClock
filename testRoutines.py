@@ -26,25 +26,22 @@ def runTest1():
     gPixLst,gRowLst,gScrLst = ms.makeColoredPRSLstsOfBytes(0x00FF00) # pylint: disable=W0612
     bPixLst,bRowLst,bScrLst = ms.makeColoredPRSLstsOfBytes(0x0000FF) # pylint: disable=W0612
     wPixLst,wRowLst,wScrLst = ms.makeColoredPRSLstsOfBytes(0xFFFFFF) # pylint: disable=W0612
-    bPixLst,bRowLst,bScrLst = ms.makeColoredPRSLstsOfBytes(0x000000) # pylint: disable=W0612
+    kPixLst,kRowLst,kScrLst = ms.makeColoredPRSLstsOfBytes(0x000000) # pylint: disable=W0612
 
     barLst = []
     for _ in range(8):
         for coloredBar in [rRowLst,gRowLst,bRowLst,wRowLst]:
             for _ in range(10):
                 barLst.extend(coloredBar)
-    barRevLst = barLst[::-1]
 
     sendFuncs = [ sr.sendDatToSt7789, sr.sendDat2ToSt7789 ]
 
-    rspStr  = ''
-    rspStr += 'Begin test 1.1 - Fill 1% of screen w/ solid colors one at a time.\n'
+    rspStr = 'Begin test 1.1 - Fill 1% of screen w/ solid colors one at a time.\n'
     pixLst    = [ rPixLst, gPixLst ]
     for sf,pl in zip( sendFuncs, pixLst ):
         kStart = time.time()
-        for row in range(32):
-            for col in range(24):
-                sr.setOnePixel(displayID, row, col, pl, sf)
+        x = [sr.setOnePixel(displayID, row, col, pl, sf)\
+              for row in range(32) for col in range(24)] # pylint: disable=W0612
         rspStr += ' Fill 1% Screen via ( {:16} using {:16}) took {:7.3f} sec\n'.\
             format( 'setOnePixel', sf.__name__, time.time() - kStart )
     ##################################################
@@ -61,8 +58,8 @@ def runTest1():
     ###################################################
 
     rspStr += '\nBegin test 1.3 - Fill entire screen w/ solid colors in one shot.\n'
-    pixLst    = [ rScrLst, gScrLst ]
-    for sf,pl in zip( sendFuncs, pixLst ):
+    pixLst    = [ rScrLst, gScrLst, barLst, barLst[::-1] ]
+    for sf,pl in zip( sendFuncs*2, pixLst ):
         kStart = time.time()
         sr.setEntireDisplay(displayID, pl, sf)
         rspStr += ' Filling Screen via ( {:16} using {:16}) took {:7.3f} sec\n'.\
@@ -70,21 +67,10 @@ def runTest1():
         time.sleep(1)
     ####################################################
 
-    rspStr += '\nBegin test 1.4 - Fill entire screen w/ mixed colors in one shot.\n'
-    pixLst    = [ barLst, barRevLst ]
-    for sf,pl in zip( sendFuncs, pixLst ):
-        kStart = time.time()
-        sr.setEntireDisplay(displayID, pl, sf)
-        rspStr += ' Filling Screen via ( {:16} using {:16}) took {:7.3f} sec\n'.\
-            format( 'setEntireDisplay', sf.__name__, time.time() - kStart )
-        time.sleep(1)
-    ####################################################
-
-    rspStr += '\nBegin test 1.5 - Fill entire screen w/ constructed PIL images in one shot.\n'
-    textColor       = (  0,  0,  0)
-    backgroundColor = (255,255,255)
-    data1  = ms.makePilTextImage('1', textColor, backgroundColor)
-    data2  = ms.makePilTextImage('2', textColor, backgroundColor)
+    rspStr += '\nBegin test 1.4 - Fill entire screen w/ constructed PIL images in one shot.\n'
+    #                                textColor backgroundColor
+    data1  = ms.makePilTextImage('1', (0,0,0), (255,255,255) )
+    data2  = ms.makePilTextImage('2', (0,0,0), (255,255,255) )
     pixLst = [ data1, data2 ]
     for sf,pl in zip( sendFuncs, pixLst ):
         kStart = time.time()
@@ -94,7 +80,7 @@ def runTest1():
         time.sleep(1)
     ####################################################
 
-    rspStr += '\nBegin test 1.6 - Fill entire screen w/ constructed RGB/JPG images in one shot.\n'
+    rspStr += '\nBegin test 1.5 - Fill entire screen w/ constructed RGB/JPG images in one shot.\n'
     data1  = ms.makePilRgbPicImage('pics/240x320.rgb')
     data2  = ms.makePilJpgPicImage('pics/240x320.jpg')
     pixLst = [ data1, data2 ]

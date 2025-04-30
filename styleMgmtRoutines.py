@@ -55,19 +55,19 @@ def setStyleDriver(prmLst):
 #############################################################################
 
 def setDayStyle(prmLst):
-    global dayDigitStyle
+    global dayDigitStyle   # pylint: disable=W0603
     rspStr, dayDigitStyle = setStyleDriver(prmLst)
     return [rspStr, dayDigitStyle]
 #############################################################################
 
 def setNightStyle(prmLst):
-    global nightDigitStyle
+    global nightDigitStyle  # pylint: disable=W0603
     rspStr, nightDigitStyle = setStyleDriver(prmLst)
     return [rspStr, dayDigitStyle]
 #############################################################################
 
 def setActiveStyle(prmLst):
-    global activeDigitStyle
+    global activeDigitStyle # pylint: disable=W0603
     lcdCq = prmLst[1]
     rspStr, activeDigitStyle = setStyleDriver(prmLst)
     if activeDigitStyle != 'None':

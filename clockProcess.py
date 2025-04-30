@@ -108,7 +108,7 @@ def clockCntrProc( procName, qLst, startTime ):
         timeDict, style = updateCntr(timeDict)
         if style is not None:
             rspLst   = sm.getAllStyles()
-            fRspStr  = rspLst[0]
+            #fRspStr  = rspLst[0]
             styleDic = rspLst[1]
             theKey   = [ k for k,v in styleDic.items() if v == style ]
             rspLst   = sm.setActiveStyle([str(theKey[0]),lcdCq])
