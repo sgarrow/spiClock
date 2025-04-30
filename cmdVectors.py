@@ -31,7 +31,7 @@ def killSrvr():    # The ks handled directly in the handleClient func so it
 #############################################################################
 
 def getVer():
-    VER = ' v1.0.8 - 29-Apr-2025'
+    VER = ' v1.0.9 - 29-Apr-2025'
     return [VER]
 #############################################################################
 
@@ -79,7 +79,8 @@ def vector(inputStr): # called from handleClient. inputStr from client.
 
     'lc'  : 'List  Commands',
     'ks'  : 'Kill  Server',
-    'gat' : 'Get Active Threads',
+    'gat' : 'Get   Active Threads',
+    'gvn' : 'Get   Version Number',
     }
     dfltMDSPrm = ['redOnGreen', '255','0','0', '0','0','255']
 
@@ -122,6 +123,7 @@ def vector(inputStr): # called from handleClient. inputStr from client.
     # Worker Function in this module.
     'ks' : { 'func': killSrvr,            'parm': None,          'mainMnu': menuTxt['ks' ]},
     'gat': { 'func': getActiveThreads,    'parm': None,          'mainMnu': menuTxt['gat']},
+    'gvn': { 'func': getVer,              'parm': None,          'mainMnu': menuTxt['gvn']},
     }
 
     # Process the string (command) passed to this function via the call
