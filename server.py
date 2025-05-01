@@ -142,6 +142,18 @@ def startServer():
     port = 0000
 
     serverSocket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+
+    # This line makes it so you can kill the server and then restart it right
+    # away.  Without this you get an error until the socket eventually is
+    # complete closed by th os. Here's the error you get without this:
+    # 
+    #  File "/home/pi/python/spiClock/server.py", line 204, in <module>
+    #  startServer()
+    #  File "/home/pi/python/spiClock/server.py", line 145, in startServer
+    #  serverSocket.bind((host, port))
+    #  OSError: [Errno 98] Address already in use
+    serverSocket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
+
     serverSocket.bind((host, port))
     serverSocket.listen(5)
     serverSocket.settimeout(3.0) # Sets the .accept timeout - ks processing.
@@ -192,6 +204,7 @@ def startServer():
             cThrd.start()
     print('Server breaking.')
 
+    serverSocket.close()
     now = dt.datetime.now()
     cDT = '{}'.format(now.isoformat( timespec = 'seconds' ))
     with open('log.txt', 'a',encoding='utf-8') as f:

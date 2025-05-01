@@ -22,6 +22,10 @@ clkRq = mp.Queue() # CLK Rsp Q. mp queue must be used here.
 qs    = [ lcdCq, lcdRq, clkCq, clkRq ]
 
 openSocketsLst = []     # Needed for processing close and ks commands.
+
+ESC = '\x1b'
+RED = '[31m'
+TERMINATE = '[0m'
 ############################################################################
 #############################################################################
 
@@ -31,7 +35,7 @@ def killSrvr():    # The ks handled directly in the handleClient func so it
 #############################################################################
 
 def getVer():
-    VER = ' v1.1.1 - 30-Apr-2025'
+    VER = ' v1.1.2 - 30-Apr-2025'
     return [VER]
 #############################################################################
 
@@ -59,9 +63,9 @@ def vector(inputStr): # called from handleClient. inputStr from client.
     'cb'  : 'Ctrl  Brightness',
     'tm'  : 'Test  Menu',
 
-    'rt1' : 'Run Test 1',
-    'rt2' : 'Run Test 2',
-    'rt3' : 'Run Test 3',
+    'rt1' : 'Run   Test 1',
+    'rt2' : 'Run   Test 2',
+    'rt3' : 'Run   Test 3',
 
     'rh'  : 'Reset LCD HW',
     'rs'  : 'Reset LCD SW',
@@ -89,8 +93,7 @@ def vector(inputStr): # called from handleClient. inputStr from client.
     # Worker Function in clockRoutines.py.
     'sc' : { 'func': cr.startClk,         'parm': [[],qs],       'mainMnu': menuTxt['sc' ]},
     'pc' : { 'func': cr.stopClk,          'parm': qs,            'mainMnu': menuTxt['pc' ]},
-    'cb' : { 'func': cr.controlBrightness,'parm': ['None'],      'mainMnu': menuTxt['cb' ]},
-    'tm' : { 'func': None,                'parm': None,          'mainMnu': menuTxt['tm' ]},
+    #'cb' : { 'func': cr.controlBrightness,'parm': ['None'],      'mainMnu': menuTxt['cb' ]},
 
     # Worker Function in testRoutines.py.
     'rt1': { 'func': tr.runTest1,         'parm': None,          'testMnu': menuTxt['rt1']},
@@ -98,9 +101,9 @@ def vector(inputStr): # called from handleClient. inputStr from client.
     'rt3': { 'func': tr.runTest3,         'parm': None,          'testMnu': menuTxt['rt3']},
 
     # Worker Function in spiRoutines.py.
-    'rh' : { 'func': sr.hwReset,          'parm': None,          'mainMnu': menuTxt['rh' ]},
-    'rs' : { 'func': sr.swReset,          'parm': 'scLSD',       'mainMnu': menuTxt['rs' ]},
-    'sb' : { 'func': sr.setBkLight,       'parm': [0],           'mainMnu': menuTxt['sb' ]},
+    'rh' : { 'func': sr.hwReset,          'parm': None,          'testMnu': menuTxt['rh' ]},
+    'rs' : { 'func': sr.swReset,          'parm': 'scLSD',       'testMnu': menuTxt['rs' ]},
+    'sb' : { 'func': sr.setBkLight,       'parm': [0],           'testMnu': menuTxt['sb' ]},
 
     # Worker Function in styleMgmtRoutines.py.
     'gas': { 'func': sm.getActiveStyle,   'parm': None,          'mainMnu': menuTxt['gas']},
@@ -118,12 +121,15 @@ def vector(inputStr): # called from handleClient. inputStr from client.
     'mus': { 'func': ms.mkUserDigPikFile, 'parm': dfltMDSPrm,    'mainMnu': menuTxt['mus']},
 
     # Worker Function in cmds.py.
-    'lc' : { 'func': cm.cmds,             'parm': None,          'mainMnu': menuTxt['lc' ]},
+    'lc' : { 'func': cm.cmds,             'parm': None,          'testMnu': menuTxt['lc' ]},
 
     # Worker Function in this module.
-    'ks' : { 'func': killSrvr,            'parm': None,          'mainMnu': menuTxt['ks' ]},
-    'gat': { 'func': getActiveThreads,    'parm': None,          'mainMnu': menuTxt['gat']},
+    'ks' : { 'func': killSrvr,            'parm': None,          'testMnu': menuTxt['ks' ]},
+    'gat': { 'func': getActiveThreads,    'parm': None,          'testMnu': menuTxt['gat']},
     'gvn': { 'func': getVer,              'parm': None,          'mainMnu': menuTxt['gvn']},
+
+    # Worker Function in clockRoutines.py.
+    'tm' : { 'func': None,                'parm': None,          'mainMnu': menuTxt['tm' ]},
     }
 
     # Process the string (command) passed to this function via the call
@@ -166,10 +172,18 @@ def vector(inputStr): # called from handleClient. inputStr from client.
     if choice in ['m','tm']:
         rspStr = ''
         for k,v in vectorDict.items():
+
             if   choice == 'm'  and 'mainMnu' in v:
+
+                if k == 'sc':  rspStr += '{}{}{}'.format(ESC+RED,   ' CLOCK CONTROL\n', ESC+TERMINATE )
+                if k == 'gas': rspStr += '{}{}{}'.format(ESC+RED, '\n STYLE CONTROL\n', ESC+TERMINATE )
+                if k == 'gvn': rspStr += '{}{}{}'.format(ESC+RED, '\n MISC  CONTROL\n', ESC+TERMINATE )
                 rspStr += ' {:3} - {}\n'.format(k, v['mainMnu'] )
+
             elif choice == 'tm' and 'testMnu' in v:
+
                 rspStr += ' {:3} - {}\n'.format(k, v['testMnu'] )
+
         return rspStr          # Return to srvr for forwarding to clnt.
 
     rspStr = 'Invalid command'
