@@ -195,15 +195,17 @@ def mkUserDigPikFile(parmLst):
 if __name__ == '__main__':
 
     black     = (   0,   0,   0 )
+    grey      = ( 128, 128, 128 )
     white     = ( 255, 255, 255 )
     orange    = ( 239, 144,   1 )
     turquoise = (  18, 151, 128 )
     txtLst   = ['0','1','2','3','4','5','6','7','8','9']
 
     styleNames = [ 'whiteOnBlack',      'blackOnWhite',
-                   'orangeOnTurquoise', 'turquoiseOnOrange']
-    txtColors  = [ white, black, orange,    turquoise ]
-    backColors = [ black, white, turquoise, orange    ]
+                   'orangeOnTurquoise', 'turquoiseOnOrange',
+                   'greyOnBlack']
+    txtColors  = [ white, black, orange,    turquoise, grey  ]
+    backColors = [ black, white, turquoise, orange,    black ]
 
     for style,tColor,bColor in zip(styleNames, txtColors, backColors):
         resp = mkDigPikFile(style, txtLst, tColor, bColor)

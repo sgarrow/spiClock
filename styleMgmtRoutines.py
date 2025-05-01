@@ -24,7 +24,7 @@ def setStyleDriver(prmLst):
     elif whoCalledMeFuncNameStr == 'setNightStyle':
         digitStyle = nightDigitStyle
     elif whoCalledMeFuncNameStr == 'setActiveStyle':
-        digitStyle = nightDigitStyle
+        digitStyle = activeDigitStyle
     else:
         digitStyle = 'ERROR'
 
@@ -108,8 +108,14 @@ def loadActiveStyle():
     dirPath = 'digitScreenStyles'
     fullFileName = os.path.join(dirPath, activeStyle[0]+'.pickle')
     print(fullFileName)
-    with open(fullFileName, 'rb') as f:
-        digitDict = pickle.load(f)
-    rspStr = ' {} loaded'.format(activeStyle)
+    try:
+        with open(fullFileName, 'rb') as f:
+            digitDict = pickle.load(f)
+    except:
+        rspStr = ' ERROR: Could not load file {}.'.format(fullFileName)
+        digitDict = {}
+    else:
+        rspStr = ' SUCCESS: File {} loaded'.format(activeStyle)
+
     return [rspStr, digitDict]
 #############################################################################

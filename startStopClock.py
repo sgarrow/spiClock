@@ -14,40 +14,45 @@ def isClockRunning():
 ######################################################################
 
 def startLcdUpdateProc( qLst ):
-    procLst = []
+    # Cannot access return value from proc directly.
+    lcdProc = mp.Process(
+           target = lp.lcdUpdateProc,
+           args   = ( 'lcdUpdateProc', # Process Name.
+                      qLst ))          # [lcdCq,lcdRq,clkCq,clkRq]
 
-    for _ in range(1):
-        # Cannot access return value from proc directly.
-        lcdProc = mp.Process(
-               target = lp.lcdUpdateProc,
-               args   = ( 'lcdUpdateProc', # Process Name.
-                          qLst ))          # [lcdCq,lcdRq,clkCq,clkRq]
-
-        lcdProc.daemon = True
-        lcdProc.start()
-        procPidDict['lcdUpdateProc'] = lcdProc.pid
-        procLst.append(lcdProc)
+    lcdProc.daemon = True
+    lcdProc.start()
+    return lcdProc.pid 
 ######################################################################
 
 def startClockCntrProc( qLst, startTime ):
-    procLst = []
-    for _ in range(1):
-        # Cannot access return value from proc directly.
-        clkProc = mp.Process(
-               target = cp.clockCntrProc,
-               args   = ( 'clockCntrProc', # Process Name.
-                          qLst,            # [lcdCq,lcdRq,clkCq,clkRq]
-                          startTime ))     # start time.
-        clkProc.daemon = True
-        clkProc.start()
-        procPidDict['clockCntrProc'] = clkProc.pid
-        procLst.append(clkProc)
+    # Cannot access return value from proc directly.
+    clkProc = mp.Process(
+           target = cp.clockCntrProc,
+           args   = ( 'clockCntrProc', # Process Name.
+                      qLst,            # [lcdCq,lcdRq,clkCq,clkRq]
+                      startTime ))     # start time.
+    clkProc.daemon = True
+    clkProc.start()
+    return clkProc.pid 
 ######################################################################
 
 def startClk(prmLst):
     startTime = prmLst[0]
-    qLst      = prmLst[1]
+    qLst      = prmLst[1] # [ lcdCq, lcdRq, clkCq, clkRq ] 
     rspStr    = ''
+
+    lcdRq = prmLst[1][1]
+
+    # Ensure all the queues are empty before starting any processes
+    # that put() and/or get() from them.
+    for q in qLst:
+        try:
+            while True:
+                q.get_nowait()
+        except mp.queues.Empty:
+            pass
+    ########################
 
     if procPidDict['lcdUpdateProc'] is None:
         kLst = ['hrMSD','hrLSD','mnMSD','mnLSD','scMSD','scLSD']
@@ -55,16 +60,26 @@ def startClk(prmLst):
         for theKey in kLst:
             sr.swReset(theKey) # SW Reset & display initialization.
         sr.setBkLight([1])     # Turn on backlight.
-        startLcdUpdateProc( qLst )
-        rspStr += ' lcdUpdateProc started.'
+        pid = startLcdUpdateProc( qLst )
+        rspStr = lcdRq.get() + '\n'
+        if 'ERROR' not in rspStr:
+            procPidDict['lcdUpdateProc'] = pid
     else:
         rspStr += ' lcdUpdateProc already started.'
+    ########################
 
     if procPidDict['clockCntrProc'] is None:
-        startClockCntrProc( qLst, startTime )
-        rspStr += ' clockCntrProc started.'
+        if procPidDict['lcdUpdateProc'] is not None:
+            pid = startClockCntrProc( qLst, startTime )
+            rspStr += ' clockCntrProc started.'
+            procPidDict['clockCntrProc'] = pid
+        else:
+            rspStr += ' ERROR: clockCntrProc not started\n'
+            rspStr += ' ERROR: because lcdUpdateProc is not running.'
     else:
         rspStr += ' clockCntrProc already started.'
+
+    ########################
     return [rspStr]
 ######################################################################
 
