@@ -35,7 +35,7 @@ def killSrvr():    # The ks handled directly in the handleClient func so it
 #############################################################################
 
 def getVer():
-    VER = ' v1.1.2 - 30-Apr-2025'
+    VER = ' v1.1.3 - 01-May-2025'
     return [VER]
 #############################################################################
 
@@ -175,9 +175,12 @@ def vector(inputStr): # called from handleClient. inputStr from client.
 
             if   choice == 'm'  and 'mainMnu' in v:
 
-                if k == 'sc':  rspStr += '{}{}{}'.format(ESC+RED,   ' CLOCK CONTROL\n', ESC+TERMINATE )
-                if k == 'gas': rspStr += '{}{}{}'.format(ESC+RED, '\n STYLE CONTROL\n', ESC+TERMINATE )
-                if k == 'gvn': rspStr += '{}{}{}'.format(ESC+RED, '\n MISC  CONTROL\n', ESC+TERMINATE )
+                if k == 'sc':  rspStr += '{}{}{}'.\
+                    format(ESC+RED,   ' CLOCK CONTROL\n', ESC+TERMINATE )
+                if k == 'gas': rspStr += '{}{}{}'.\
+                format(ESC+RED, '\n STYLE CONTROL\n', ESC+TERMINATE )
+                if k == 'gvn': rspStr += '{}{}{}'.\
+                    format(ESC+RED, '\n MISC  CONTROL\n', ESC+TERMINATE )
                 rspStr += ' {:3} - {}\n'.format(k, v['mainMnu'] )
 
             elif choice == 'tm' and 'testMnu' in v:

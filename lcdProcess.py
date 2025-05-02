@@ -14,13 +14,12 @@ def lcdUpdateProc( procName, qLst ): # pylint: disable=R0912, disable=R0915
     lcdCq, lcdRq = qLst[0], qLst[1]  # clkCq, clkRq = qLst[2], qLst[3]
 
     rspLst    = sm.loadActiveStyle()
-    rspStr    = rspLst[0] 
+    rspStr    = rspLst[0]
     digitDict = rspLst[1]
     if 'ERROR' in rspStr:
         lcdRq.put(' ERROR. lcdUpdateProc NOT started.\n{}'.format(rspStr))
         return
-    else:
-        lcdRq.put(' lcdUpdateProc started.')
+    lcdRq.put(' lcdUpdateProc started.')
 
     # timeDict, which is placed in my cmdQ, has the same key names as the
     # displayIdDict. The displayIdDict is used by the functions in the

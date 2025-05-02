@@ -146,7 +146,7 @@ def startServer():
     # This line makes it so you can kill the server and then restart it right
     # away.  Without this you get an error until the socket eventually is
     # complete closed by th os. Here's the error you get without this:
-    # 
+    #
     #  File "/home/pi/python/spiClock/server.py", line 204, in <module>
     #  startServer()
     #  File "/home/pi/python/spiClock/server.py", line 145, in startServer

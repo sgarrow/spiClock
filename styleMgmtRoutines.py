@@ -18,31 +18,34 @@ def getActiveStyle():
 
 def setStyleDriver(prmLst):
 
+    # Returns a rps str and a digitStyleStr, like 'blackOnWhite'.
+    # Just sets the name doesn't activate it, that's done by loadActiveStyle.
     whoCalledMeFuncNameStr = inspect.stack()[1][3]
     if whoCalledMeFuncNameStr   == 'setDayStyle':
-        digitStyle = dayDigitStyle
+        digitStyleStr = dayDigitStyle
     elif whoCalledMeFuncNameStr == 'setNightStyle':
-        digitStyle = nightDigitStyle
+        digitStyleStr = nightDigitStyle
     elif whoCalledMeFuncNameStr == 'setActiveStyle':
-        digitStyle = activeDigitStyle
+        digitStyleStr = activeDigitStyle
     else:
-        digitStyle = 'ERROR'
+        digitStyleStr = 'ERROR' # Should never get here.
 
     if len(prmLst) > 0:
         dsrdStyleIdx = prmLst[0]
     else:
         rspStr  = ' Style not set.\n'
         rspStr += ' No style number specified.'
-        return [rspStr, digitStyle]
+        return [rspStr, digitStyleStr]
 
     rspLst     = getAllStyles()
     funcRspStr = rspLst[0]
-    styleDic   = rspLst[1]
+    styleDic   = rspLst[1]      # eg: {0: 'whiteOnBlack', 1: 'blackOnWhite'}.
 
     if len(styleDic) > 0:
         if dsrdStyleIdx.isnumeric() and int(dsrdStyleIdx) < len(styleDic):
+            # if 'Style set' in rspStr: check is performed in setActiveStyle.
             rspStr  = ' Style set to {}.'.format(styleDic[int(dsrdStyleIdx)])
-            digitStyle = styleDic[int(dsrdStyleIdx)]
+            digitStyleStr = styleDic[int(dsrdStyleIdx)] # eg: 'whiteOnBlack'.
         else:
             rspStr  = ' Style not set.\n'
             rspStr += ' Invalid style number ({}), try on of these (enter number):\n\n{}'.\
@@ -51,7 +54,7 @@ def setStyleDriver(prmLst):
         rspStr  = ' Style not set.\n'
         rspStr += ' No styles found in directory spiClock/digitScreenStyles.'
 
-    return rspStr, digitStyle
+    return rspStr, digitStyleStr
 #############################################################################
 
 def setDayStyle(prmLst):
@@ -70,7 +73,7 @@ def setActiveStyle(prmLst):
     global activeDigitStyle # pylint: disable=W0603
     lcdCq = prmLst[1]
     rspStr, activeDigitStyle = setStyleDriver(prmLst)
-    if activeDigitStyle != 'None':
+    if 'Style set' in rspStr:
         lcdCq.put(activeDigitStyle)     # Send cmd to lcdUpdateProc.
     return [rspStr, activeDigitStyle]
 #############################################################################
@@ -111,7 +114,7 @@ def loadActiveStyle():
     try:
         with open(fullFileName, 'rb') as f:
             digitDict = pickle.load(f)
-    except:
+    except FileNotFoundError:
         rspStr = ' ERROR: Could not load file {}.'.format(fullFileName)
         digitDict = {}
     else:

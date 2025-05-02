@@ -22,7 +22,7 @@ def startLcdUpdateProc( qLst ):
 
     lcdProc.daemon = True
     lcdProc.start()
-    return lcdProc.pid 
+    return lcdProc.pid
 ######################################################################
 
 def startClockCntrProc( qLst, startTime ):
@@ -34,12 +34,12 @@ def startClockCntrProc( qLst, startTime ):
                       startTime ))     # start time.
     clkProc.daemon = True
     clkProc.start()
-    return clkProc.pid 
+    return clkProc.pid
 ######################################################################
 
 def startClk(prmLst):
     startTime = prmLst[0]
-    qLst      = prmLst[1] # [ lcdCq, lcdRq, clkCq, clkRq ] 
+    qLst      = prmLst[1] # [ lcdCq, lcdRq, clkCq, clkRq ]
     rspStr    = ''
 
     lcdRq = prmLst[1][1]

@@ -66,7 +66,7 @@ def updateCntr(timeDict):
     scMSD = seconds // 10
     scLSD = seconds  % 10
 
-    setDayStyleTime   = [ 0, 7, 0, 0, 0, 0 ] # 7:00 AM
+    setDayStyleTime   = [ 1, 5, 3, 3, 0, 0 ] # 7:00 AM
     setNightStyleTime = [ 2, 1, 0, 0, 0, 0 ] # 9:00 PM
     if   [ hrMSD, hrLSD, mnMSD, mnLSD, scMSD, scLSD ] == setDayStyleTime:
         style = sm.getDayStyle()[0]
