@@ -111,7 +111,8 @@ def clockCntrProc( procName, qLst, startTime ):
             #fRspStr  = rspLst[0]
             styleDic = rspLst[1]
             theKey   = [ k for k,v in styleDic.items() if v == style ]
-            rspLst   = sm.setActiveStyle([str(theKey[0]),lcdCq])
+            # FIXME
+            #rspLst   = sm.etActiveStyle([str(theKey[0]),lcdCq])
 
         lcdCq.put(timeDict)           # Send cmd to lcdUpdateProc.
 

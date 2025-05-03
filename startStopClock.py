@@ -13,13 +13,14 @@ def isClockRunning():
            procPidDict['lcdUpdateProc'] is not None
 ######################################################################
 
-def startLcdUpdateProc( qLst ):
+def startLcdUpdateProc( qLst, styleDict, styleDictLock ):
     # Cannot access return value from proc directly.
     lcdProc = mp.Process(
            target = lp.lcdUpdateProc,
            args   = ( 'lcdUpdateProc', # Process Name.
-                      qLst ))          # [lcdCq,lcdRq,clkCq,clkRq]
-
+                      qLst,          # [lcdCq,lcdRq,clkCq,clkRq]
+                      styleDict, 
+                      styleDictLock))
     lcdProc.daemon = True
     lcdProc.start()
     return lcdProc.pid
@@ -40,6 +41,7 @@ def startClockCntrProc( qLst, startTime ):
 def startClk(prmLst):
     startTime = prmLst[0]
     qLst      = prmLst[1] # [ lcdCq, lcdRq, clkCq, clkRq ]
+    styleDict, styleDictLock = prmLst[2], prmLst[3]
     rspStr    = ''
 
     lcdRq = prmLst[1][1]
@@ -60,7 +62,7 @@ def startClk(prmLst):
         for theKey in kLst:
             sr.swReset(theKey) # SW Reset & display initialization.
         sr.setBkLight([1])     # Turn on backlight.
-        pid = startLcdUpdateProc( qLst )
+        pid = startLcdUpdateProc( qLst, styleDict, styleDictLock )
         rspStr = lcdRq.get() + '\n'
         if 'ERROR' not in rspStr:
             procPidDict['lcdUpdateProc'] = pid
@@ -127,7 +129,7 @@ def stopClk(prmLst):
     return [rspStr]
 ######################################################################
 
-def controlBrightness(prmLst):
+def ctrlBright(prmLst):
 
     rspStr = ''
     try:

@@ -148,7 +148,7 @@ def mkDigPikFile( styleName, textLst, textColor, backgroundColor ):
     # run stand-alone on the command line the default digit styles are all
     # created.
     #
-    # This func is called by mkUserDigPikFile which is available to the user
+    # This func is called by mkDigPikFile which is available to the user
     # (client), giving users the ablity to create their own digit styles.
     #
     # This function is also called by functions in testRoutines.py.
@@ -168,7 +168,7 @@ def mkDigPikFile( styleName, textLst, textColor, backgroundColor ):
     return ['{} made.'.format(styleName)]
 #############################################################################
 
-def mkUserDigPikFile(parmLst):
+def mkUsrDigPikF(parmLst):
 
     # User interface to mkDigPikFile, see comment therein.
 

@@ -3,17 +3,17 @@ import time
 import pickle
 import spiRoutines       as sr
 import styleMgmtRoutines as sm
-############################################################################
+#############################################################################
 #############################################################################
 
-def lcdUpdateProc( procName, qLst ): # pylint: disable=R0912, disable=R0915
+def lcdUpdateProc( procName, qLst, styleDict, styleDictLock ): # pylint: disable=R0912, disable=R0915
     debug = True
     debug = False
     if debug: print(' {} {}'.format(procName, 'starting'))
 
     lcdCq, lcdRq = qLst[0], qLst[1]  # clkCq, clkRq = qLst[2], qLst[3]
 
-    rspLst    = sm.loadActiveStyle()
+    rspLst    = sm.loadActiveStyle(styleDict, styleDictLock)
     rspStr    = rspLst[0]
     digitDict = rspLst[1]
     if 'ERROR' in rspStr:
@@ -33,6 +33,8 @@ def lcdUpdateProc( procName, qLst ): # pylint: disable=R0912, disable=R0915
         data = lcdCq.get()   # Block here. Get digit/stop from clk/user.
         kStart = time.perf_counter()
 
+        gas = sm.getActiveStyle([styleDict, styleDictLock])
+        print('lcdUpdateProc gas = {}'.format(gas))
 
         gotStop  = False
         gotTime  = False

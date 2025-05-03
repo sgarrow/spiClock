@@ -35,7 +35,7 @@ def killSrvr():    # The ks handled directly in the handleClient func so it
 #############################################################################
 
 def getVer():
-    VER = ' v1.1.3 - 01-May-2025'
+    VER = ' v1.1.4 - 01-May-2025'
     return [VER]
 #############################################################################
 
@@ -55,8 +55,9 @@ def getActiveThreads():
             rspStr += '   {}\n'.format(k)
     return [rspStr]
 #############################################################################
-def vector(inputStr): # called from handleClient. inputStr from client.
+def vector(inputStr,styleDic, styleLk): # called from handleClient.
 
+#    print('vector',styleDic, styleLk)
     menuTxt = {
     'sc'  : 'Start Clock',
     'pc'  : 'stoP  Clock',
@@ -91,45 +92,47 @@ def vector(inputStr): # called from handleClient. inputStr from client.
     # This dictionary embodies the worker function vector (and menu) info.
     vectorDict = {
     # Worker Function in clockRoutines.py.
-    'sc' : { 'func': cr.startClk,         'parm': [[],qs],       'mainMnu': menuTxt['sc' ]},
-    'pc' : { 'func': cr.stopClk,          'parm': qs,            'mainMnu': menuTxt['pc' ]},
-    #'cb' : { 'func': cr.controlBrightness,'parm': ['None'],      'mainMnu': menuTxt['cb' ]},
+    'sc' : { 'fun': cr.startClk,       'prm': [[],qs,styleDic,styleLk], 'mnMnu': menuTxt['sc' ] },
+    'pc' : { 'fun': cr.stopClk,        'prm': qs,                       'mnMnu': menuTxt['pc' ] },
+   #'cb' : { 'fun': cr.ctrlBright,     'prm': ['None'],                 'mnMnu': menuTxt['cb' ] },
 
     # Worker Function in testRoutines.py.
-    'rt1': { 'func': tr.runTest1,         'parm': None,          'testMnu': menuTxt['rt1']},
-    'rt2': { 'func': tr.runTest2,         'parm': lcdCq,         'testMnu': menuTxt['rt2']},
-    'rt3': { 'func': tr.runTest3,         'parm': None,          'testMnu': menuTxt['rt3']},
+    'rt1': { 'fun': tr.runTest1,       'prm': None,                     'tstMnu': menuTxt['rt1']},
+    'rt2': { 'fun': tr.runTest2,       'prm': lcdCq,                    'tstMnu': menuTxt['rt2']},
+    'rt3': { 'fun': tr.runTest3,       'prm': None,                     'tstMnu': menuTxt['rt3']},
 
     # Worker Function in spiRoutines.py.
-    'rh' : { 'func': sr.hwReset,          'parm': None,          'testMnu': menuTxt['rh' ]},
-    'rs' : { 'func': sr.swReset,          'parm': 'scLSD',       'testMnu': menuTxt['rs' ]},
-    'sb' : { 'func': sr.setBkLight,       'parm': [0],           'testMnu': menuTxt['sb' ]},
+    'rh' : { 'fun': sr.hwReset,        'prm': None,                     'tstMnu': menuTxt['rh' ]},
+    'rs' : { 'fun': sr.swReset,        'prm': 'scLSD',                  'tstMnu': menuTxt['rs' ]},
+    'sb' : { 'fun': sr.setBkLight,     'prm': [0],                      'tstMnu': menuTxt['sb' ]},
 
     # Worker Function in styleMgmtRoutines.py.
-    'gas': { 'func': sm.getActiveStyle,   'parm': None,          'mainMnu': menuTxt['gas']},
-    'sas': { 'func': sm.setActiveStyle,   'parm': ['None',lcdCq],'mainMnu': menuTxt['sas']},
+    'gas': { 'fun': sm.getActiveStyle, 'prm': [styleDic,styleLk],       'mnMnu': menuTxt['gas'] },
 
-    'gAs': { 'func': sm.getAllStyles,     'parm': None,          'mainMnu': menuTxt['gAs']},
+    #FIXME
+    'gds': { 'fun': sm.getDayStyle,    'prm': [styleDic,styleLk],       'mnMnu': menuTxt['gds'] },
+    'gns': { 'fun': sm.getNightStyle,  'prm': [styleDic,styleLk],       'mnMnu': menuTxt['gns'] },
 
-    'gds': { 'func': sm.getDayStyle,      'parm': None,          'mainMnu': menuTxt['gds']},
-    'sds': { 'func': sm.setDayStyle,      'parm': ['None'],      'mainMnu': menuTxt['sds']},
+    'gAs': { 'fun': sm.getAllStyles,   'prm': None,                     'mnMnu': menuTxt['gAs'] },
 
-    'gns': { 'func': sm.getNightStyle,    'parm': None,          'mainMnu': menuTxt['gns']},
-    'sns': { 'func': sm.setNightStyle,    'parm': ['None'],      'mainMnu': menuTxt['sns']},
+   #'sas': { 'fun': sm.setActiveStyle, 'prm': ['None',lcdCq],           'mnMnu': menuTxt['sas'] },
+    'sas': { 'fun': sm.setActiveStyle, 'prm': ['None',styleDic,styleLk],'mnMnu': menuTxt['sas'] },
+    'sds': { 'fun': sm.setDayStyle,    'prm': ['None',styleDic,styleLk],'mnMnu': menuTxt['sds'] },
+    'sns': { 'fun': sm.setNightStyle,  'prm': ['None',styleDic,styleLk],'mnMnu': menuTxt['sns'] },
 
     # Worker Function in makeScreens.py.
-    'mus': { 'func': ms.mkUserDigPikFile, 'parm': dfltMDSPrm,    'mainMnu': menuTxt['mus']},
+    'mus': { 'fun': ms.mkUsrDigPikF,   'prm': dfltMDSPrm,               'mnMnu': menuTxt['mus'] },
 
     # Worker Function in cmds.py.
-    'lc' : { 'func': cm.cmds,             'parm': None,          'testMnu': menuTxt['lc' ]},
+    'lc' : { 'fun': cm.cmds,           'prm': None,                     'tstMnu': menuTxt['lc' ]},
 
     # Worker Function in this module.
-    'ks' : { 'func': killSrvr,            'parm': None,          'testMnu': menuTxt['ks' ]},
-    'gat': { 'func': getActiveThreads,    'parm': None,          'testMnu': menuTxt['gat']},
-    'gvn': { 'func': getVer,              'parm': None,          'mainMnu': menuTxt['gvn']},
+    'ks' : { 'fun': killSrvr,          'prm': None,                     'tstMnu': menuTxt['ks' ]},
+    'gat': { 'fun': getActiveThreads,  'prm': None,                     'tstMnu': menuTxt['gat']},
+    'gvn': { 'fun': getVer,            'prm': None,                     'mnMnu': menuTxt['gvn'] },
 
     # Worker Function in clockRoutines.py.
-    'tm' : { 'func': None,                'parm': None,          'mainMnu': menuTxt['tm' ]},
+    'tm' : { 'fun': None,              'prm': None,                     'mnMnu': menuTxt['tm' ] },
     }
 
     # Process the string (command) passed to this function via the call
@@ -143,9 +146,9 @@ def vector(inputStr): # called from handleClient. inputStr from client.
     choice     = inputWords[0]
     optArgsStr = inputWords[1:]
 
-    if choice in vectorDict and vectorDict[choice]['func'] is not None:
-        func   = vectorDict[choice]['func']
-        params = vectorDict[choice]['parm']
+    if choice in vectorDict and vectorDict[choice]['fun'] is not None:
+        func   = vectorDict[choice]['fun']
+        params = vectorDict[choice]['prm']
 
         if choice in ['sc'] and len(optArgsStr) == 3:
             params[0] = optArgsStr
@@ -173,7 +176,7 @@ def vector(inputStr): # called from handleClient. inputStr from client.
         rspStr = ''
         for k,v in vectorDict.items():
 
-            if   choice == 'm'  and 'mainMnu' in v:
+            if   choice == 'm'  and 'mnMnu' in v:
 
                 if k == 'sc':  rspStr += '{}{}{}'.\
                     format(ESC+RED,   ' CLOCK CONTROL\n', ESC+TERMINATE )
@@ -181,11 +184,11 @@ def vector(inputStr): # called from handleClient. inputStr from client.
                 format(ESC+RED, '\n STYLE CONTROL\n', ESC+TERMINATE )
                 if k == 'gvn': rspStr += '{}{}{}'.\
                     format(ESC+RED, '\n MISC  CONTROL\n', ESC+TERMINATE )
-                rspStr += ' {:3} - {}\n'.format(k, v['mainMnu'] )
+                rspStr += ' {:3} - {}\n'.format(k, v['mnMnu'] )
 
-            elif choice == 'tm' and 'testMnu' in v:
+            elif choice == 'tm' and 'tstMnu' in v:
 
-                rspStr += ' {:3} - {}\n'.format(k, v['testMnu'] )
+                rspStr += ' {:3} - {}\n'.format(k, v['tstMnu'] )
 
         return rspStr          # Return to srvr for forwarding to clnt.
 

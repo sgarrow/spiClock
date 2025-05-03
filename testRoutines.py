@@ -118,7 +118,8 @@ def runTest2(lcdCq):
 
     rspStr = ''
     for styleIdx in styleDic:
-        rspLst = sm.setActiveStyle([str(styleIdx),lcdCq])
+        # FIXME
+        #rspLst = sm.etActiveStyle([str(styleIdx),lcdCq])
         rspLst = sm.loadActiveStyle()
         digitScreenDict = rspLst[1]
         for txt in textLst[5:]:

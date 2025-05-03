@@ -1,9 +1,10 @@
-import socket           # For creating and managing sockets.
-import threading        # For handling multiple clients concurrently.
-import queue            # For Killing Server.
-import time             # For Killing Server and listThreads.
-import datetime   as dt # For logging server start/stop times.
-import cmdVectors as cv # Contains vectors to "worker" functions.
+import socket                # For creating and managing sockets.
+import threading             # For handling multiple clients concurrently.
+import queue                 # For Killing Server.
+import time                  # For Killing Server and listThreads.
+import multiprocessing as mp # For Getting Multi Proc Shared Dict.
+import datetime        as dt # For logging server start/stop times.
+import cmdVectors      as cv # Contains vectors to "worker" functions.
 #############################################################################
 #############################################################################
 
@@ -28,6 +29,16 @@ def listThreads(): # Daemon to startServer, terminates w/ kill server (ks).
             print('   {}'.format(openS['ca']))
 #############################################################################
 
+def getMultiProcSharedDict():
+    manager = mp.Manager()
+    styleDict = manager.dict({
+        'activeDigitStyle': 'whiteOnBlack',
+        'dayDigitStyle'   : 'orangeOnTurquoise',
+        'nightDigitStyle' : 'greyOnBlack'
+    })
+    styleDictLock = mp.Lock()
+    return styleDict, styleDictLock
+#############################################################################
 def processCloseCmd(clientSocket, clientAddress):
     rspStr = ' handleClient {} set loop break RE: close'.format(clientAddress)
     clientSocket.send(rspStr.encode()) # sends all even if >1024.
@@ -37,13 +48,14 @@ def processCloseCmd(clientSocket, clientAddress):
     cv.openSocketsLst.remove({'cs':clientSocket,'ca':clientAddress})
 #############################################################################
 
-def processKsCmd(clientSocket, clientAddress, client2ServerCmdQ):
+def processKsCmd( clientSocket, clientAddress, client2ServerCmdQ,
+                  styleDict,    styleDictLock ):
     rspStr = ''
     # Client sending ks has to be terminated first, I don't know why.
     # Also stop and running profiles so no dangling threads left behind.
 
-    rspStr += cv.vector('pc'  ) + '\n ' # Can take upto 5 sec to return.
-    rspStr += cv.vector('sb 0') + '\n'  # Open all relays.
+    rspStr += cv.vector('pc',  styleDict, styleDictLock)+'\n' # 5s to return.
+    rspStr += cv.vector('sb 0',styleDict, styleDictLock)+'\n' # Bklight off.
     rspStr += ' handleClient {} set loop break for self RE: ks'.\
               format(clientAddress)
     print('after add hard code string', rspStr)
@@ -64,7 +76,7 @@ def processKsCmd(clientSocket, clientAddress, client2ServerCmdQ):
     return 0
 #############################################################################
 
-def handleClient(clientSocket, clientAddress, client2ServerCmdQ):
+def handleClient(clientSocket, clientAddress, client2ServerCmdQ,styleDict, styleDictLock):
     # Validate password
     data = clientSocket.recv(1024)
     if data.decode() == 'tempPW':
@@ -108,12 +120,12 @@ def handleClient(clientSocket, clientAddress, client2ServerCmdQ):
 
         # Process a "ks" message and send response back to other client(s).
         elif data.decode() == 'ks':
-            processKsCmd(clientSocket, clientAddress, client2ServerCmdQ)
+            processKsCmd(clientSocket, clientAddress, client2ServerCmdQ, styleDict, styleDictLock)
 
         # Process a "standard" msg and send response back to the client,
         # (and look (try) for UNEXPECTED EVENT).
         else:
-            response = cv.vector(data.decode())
+            response = cv.vector(data.decode(),styleDict, styleDictLock)
             try: # In case user closed client window (x) instead of by close cmd.
                 clientSocket.send(response.encode())
             except BrokenPipeError:      # RPi throws this on (x).
@@ -137,6 +149,9 @@ def startServer():
     cDT = '{}'.format(now.isoformat( timespec = 'seconds' ))
     with open('log.txt', 'a',encoding='utf-8') as f:
         f.write( 'Server started at {} \n'.format(cDT))
+
+    styleDict, styleDictLock = getMultiProcSharedDict()
+    print('startServer', styleDict, styleDictLock)
 
     host = '0.0.0.0'  # Listen on all available interfaces
     port = 0000
@@ -197,7 +212,9 @@ def startServer():
 
                                       args = ( clientSocket,
                                                clientAddress,
-                                               clientToServerCmdQ ),
+                                               clientToServerCmdQ,
+                                               styleDict,
+                                               styleDictLock ),
 
                                       name =   'handleClient-{}'.\
                                                format(clientAddress) )
