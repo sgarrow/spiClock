@@ -33,9 +33,6 @@ def lcdUpdateProc( procName, qLst, styleDict, styleDictLock ): # pylint: disable
         data = lcdCq.get()   # Block here. Get digit/stop from clk/user.
         kStart = time.perf_counter()
 
-        gas = sm.getActiveStyle([styleDict, styleDictLock])
-        print('lcdUpdateProc gas = {}'.format(gas))
-
         gotStop  = False
         gotTime  = False
         if isinstance(data,str):

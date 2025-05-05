@@ -19,20 +19,22 @@ def startLcdUpdateProc( qLst, styleDict, styleDictLock ):
            target = lp.lcdUpdateProc,
            args   = ( 'lcdUpdateProc', # Process Name.
                       qLst,          # [lcdCq,lcdRq,clkCq,clkRq]
-                      styleDict, 
+                      styleDict,
                       styleDictLock))
     lcdProc.daemon = True
     lcdProc.start()
     return lcdProc.pid
 ######################################################################
 
-def startClockCntrProc( qLst, startTime ):
+def startClockCntrProc( qLst, startTime, styleDict, styleDictLock):
     # Cannot access return value from proc directly.
     clkProc = mp.Process(
            target = cp.clockCntrProc,
            args   = ( 'clockCntrProc', # Process Name.
                       qLst,            # [lcdCq,lcdRq,clkCq,clkRq]
-                      startTime ))     # start time.
+                      startTime,       # start time.
+                      styleDict,
+                      styleDictLock))
     clkProc.daemon = True
     clkProc.start()
     return clkProc.pid
@@ -72,7 +74,7 @@ def startClk(prmLst):
 
     if procPidDict['clockCntrProc'] is None:
         if procPidDict['lcdUpdateProc'] is not None:
-            pid = startClockCntrProc( qLst, startTime )
+            pid = startClockCntrProc( qLst, startTime, styleDict, styleDictLock )
             rspStr += ' clockCntrProc started.'
             procPidDict['clockCntrProc'] = pid
         else:

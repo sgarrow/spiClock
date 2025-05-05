@@ -41,7 +41,7 @@ def getStartTime( startTime ):
     return timeDict
 #############################################################################
 
-def updateCntr(timeDict):
+def updateCntr(timeDict,styleDic,styleLk):
 
     prevDict = timeDict.copy()
 
@@ -66,12 +66,12 @@ def updateCntr(timeDict):
     scMSD = seconds // 10
     scLSD = seconds  % 10
 
-    setDayStyleTime   = [ 1, 5, 3, 3, 0, 0 ] # 7:00 AM
+    setDayStyleTime   = [ 0, 7, 0, 0, 0, 0 ] # 7:00 AM
     setNightStyleTime = [ 2, 1, 0, 0, 0, 0 ] # 9:00 PM
     if   [ hrMSD, hrLSD, mnMSD, mnLSD, scMSD, scLSD ] == setDayStyleTime:
-        style = sm.getDayStyle()[0]
+        style = sm.getDayStyle([styleDic,styleLk])[0]
     elif [ hrMSD, hrLSD, mnMSD, mnLSD, scMSD, scLSD ] == setNightStyleTime:
-        style = sm.getNightStyle()[0]
+        style = sm.getNightStyle([styleDic,styleLk])[0]
     else:
         style = None
 
@@ -87,7 +87,7 @@ def updateCntr(timeDict):
 #############################################################################
 #############################################################################
 
-def clockCntrProc( procName, qLst, startTime ):
+def clockCntrProc( procName, qLst, startTime, styleDict, styleDictLock ):
     debug = True
     debug = False
     if debug: print(' {} {}'.format(procName, 'starting'))
@@ -105,14 +105,13 @@ def clockCntrProc( procName, qLst, startTime ):
         kStart = time.perf_counter()
         time.sleep( calTime )
 
-        timeDict, style = updateCntr(timeDict)
+        timeDict, style = updateCntr(timeDict,styleDict,styleDictLock)
         if style is not None:
             rspLst   = sm.getAllStyles()
             #fRspStr  = rspLst[0]
             styleDic = rspLst[1]
             theKey   = [ k for k,v in styleDic.items() if v == style ]
-            # FIXME
-            #rspLst   = sm.etActiveStyle([str(theKey[0]),lcdCq])
+            rspLst   = sm.setActiveStyle([str(theKey[0]),styleDict,styleDictLock,lcdCq])
 
         lcdCq.put(timeDict)           # Send cmd to lcdUpdateProc.
 

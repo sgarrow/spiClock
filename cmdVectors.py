@@ -35,7 +35,7 @@ def killSrvr():    # The ks handled directly in the handleClient func so it
 #############################################################################
 
 def getVer():
-    VER = ' v1.1.4 - 01-May-2025'
+    VER = ' v1.1.5 - 05-May-2025'
     return [VER]
 #############################################################################
 
@@ -115,8 +115,8 @@ def vector(inputStr,styleDic, styleLk): # called from handleClient.
 
     'gAs': { 'fun': sm.getAllStyles,   'prm': None,                     'mnMnu': menuTxt['gAs'] },
 
-   #'sas': { 'fun': sm.setActiveStyle, 'prm': ['None',lcdCq],           'mnMnu': menuTxt['sas'] },
-    'sas': { 'fun': sm.setActiveStyle, 'prm': ['None',styleDic,styleLk],'mnMnu': menuTxt['sas'] },
+    'sas': {'fun':sm.setActiveStyle,'prm':['None',styleDic,styleLk,lcdCq],'mnMnu': menuTxt['sas'] },
+    #'sas': { 'fun': sm.setActiveStyle, 'prm': ['None',styleDic,styleLk],'mnMnu': menuTxt['sas'] },
     'sds': { 'fun': sm.setDayStyle,    'prm': ['None',styleDic,styleLk],'mnMnu': menuTxt['sds'] },
     'sns': { 'fun': sm.setNightStyle,  'prm': ['None',styleDic,styleLk],'mnMnu': menuTxt['sns'] },
 

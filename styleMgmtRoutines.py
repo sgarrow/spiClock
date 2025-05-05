@@ -1,33 +1,26 @@
 import os
 import pickle
 import inspect
-
-activeDigitStyle = 'whiteOnBlack'      # pylint: disable=C0103
-dayDigitStyle    = 'orangeOnTurquoise' # pylint: disable=C0103
-nightDigitStyle  = 'greyOnBlack'       # pylint: disable=C0103
 #############################################################################
 #############################################################################
 
 def getDayStyle(prmLst):
     styleDict, styleDictLock = prmLst[0], prmLst[1]
     with styleDictLock:
-        dayDigitStyleNew = styleDict['dayDigitStyle']
-    rspStr = ' old: ' + dayDigitStyle + ' new: ' + dayDigitStyleNew
-    return [rspStr]
+        dayDigitStyle = styleDict['dayDigitStyle']
+    return [dayDigitStyle]
 
 def getNightStyle(prmLst):
     styleDict, styleDictLock = prmLst[0], prmLst[1]
     with styleDictLock:
-        nightDigitStyleNew = styleDict['nightDigitStyle']
-    rspStr = ' old: ' + nightDigitStyle + ' new: ' + nightDigitStyleNew
-    return [rspStr]
+        nightDigitStyle = styleDict['nightDigitStyle']
+    return [nightDigitStyle]
 
 def getActiveStyle(prmLst):
     styleDict, styleDictLock = prmLst[0], prmLst[1]
     with styleDictLock:
-        activeDigitStyleNew = styleDict['activeDigitStyle']
-    rspStr = ' old: ' + activeDigitStyle + ' new: ' + activeDigitStyleNew
-    return [activeDigitStyleNew]
+        activeDigitStyle = styleDict['activeDigitStyle']
+    return [activeDigitStyle]
 #############################################################################
 
 def setStyleDriver(prmLst):
@@ -35,32 +28,23 @@ def setStyleDriver(prmLst):
     dsrdStyleIdx, styleDict, styleDictLock = prmLst[0], prmLst[1], prmLst[2]
     # Returns a rps str and a digitStyleStr, like 'blackOnWhite'.
     # Just sets the name doesn't activate it, that's done by loadActiveStyle.
-    whoCalledMeFuncNameStr = inspect.stack()[1][3]
-    if whoCalledMeFuncNameStr   == 'setDayStyle':
-        digitStyleStr = dayDigitStyle
-        with styleDictLock:
-            digitStyleStrNew = styleDict['dayDigitStyle']
-    elif whoCalledMeFuncNameStr == 'setNightStyle':
-        digitStyleStr = nightDigitStyle
-        with styleDictLock:
-            digitStyleStrNew = styleDict['nightDigitStyle']
-    elif whoCalledMeFuncNameStr == 'setActiveStyle':
-        digitStyleStr = activeDigitStyle
-        with styleDictLock:
-            digitStyleStrNew = styleDict['activeDigitStyle']
-    else:
-        digitStyleStr = 'ERROR' # Should never get here.
-        digitStyleStrNew = styleDict['activeDigitStyle']
-
-    if dsrdStyleIdx == 'None':
-        rspStr  = ' Style not set.\n'
-        rspStr += ' No style number specified.'
-        rspStr = ' old: ' + digitStyleStr + ' new: ' + digitStyleStrNew
-        return [rspStr, digitStyleStr]
+    whoCalledMe = inspect.stack()[1][3]
+    with styleDictLock:
+        if    whoCalledMe == 'setDayStyle':    digitStyleStr = styleDict['dayDigitStyle']
+        elif  whoCalledMe == 'setNightStyle':  digitStyleStr = styleDict['nightDigitStyle']
+        elif  whoCalledMe == 'setActiveStyle': digitStyleStr = styleDict['activeDigitStyle']
+        else: digitStyleStr = 'ERROR' # Should never get here.
 
     rspLst      = getAllStyles()
     funcRspStr  = rspLst[0]
     allStyleDic = rspLst[1]      # eg: {0: 'whiteOnBlack', 1: 'blackOnWhite'}.
+
+    if dsrdStyleIdx == 'None':
+        rspStr  = ' Style not set.\n'
+        rspStr += ' No style number specified.'
+        rspStr += ' Invalid style number ({}), try on of these (enter number):\n\n{}'.\
+            format(dsrdStyleIdx, funcRspStr)
+        return [rspStr, digitStyleStr]
 
     if len(allStyleDic) > 0:
         if dsrdStyleIdx.isnumeric() and int(dsrdStyleIdx) < len(allStyleDic):
@@ -68,12 +52,12 @@ def setStyleDriver(prmLst):
             rspStr  = ' Style set to {}.'.format(allStyleDic[int(dsrdStyleIdx)])
             digitStyleStr = allStyleDic[int(dsrdStyleIdx)] # eg: 'whiteOnBlack'.
             with styleDictLock:
-                if whoCalledMeFuncNameStr   == 'setDayStyle':
-                    styleDict['dayDigitStyle']    = allStyleDic[int(dsrdStyleIdx)] # eg: 'whiteOnBlack'.
-                elif whoCalledMeFuncNameStr == 'setNightStyle':
-                    styleDict['nightDigitStyle']  = allStyleDic[int(dsrdStyleIdx)] # eg: 'whiteOnBlack'.
-                elif whoCalledMeFuncNameStr == 'setActiveStyle':
-                    styleDict['activeDigitStyle'] = allStyleDic[int(dsrdStyleIdx)] # eg: 'whiteOnBlack'.
+                if whoCalledMe   == 'setDayStyle':
+                    styleDict['dayDigitStyle']    = allStyleDic[int(dsrdStyleIdx)]
+                elif whoCalledMe == 'setNightStyle':
+                    styleDict['nightDigitStyle']  = allStyleDic[int(dsrdStyleIdx)]
+                elif whoCalledMe == 'setActiveStyle':
+                    styleDict['activeDigitStyle'] = allStyleDic[int(dsrdStyleIdx)]
         else:
             rspStr  = ' Style not set.\n'
             rspStr += ' Invalid style number ({}), try on of these (enter number):\n\n{}'.\
@@ -86,34 +70,32 @@ def setStyleDriver(prmLst):
 #############################################################################
 
 def setDayStyle(prmLst):
-    global dayDigitStyle   # pylint: disable=W0603
+    #dsrdStyleIdx, styleDict, styleDictLock = prmLst[0], prmLst[1], prmLst[2]
     rspStr, dayDigitStyle = setStyleDriver(prmLst)
     return [rspStr, dayDigitStyle]
 #############################################################################
 
 def setNightStyle(prmLst):
-    global nightDigitStyle  # pylint: disable=W0603
+    #dsrdStyleIdx, styleDict, styleDictLock = prmLst[0], prmLst[1], prmLst[2]
     rspStr, nightDigitStyle = setStyleDriver(prmLst)
-    return [rspStr, dayDigitStyle]
+    return [rspStr, nightDigitStyle]
 #############################################################################
 
 def setActiveStyle(prmLst):
-    global activeDigitStyle # pylint: disable=W0603
-    lcdCq = prmLst[1]
+    #dsrdStyleIdx,styleDict,styleDictLock,lcdCq=prmLst[0],prmLst[1],prmLst[2],prmLst[3]
+    lcdCq = prmLst[3]
     rspStr, activeDigitStyle = setStyleDriver(prmLst)
     if 'Style set' in rspStr:
-        pass
-        # FIXME
-        #lcdCq.put(activeDigitStyle)     # Send cmd to lcdUpdateProc.
+        lcdCq.put(activeDigitStyle)     # Send cmd to lcdUpdateProc.
     return [rspStr, activeDigitStyle]
 #############################################################################
 
 def getAllStyles():
 
-    # Basically just returns a list of all files in digitScreenStyles subdir.
-    # Can be called by the user (client) and also called by functions in
-    # testRoutines.py and by setActiveStyle(), above.  If the user specifies
-    # a non-existant style the a list of available styles is given to them.
+    # Returns a list of all files in digitScreenStyles subdir.  Can be called
+    # by the user (client) and also called by functions in testRoutines.py
+    # and by setActiveStyle(), above.  If the user specifies a non-existant
+    # style the a list of available styles is given to them.
 
     dPath = 'digitScreenStyles'
     try:
