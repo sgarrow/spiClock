@@ -86,7 +86,7 @@ def setActiveStyle(prmLst):
     lcdCq = prmLst[3]
     rspStr, activeDigitStyle = setStyleDriver(prmLst)
     if 'Style set' in rspStr:
-        lcdCq.put(activeDigitStyle)     # Send cmd to lcdUpdateProc.
+        lcdCq.put('loadActiveStyle')     # Send cmd to lcdUpdateProc.
     return [rspStr, activeDigitStyle]
 #############################################################################
 
@@ -122,7 +122,7 @@ def loadActiveStyle(styleDict, styleDictLock):
     activeStyle = getActiveStyle([styleDict, styleDictLock])
     dirPath = 'digitScreenStyles'
     fullFileName = os.path.join(dirPath, activeStyle[0]+'.pickle')
-    print(fullFileName)
+    #print(fullFileName)
     try:
         with open(fullFileName, 'rb') as f:
             digitDict = pickle.load(f)

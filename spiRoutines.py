@@ -77,7 +77,7 @@ def hwReset():
 def swReset(displayID):
     # Performs a software reset on the st7789v controller.
     # It also initializes the controller to the desired configuration.
-    print(' swReset {}'.format(displayID))
+    #print(' swReset {}'.format(displayID))
     sendCmdToSt7789( displayID, 0x01 )  # Software reset.
     time.sleep(0.2)
 

@@ -1,6 +1,4 @@
-import os
 import time
-import pickle
 import spiRoutines       as sr
 import styleMgmtRoutines as sm
 #############################################################################
@@ -38,11 +36,10 @@ def lcdUpdateProc( procName, qLst, styleDict, styleDictLock ): # pylint: disable
         if isinstance(data,str):
             if data == 'stop':
                 gotStop = True
-            else:
-                dirPath = 'digitScreenStyles'
-                fullFileName = os.path.join(dirPath, data+'.pickle')
-                with open(fullFileName, 'rb') as f:
-                    digitDict = pickle.load(f)
+            elif data == 'loadActiveStyle':
+                rspLst = sm.loadActiveStyle(styleDict, styleDictLock)
+                rspStr    = rspLst[0]
+                digitDict = rspLst[1]
                 refreshAllScreens = True
             if debug: print('got str = {}'.format(data))
 
