@@ -97,7 +97,11 @@ def runTest1():
 
     return [rspStr]
 #############################################################################
-def runTest2(lcdCq):
+def runTest2(prmLst):
+
+    lcdCq    = prmLst[0]
+    styleDic = prmLst[1]
+    styleLk  = prmLst[2]
 
     # Performs 1 test on all displays.
     # Displays all characters stored in the digitScreenDict on all displays.
@@ -109,7 +113,7 @@ def runTest2(lcdCq):
 
     rspLst     = sm.getAllStyles()
     #funcRspStr = rspLst[0]
-    styleDic   = rspLst[1]
+    allStyleDic   = rspLst[1]
 
     sr.hwReset()              # HW Reset
     for displayID in kLst:
@@ -117,10 +121,9 @@ def runTest2(lcdCq):
     sr.setBkLight([1])        # Turn on backlight.
 
     rspStr = ''
-    for styleIdx in styleDic:
-        # FIXME
-        #rspLst = sm.etActiveStyle([str(styleIdx),lcdCq])
-        rspLst = sm.loadActiveStyle()
+    for styleIdx in allStyleDic:
+        rspLst = sm.setActiveStyle([str(styleIdx),styleDic,styleLk,lcdCq])
+        rspLst = sm.loadActiveStyle(styleDic, styleLk)
         digitScreenDict = rspLst[1]
         for txt in textLst[5:]:
             for displayID in kLst:
@@ -130,7 +133,7 @@ def runTest2(lcdCq):
                 delta = time.perf_counter()-kStart
                 if delta > .008:
                     rspStr += ' LCD update time {:.6f} sec. {} {} {}.\n'.\
-                        format(delta, styleDic[styleIdx], txt, displayID)
+                        format(delta, allStyleDic[styleIdx], txt, displayID)
 
     sr.hwReset()              # HW Reset
     for displayID in kLst:
