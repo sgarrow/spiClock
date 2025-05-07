@@ -5,6 +5,7 @@ import time                  # For Killing Server and listThreads.
 import multiprocessing as mp # For Getting Multi Proc Shared Dict.
 import datetime        as dt # For logging server start/stop times.
 import cmdVectors      as cv # Contains vectors to "worker" functions.
+import utils           as ut # Contains vectors to "worker" functions.
 #############################################################################
 #############################################################################
 
@@ -25,7 +26,7 @@ def listThreads(): # Daemon to startServer, terminates w/ kill server (ks).
 
         print(' ##################')
         print(' Open Sockets: ')
-        for openS in cv.openSocketsLst:
+        for openS in ut.openSocketsLst:
             print('   {}'.format(openS['ca']))
 #############################################################################
 
@@ -45,7 +46,7 @@ def processCloseCmd(clientSocket, clientAddress):
     time.sleep(1) # Required so .send happens before socket closed.
     print(rspStr)
     # Breaks the loop, connection closes and thread stops.
-    cv.openSocketsLst.remove({'cs':clientSocket,'ca':clientAddress})
+    ut.openSocketsLst.remove({'cs':clientSocket,'ca':clientAddress})
 #############################################################################
 
 def processKsCmd( clientSocket, clientAddress, client2ServerCmdQ,
@@ -64,14 +65,14 @@ def processKsCmd( clientSocket, clientAddress, client2ServerCmdQ,
     time.sleep(1.5) # Required so .send happens before socket closed.
 
     # Breaks the ALL loops, ALL connections close and ALL thread stops.
-    for el in cv.openSocketsLst:
+    for el in ut.openSocketsLst:
         if el['ca'] != clientAddress:
             rspStr = ' handleClient {} set loop break for {} RE: ks'.\
                 format(clientAddress, el['ca'])
             el['cs'].send(rspStr.encode()) # sends all even if > 1024.
             time.sleep(1) # Required so .send happens before socket closed.
             print(rspStr)
-    cv.openSocketsLst.clear()
+    ut.openSocketsLst.clear()
     client2ServerCmdQ.put('ks')
     return 0
 #############################################################################
@@ -91,10 +92,10 @@ def handleClient(clientSocket, clientAddress, client2ServerCmdQ,styleDict, style
 
     if passwordIsOk:
         clientSocket.settimeout(3.0)   # Sets the .recv timeout - ks processing.
-        cv.openSocketsLst.append({'cs':clientSocket,'ca':clientAddress})
+        ut.openSocketsLst.append({'cs':clientSocket,'ca':clientAddress})
 
     # The while condition is made false by the close and ks command.
-    while {'cs':clientSocket,'ca':clientAddress} in cv.openSocketsLst:
+    while {'cs':clientSocket,'ca':clientAddress} in ut.openSocketsLst:
 
         # Recieve msg from the client (and look (try) for UNEXPECTED EVENT).
         try: # In case user closed client window (x) instead of by close cmd.
@@ -102,11 +103,11 @@ def handleClient(clientSocket, clientAddress, client2ServerCmdQ,styleDict, style
         except ConnectionResetError: # Windows throws this on (x).
             print(' handleClient {} ConnectRstErr except in s.recv'.format(clientAddress))
             # Breaks the loop. handler/thread stops. Connection closed.
-            cv.openSocketsLst.remove({'cs':clientSocket,'ca':clientAddress})
+            ut.openSocketsLst.remove({'cs':clientSocket,'ca':clientAddress})
             break
         except ConnectionAbortedError: # Test-NetConnection xxx.xxx.x.xxx -p xxxx throws this
             print(' handleClient {} ConnectAbtErr except in s.recv'.format(clientAddress))
-            cv.openSocketsLst.remove({'cs':clientSocket,'ca':clientAddress})
+            ut.openSocketsLst.remove({'cs':clientSocket,'ca':clientAddress})
             break
         except socket.timeout: # Can't block on recv - won't be able to break
             continue           # loop if another client has issued a ks cmd.
@@ -131,7 +132,7 @@ def handleClient(clientSocket, clientAddress, client2ServerCmdQ,styleDict, style
             except BrokenPipeError:      # RPi throws this on (x).
                 print(' handleClient {} BrokePipeErr except in s.send'.format(clientAddress))
                 # Breaks the loop. handler/thread stops. Connection closed.
-                cv.openSocketsLst.remove({'cs':clientSocket,'ca':clientAddress})
+                ut.openSocketsLst.remove({'cs':clientSocket,'ca':clientAddress})
 
     print(' handleClient {} closing socket and breaking loop'.format(clientAddress))
     clientSocket.close()

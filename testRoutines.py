@@ -152,6 +152,24 @@ def runTest3():
     return [rspStr]
 #############################################################################
 
+def runTest4():
+
+    dspIdLst = [ 'hrMSD','hrLSD','mnMSD','mnLSD','scMSD','scLSD' ]
+    sr.hwReset()              # HW Reset
+    for displayID in dspIdLst:
+        sr.swReset(displayID) # SW Reset and the display initialization.
+    sr.setBkLight([1])        # Turn on backlight.
+
+    picLst   = [ 'pics/240x320a.jpg', 'pics/240x320b.jpg', 'pics/240x320c.jpg',
+                 'pics/240x320d.jpg', 'pics/240x320e.jpg', 'pics/240x320f.jpg' ]
+
+    for displayID, pic in zip( dspIdLst, picLst ):
+        data = ms.makePilJpgPicImage(pic)
+        sr.setEntireDisplay( displayID, data, sr.sendDat2ToSt7789 )
+
+    return ['done']
+#############################################################################
+
 if __name__ == '__main__':
     import multiprocessing as mp
     mnLcdCq = mp.Queue() # LCD Cmd Q. mp queue must be used here.

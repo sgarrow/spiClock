@@ -6,12 +6,12 @@ is then vectored to in file cmdWorkers.py.
 '''
 
 import multiprocessing   as mp
-import threading         as th
 import styleMgmtRoutines as sm
 import startStopClock    as cr
 import testRoutines      as tr
 import spiRoutines       as sr
 import makeScreen        as ms
+import utils             as ut
 import cmds              as cm
 #############################################################################
 
@@ -20,8 +20,6 @@ lcdRq = mp.Queue() # LCD Rsp Q. mp queue must be used here.
 clkCq = mp.Queue() # CLK Cmd Q. mp queue must be used here.
 clkRq = mp.Queue() # CLK Rsp Q. mp queue must be used here.
 qs    = [ lcdCq, lcdRq, clkCq, clkRq ]
-
-openSocketsLst = []     # Needed for processing close and ks commands.
 
 ESC = '\x1b'
 RED = '[31m'
@@ -35,26 +33,10 @@ def killSrvr():    # The ks handled directly in the handleClient func so it
 #############################################################################
 
 def getVer():
-    VER = ' v1.2.0 - 05-May-2025'
+    VER = ' v1.2.1 - 06-May-2025'
     return [VER]
 #############################################################################
 
-def getActiveThreads():
-
-    rspStr = ' Running Threads:\n'
-    for t in th.enumerate():
-        rspStr += '   {}\n'.format(t.name)
-
-    rspStr += '\n Open Sockets:\n'
-    for openS in openSocketsLst:
-        rspStr += '   {}\n'.format(openS['ca'])
-
-    rspStr += '\n Running Processes:\n'
-    for k,v in cr.procPidDict.items():
-        if v is not None:
-            rspStr += '   {}\n'.format(k)
-    return [rspStr]
-#############################################################################
 def vector(inputStr,styleDic,styleLk): # called from handleClient.
 
 #    print('vector',styleDic, styleLk)
@@ -67,24 +49,26 @@ def vector(inputStr,styleDic,styleLk): # called from handleClient.
     'rt1' : 'Run   Test 1',
     'rt2' : 'Run   Test 2',
     'rt3' : 'Run   Test 3',
+    'rt4' : 'Run   Test 4',
 
     'rh'  : 'Reset LCD HW',
     'rs'  : 'Reset LCD SW',
     'sb'  : 'Set   Backlight',
 
     'gas' : 'Get   Active Style',
-    'sas' : 'Set   Active Style',
-    'gAs' : 'Get   ALL    Styles',
     'gds' : 'Get   Day    Style',
-    'sds' : 'Set   Day    Style',
     'gns' : 'Get   Night  Style',
+    'gAs' : 'Get   ALL    Styles',
+    'sas' : 'Set   Active Style',
+    'sds' : 'Set   Day    Style',
     'sns' : 'Set   Night  Style',
 
     'mus' : 'Make  User   Style',
 
     'lc'  : 'List  Commands',
-    'ks'  : 'Kill  Server',
     'gat' : 'Get   Active Threads',
+    'dp'  : 'Disp  Pics',
+    'ks'  : 'Kill  Server',
     'gvn' : 'Get   Version Number',
     }
     dfltMDSPrm = ['redOnGreen', '255','0','0', '0','0','255']
@@ -100,6 +84,7 @@ def vector(inputStr,styleDic,styleLk): # called from handleClient.
     'rt1':{ 'fun': tr.runTest1,       'prm': None,                           'tstMnu': mTxt['rt1']},
     'rt2':{ 'fun': tr.runTest2,       'prm': [lcdCq,styleDic,styleLk],       'tstMnu': mTxt['rt2']},
     'rt3':{ 'fun': tr.runTest3,       'prm': None,                           'tstMnu': mTxt['rt3']},
+    'rt4':{ 'fun': tr.runTest4,       'prm': None,                           'tstMnu': mTxt['rt4']},
 
     # Worker Function in spiRoutines.py.
     'rh' :{ 'fun': sr.hwReset,        'prm': None,                           'tstMnu': mTxt['rh' ]},
@@ -123,9 +108,11 @@ def vector(inputStr,styleDic,styleLk): # called from handleClient.
     # Worker Function in cmds.py.
     'lc' :{ 'fun': cm.cmds,           'prm': None,                           'tstMnu': mTxt['lc' ]},
 
+    # Worker Function in utils.py.
+    'gat':{ 'fun': ut.getActiveThrds, 'prm': None,                           'tstMnu': mTxt['gat']},
+    'dp' :{ 'fun': ut.displayPics,    'prm': [[],qs,styleDic,styleLk],       'mnMnu' : mTxt['dp' ]},
     # Worker Function in this module.
     'ks' :{ 'fun': killSrvr,          'prm': None,                           'tstMnu': mTxt['ks' ]},
-    'gat':{ 'fun': getActiveThreads,  'prm': None,                           'tstMnu': mTxt['gat']},
     'gvn':{ 'fun': getVer,            'prm': None,                           'mnMnu' : mTxt['gvn']},
 
     # Worker Function in clockRoutines.py.
