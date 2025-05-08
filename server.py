@@ -5,7 +5,7 @@ import time                  # For Killing Server and listThreads.
 import multiprocessing as mp # For Getting Multi Proc Shared Dict.
 import datetime        as dt # For logging server start/stop times.
 import cmdVectors      as cv # Contains vectors to "worker" functions.
-import utils           as ut # Contains vectors to "worker" functions.
+import utils           as ut # For access to openSocketsLst[].
 #############################################################################
 #############################################################################
 
@@ -152,7 +152,7 @@ def startServer():
         f.write( 'Server started at {} \n'.format(cDT))
 
     styleDict, styleDictLock = getMultiProcSharedDict()
-    print('startServer', styleDict, styleDictLock)
+    #print('startServer', styleDict, styleDictLock)
 
     host = '0.0.0.0'  # Listen on all available interfaces
     port = 0000
@@ -181,9 +181,8 @@ def startServer():
                                daemon = True )
     thread.start()
 
-    printSocketInfo(serverSocket)
-
     print('Server listening on: {} {}'.format(host, port))
+    printSocketInfo(serverSocket)
     while True:
 
         # See if any client has requested the server to halt (ks command).
@@ -230,5 +229,11 @@ def startServer():
 #############################################################################
 
 if __name__ == '__main__':
+    import spiRoutines     as sr
+    kLst = ['hrMSD','hrLSD','mnMSD','mnLSD','scMSD','scLSD']
+    sr.hwReset()           # HW Reset. Common pin to all dislays.
+    for theKey in kLst:
+        sr.swReset(theKey) # SW Reset & display initialization.
+    print('LCD hw/sw has been reset.')
     #cv.vector('sc')
     startServer()

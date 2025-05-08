@@ -59,10 +59,6 @@ def startClk(prmLst):
     ########################
 
     if procPidDict['lcdUpdateProc'] is None:
-        kLst = ['hrMSD','hrLSD','mnMSD','mnLSD','scMSD','scLSD']
-        sr.hwReset()           # HW Reset. Common pin to all dislays.
-        for theKey in kLst:
-            sr.swReset(theKey) # SW Reset & display initialization.
         sr.setBkLight([1])     # Turn on backlight.
         pid = startLcdUpdateProc( qLst, styleDict, styleDictLock )
         rspStr = lcdRq.get() + '\n'
@@ -119,10 +115,6 @@ def stopClk(prmLst):
             except mp.queues.Empty:
                 pass
         procPidDict['lcdUpdateProc'] = None
-        kLst = ['hrMSD','hrLSD','mnMSD','mnLSD','scMSD','scLSD']
-        sr.hwReset()           # HW Reset. Common pin to all dislays.
-        for theKey in kLst:
-            sr.swReset(theKey) # SW Reset & display initialization.
         sr.setBkLight([0])     # Turn off backlight.
         rspStr += ' lcdUpdateProc stopped.'
     else:

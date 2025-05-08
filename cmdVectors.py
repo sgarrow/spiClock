@@ -33,7 +33,7 @@ def killSrvr():    # The ks handled directly in the handleClient func so it
 #############################################################################
 
 def getVer():
-    VER = ' v1.2.1 - 06-May-2025'
+    VER = ' v1.2.2 - 07-May-2025'
     return [VER]
 #############################################################################
 
@@ -41,19 +41,10 @@ def vector(inputStr,styleDic,styleLk): # called from handleClient.
 
 #    print('vector',styleDic, styleLk)
     mTxt = {
+    # MAIN MENU
     'sc'  : 'Start Clock',
     'pc'  : 'stoP  Clock',
     'cb'  : 'Ctrl  Brightness',
-    'tm'  : 'Test  Menu',
-
-    'rt1' : 'Run   Test 1',
-    'rt2' : 'Run   Test 2',
-    'rt3' : 'Run   Test 3',
-    'rt4' : 'Run   Test 4',
-
-    'rh'  : 'Reset LCD HW',
-    'rs'  : 'Reset LCD SW',
-    'sb'  : 'Set   Backlight',
 
     'gas' : 'Get   Active Style',
     'gds' : 'Get   Day    Style',
@@ -65,58 +56,80 @@ def vector(inputStr,styleDic,styleLk): # called from handleClient.
 
     'mus' : 'Make  User   Style',
 
-    'lc'  : 'List  Commands',
-    'gat' : 'Get   Active Threads',
     'dp'  : 'Disp  Pics',
-    'ks'  : 'Kill  Server',
+
     'gvn' : 'Get   Version Number',
+    'tm'  : 'Test  Menu',
+
+    # TEST MENU
+    'rt1' : 'Run   Test 1',
+    'rt2' : 'Run   Test 2',
+    'rt3' : 'Run   Test 3',
+    'rt4' : 'Run   Test 4',
+
+    'rh'  : 'Reset LCD HW',
+    'rs'  : 'Reset LCD SW',
+    'sb'  : 'Set   LCD Backlight',
+
+    'gat' : 'Get   Active Threads',
+    'lc'  : 'List  Commands',
+
+    'ks'  : 'Kill  Server',
     }
-    dfltMDSPrm = ['redOnGreen', '255','0','0', '0','0','255']
+    dfltMDSPrm  = [ 'redOnGreen', '255','0','0', '0','0','255' ]
+    dfltSCPrm   = [ [], qs, styleDic, styleLk ]
+    dfltSASParm = [ 'None', styleDic, styleLk, lcdCq ]
 
     # This dictionary embodies the worker function vector (and menu) info.
     vectorDict = {
+
+    # MAIN MENU (displayed when m command issued).
     # Worker Function in clockRoutines.py.
-    'sc' :{ 'fun': cr.startClk,       'prm': [[],qs,styleDic,styleLk],       'mnMnu' : mTxt['sc' ]},
-    'pc' :{ 'fun': cr.stopClk,        'prm': qs,                             'mnMnu' : mTxt['pc' ]},
-   #'cb' :{ 'fun': cr.ctrlBright,     'prm': ['None'],                       'mnMnu' : mTxt['cb' ]},
-
-    # Worker Function in testRoutines.py.
-    'rt1':{ 'fun': tr.runTest1,       'prm': None,                           'tstMnu': mTxt['rt1']},
-    'rt2':{ 'fun': tr.runTest2,       'prm': [lcdCq,styleDic,styleLk],       'tstMnu': mTxt['rt2']},
-    'rt3':{ 'fun': tr.runTest3,       'prm': None,                           'tstMnu': mTxt['rt3']},
-    'rt4':{ 'fun': tr.runTest4,       'prm': None,                           'tstMnu': mTxt['rt4']},
-
-    # Worker Function in spiRoutines.py.
-    'rh' :{ 'fun': sr.hwReset,        'prm': None,                           'tstMnu': mTxt['rh' ]},
-    'rs' :{ 'fun': sr.swReset,        'prm': 'scLSD',                        'tstMnu': mTxt['rs' ]},
-    'sb' :{ 'fun': sr.setBkLight,     'prm': [0],                            'tstMnu': mTxt['sb' ]},
+    'sc' :{ 'fun': cr.startClk,       'prm': dfltSCPrm,                 'mnMnu': mTxt['sc' ]},
+    'pc' :{ 'fun': cr.stopClk,        'prm': qs,                        'mnMnu': mTxt['pc' ]},
+   #'cb' :{ 'fun': cr.ctrlBright,     'prm': ['None'],                  'mnMnu': mTxt['cb' ]},
 
     # Worker Function in styleMgmtRoutines.py.
-    'gas':{ 'fun': sm.getActiveStyle, 'prm': [styleDic,styleLk],             'mnMnu' : mTxt['gas']},
-    'gds':{ 'fun': sm.getDayStyle,    'prm': [styleDic,styleLk],             'mnMnu' : mTxt['gds']},
-    'gns':{ 'fun': sm.getNightStyle,  'prm': [styleDic,styleLk],             'mnMnu' : mTxt['gns']},
-
-    'gAs':{ 'fun': sm.getAllStyles,   'prm': None,                           'mnMnu' : mTxt['gAs']},
-
-    'sas':{ 'fun': sm.setActiveStyle, 'prm': ['None',styleDic,styleLk,lcdCq],'mnMnu' : mTxt['sas']},
-    'sds':{ 'fun': sm.setDayStyle,    'prm': ['None',styleDic,styleLk],      'mnMnu' : mTxt['sds']},
-    'sns':{ 'fun': sm.setNightStyle,  'prm': ['None',styleDic,styleLk],      'mnMnu' : mTxt['sns']},
+    'gas':{ 'fun': sm.getActiveStyle, 'prm': [styleDic,styleLk],        'mnMnu': mTxt['gas']},
+    'gds':{ 'fun': sm.getDayStyle,    'prm': [styleDic,styleLk],        'mnMnu': mTxt['gds']},
+    'gns':{ 'fun': sm.getNightStyle,  'prm': [styleDic,styleLk],        'mnMnu': mTxt['gns']},
+    'gAs':{ 'fun': sm.getAllStyles,   'prm': None,                      'mnMnu': mTxt['gAs']},
+    'sas':{ 'fun': sm.setActiveStyle, 'prm': dfltSASParm,               'mnMnu': mTxt['sas']},
+    'sds':{ 'fun': sm.setDayStyle,    'prm': ['None',styleDic,styleLk], 'mnMnu': mTxt['sds']},
+    'sns':{ 'fun': sm.setNightStyle,  'prm': ['None',styleDic,styleLk], 'mnMnu': mTxt['sns']},
 
     # Worker Function in makeScreens.py.
-    'mus':{ 'fun': ms.mkUsrDigPikF,   'prm': dfltMDSPrm,                     'mnMnu' : mTxt['mus']},
-
-    # Worker Function in cmds.py.
-    'lc' :{ 'fun': cm.cmds,           'prm': None,                           'tstMnu': mTxt['lc' ]},
+    'mus':{ 'fun': ms.mkUsrDigPikF,   'prm': dfltMDSPrm,                'mnMnu': mTxt['mus']},
 
     # Worker Function in utils.py.
-    'gat':{ 'fun': ut.getActiveThrds, 'prm': None,                           'tstMnu': mTxt['gat']},
-    'dp' :{ 'fun': ut.displayPics,    'prm': [[],qs,styleDic,styleLk],       'mnMnu' : mTxt['dp' ]},
-    # Worker Function in this module.
-    'ks' :{ 'fun': killSrvr,          'prm': None,                           'tstMnu': mTxt['ks' ]},
-    'gvn':{ 'fun': getVer,            'prm': None,                           'mnMnu' : mTxt['gvn']},
+    'dp' :{ 'fun': ut.displayPics,    'prm': [[],qs,styleDic,styleLk],  'mnMnu': mTxt['dp' ]},
 
-    # Worker Function in clockRoutines.py.
-    'tm' :{ 'fun': None,              'prm': None,                           'mnMnu' : mTxt['tm' ]},
+    # Worker Function in this module.
+    'gvn':{ 'fun': getVer,            'prm': None,                      'mnMnu': mTxt['gvn']},
+    'tm' :{ 'fun': None,              'prm': None,                      'mnMnu': mTxt['tm' ]},
+    #####################################################
+
+    # TEST MENU (displayed when tm command issued).
+    # Worker Function in testRoutines.py.
+    'rt1':{ 'fun': tr.runTest1,       'prm': None,                      'tstMnu': mTxt['rt1']},
+    'rt2':{ 'fun': tr.runTest2,       'prm': [lcdCq,styleDic,styleLk],  'tstMnu': mTxt['rt2']},
+    'rt3':{ 'fun': tr.runTest3,       'prm': None,                      'tstMnu': mTxt['rt3']},
+    'rt4':{ 'fun': tr.runTest4,       'prm': None,                      'tstMnu': mTxt['rt4']},
+
+    # Worker Function in spiRoutines.py.
+    'rh' :{ 'fun': sr.hwReset,        'prm': None,                      'tstMnu': mTxt['rh' ]},
+    'rs' :{ 'fun': sr.swReset,        'prm': 'scLSD',                   'tstMnu': mTxt['rs' ]},
+    'sb' :{ 'fun': sr.setBkLight,     'prm': [0],                       'tstMnu': mTxt['sb' ]},
+
+    # Worker Function in utils.py.
+    'gat':{ 'fun': ut.getActiveThrds, 'prm': None,                      'tstMnu': mTxt['gat']},
+
+    # Worker Function in cmds.py.
+    'lc' :{ 'fun': cm.cmds,           'prm': None,                      'tstMnu': mTxt['lc' ]},
+
+    # Worker Function in this module.
+    'ks' :{ 'fun': killSrvr,          'prm': None,                      'tstMnu': mTxt['ks' ]},
+    #####################################################
     }
 
     # Process the string (command) passed to this function via the call
@@ -163,14 +176,22 @@ def vector(inputStr,styleDic,styleLk): # called from handleClient.
             if   choice == 'm'  and 'mnMnu' in v:
 
                 if k == 'sc':  rspStr += '{}{}{}'.\
-                    format(ESC+RED,   ' CLOCK CONTROL\n', ESC+TERMINATE )
+                    format(ESC+RED,   ' CLOCK COMMANDS\n', ESC+TERMINATE )
                 if k == 'gas': rspStr += '{}{}{}'.\
-                format(ESC+RED, '\n STYLE CONTROL\n', ESC+TERMINATE )
+                    format(ESC+RED, '\n STYLE COMMANDS\n', ESC+TERMINATE )
                 if k == 'gvn': rspStr += '{}{}{}'.\
-                    format(ESC+RED, '\n MISC  CONTROL\n', ESC+TERMINATE )
+                    format(ESC+RED, '\n MISC  COMMANDS\n', ESC+TERMINATE )
+
                 rspStr += ' {:3} - {}\n'.format(k, v['mnMnu'] )
 
             elif choice == 'tm' and 'tstMnu' in v:
+
+                if k == 'rt1':  rspStr += '{}{}{}'.\
+                    format(ESC+RED,   ' TEST  COMMANDS\n', ESC+TERMINATE )
+                if k == 'rh': rspStr += '{}{}{}'.\
+                    format(ESC+RED, '\n LCD   COMMANDS\n', ESC+TERMINATE )
+                if k == 'gat': rspStr += '{}{}{}'.\
+                    format(ESC+RED, '\n MISC  COMMANDS\n', ESC+TERMINATE )
 
                 rspStr += ' {:3} - {}\n'.format(k, v['tstMnu'] )
 

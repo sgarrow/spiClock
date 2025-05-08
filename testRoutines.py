@@ -81,8 +81,8 @@ def runTest1():
     ####################################################
 
     rspStr += '\nBegin test 1.5 - Fill entire screen w/ constructed RGB/JPG images in one shot.\n'
-    data1  = ms.makePilRgbPicImage('pics/240x320.rgb')
-    data2  = ms.makePilJpgPicImage('pics/240x320.jpg')
+    data1  = ms.makePilJpgPicImage('pics/240x320a.jpg')
+    data2  = ms.makePilJpgPicImage('pics/240x320b.jpg')
     pixLst = [ data1, data2 ]
     for sf,pl in zip( sendFuncs, pixLst ):
         kStart = time.time()
