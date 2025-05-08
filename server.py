@@ -40,6 +40,7 @@ def getMultiProcSharedDict():
     styleDictLock = mp.Lock()
     return styleDict, styleDictLock
 #############################################################################
+
 def processCloseCmd(clientSocket, clientAddress):
     rspStr = ' handleClient {} set loop break RE: close'.format(clientAddress)
     clientSocket.send(rspStr.encode()) # sends all even if >1024.
@@ -77,7 +78,8 @@ def processKsCmd( clientSocket, clientAddress, client2ServerCmdQ,
     return 0
 #############################################################################
 
-def handleClient(clientSocket, clientAddress, client2ServerCmdQ,styleDict, styleDictLock):
+def handleClient( clientSocket, clientAddress, client2ServerCmdQ,
+                  styleDict,    styleDictLock ):
     # Validate password
     data = clientSocket.recv(1024)
     if data.decode() == 'tempPW':
@@ -91,7 +93,7 @@ def handleClient(clientSocket, clientAddress, client2ServerCmdQ,styleDict, style
     clientSocket.send(rspStr.encode()) # sends all even if >1024.
 
     if passwordIsOk:
-        clientSocket.settimeout(3.0)   # Sets the .recv timeout - ks processing.
+        clientSocket.settimeout(3.0)   # Set .recv timeout - ks processing.
         ut.openSocketsLst.append({'cs':clientSocket,'ca':clientAddress})
 
     # The while condition is made false by the close and ks command.

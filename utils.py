@@ -1,9 +1,9 @@
-#############################################################################
 import time
 import threading         as th
 import testRoutines      as tr
 import startStopClock    as cr
 openSocketsLst = []     # Needed for processing close and ks commands.
+#############################################################################
 #############################################################################
 
 def getActiveThrds():

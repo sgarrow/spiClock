@@ -97,13 +97,14 @@ def clockCntrProc( procName, qLst, startTime, styleDict, styleDictLock ):
     dsrNumDataPoints = 20
     actNumDataPoints =  0
     cumSumLoopTime   =  0
+    cumSumError      =  0
 
     timeDict = getStartTime(startTime)
     lcdCq.put(timeDict)               # Send cmd to lcdUpdateProc.
 
     while True:
         kStart = time.perf_counter()
-        time.sleep( calTime )
+        time.sleep( calTime )         # Nominally 1 sec.
 
         timeDict, style = updateCntr(timeDict,styleDict,styleDictLock)
         if style is not None:
@@ -139,13 +140,18 @@ def clockCntrProc( procName, qLst, startTime, styleDict, styleDictLock ):
             actNumDataPoints = 1
             cumSumLoopTime   = actTime
 
-        #if seconds == 0:
+        #if actNumDataPoints == dsrNumDataPoints:
+        #    hours   = timeDict['hrMSD']['value'] * 10 + timeDict['hrLSD']['value']
+        #    minutes = timeDict['mnMSD']['value'] * 10 + timeDict['mnLSD']['value']
+        #    seconds = timeDict['scMSD']['value'] * 10 + timeDict['scLSD']['value']
         #    now      = dt.datetime.now()
         #    currTime = now.strftime('%H:%M:%S')
+        #    error = 1-actTime
+        #    cumSumError += error
         #    print(' {:02}:{:02}:{:02} =? {}'.\
         #        format( hours, minutes, seconds, currTime ))
-        #    print( ' time (req,act) = ({:.6f}, {:.6f}) sec. Num points = {}.'.\
-        #            format(calTime,actTime,actNumDataPoints))
+        #    print( ' time (req,act) = ({:.6f}, {:.6f}) sec. Num points = {}. Error = {:10.6f}. cumSumError = {:10.6f}'.\
+        #            format(calTime,actTime,actNumDataPoints, error, cumSumError))
 
     clkRq.put(' {} {}'.format(procName, 'exiting'))  # Put rsp back to user.
 ##############################################################################

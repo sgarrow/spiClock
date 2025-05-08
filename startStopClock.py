@@ -1,16 +1,11 @@
 import time
 import multiprocessing as mp
-import clockProcess    as cp
-import spiRoutines     as sr
 import lcdProcess      as lp
+import spiRoutines     as sr
+import clockProcess    as cp
 
 procPidDict = {'clockCntrProc': None, 'lcdUpdateProc': None}
 #####################################################################
-######################################################################
-
-def isClockRunning():
-    return procPidDict['clockCntrProc'] is not None and \
-           procPidDict['lcdUpdateProc'] is not None
 ######################################################################
 
 def startLcdUpdateProc( qLst, styleDict, styleDictLock ):
@@ -18,7 +13,7 @@ def startLcdUpdateProc( qLst, styleDict, styleDictLock ):
     lcdProc = mp.Process(
            target = lp.lcdUpdateProc,
            args   = ( 'lcdUpdateProc', # Process Name.
-                      qLst,          # [lcdCq,lcdRq,clkCq,clkRq]
+                      qLst,            # [lcdCq,lcdRq,clkCq,clkRq]
                       styleDict,
                       styleDictLock))
     lcdProc.daemon = True
@@ -115,7 +110,7 @@ def stopClk(prmLst):
             except mp.queues.Empty:
                 pass
         procPidDict['lcdUpdateProc'] = None
-        sr.setBkLight([0])     # Turn off backlight.
+        sr.setBkLight([0])                  # Turn off backlight.
         rspStr += ' lcdUpdateProc stopped.'
     else:
         rspStr += ' lcdUpdateProc not running.'
