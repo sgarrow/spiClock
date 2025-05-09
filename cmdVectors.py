@@ -24,6 +24,9 @@ qs    = [ lcdCq, lcdRq, clkCq, clkRq ]
 ESC = '\x1b'
 RED = '[31m'
 TERMINATE = '[0m'
+
+REDON  = ESC + RED
+REDOFF = ESC + TERMINATE
 ############################################################################
 #############################################################################
 
@@ -33,7 +36,7 @@ def killSrvr():    # The ks handled directly in the handleClient func so it
 #############################################################################
 
 def getVer():
-    VER = ' v1.2.3 - 07-May-2025'
+    VER = ' v1.2.4 - 08-May-2025'
     return [VER]
 #############################################################################
 
@@ -147,16 +150,16 @@ def vector(inputStr,styleDic,styleLk): # called from handleClient.
         func   = vectorDict[choice]['fun']
         params = vectorDict[choice]['prm']
 
-        if choice in ['sc'] and len(optArgsStr) == 3:
+        if choice in ['sc'] and len(optArgsStr) >= 3:
             params[0] = optArgsStr
 
-        if choice in ['sb'] and len(optArgsStr) == 1:
+        elif choice in ['sb'] and len(optArgsStr) == 1:
             params = optArgsStr
 
-        if choice in ['sas','sds','sns'] and len(optArgsStr) == 1:
+        elif choice in ['sas','sds','sns'] and len(optArgsStr) == 1:
             params[0] = optArgsStr[0]
 
-        if choice in ['mus', 'cb'] and len(optArgsStr) > 0:
+        elif choice in ['mus'] and len(optArgsStr) > 0:
             params = optArgsStr
 
         #try:                   # Catch exceptions in command procesing.
@@ -174,25 +177,22 @@ def vector(inputStr,styleDic,styleLk): # called from handleClient.
         for k,v in vectorDict.items():
 
             if   choice == 'm'  and 'mnMnu' in v:
+                tmpDic = {
+                'sc' : '{}{}{}'.format(REDON,  ' CLOCK COMMANDS\n',REDOFF),
+                'gas': '{}{}{}'.format(REDON,'\n STYLE COMMANDS\n',REDOFF),
+                'gvn': '{}{}{}'.format(REDON,'\n MISC  COMMANDS\n',REDOFF) }
 
-                if k == 'sc':  rspStr += '{}{}{}'.\
-                    format(ESC+RED,   ' CLOCK COMMANDS\n', ESC+TERMINATE )
-                if k == 'gas': rspStr += '{}{}{}'.\
-                    format(ESC+RED, '\n STYLE COMMANDS\n', ESC+TERMINATE )
-                if k == 'gvn': rspStr += '{}{}{}'.\
-                    format(ESC+RED, '\n MISC  COMMANDS\n', ESC+TERMINATE )
-
+                if k in tmpDic: rspStr += tmpDic[k]
                 rspStr += ' {:3} - {}\n'.format(k, v['mnMnu'] )
 
             elif choice == 'tm' and 'tstMnu' in v:
 
-                if k == 'rt1':  rspStr += '{}{}{}'.\
-                    format(ESC+RED,   ' TEST  COMMANDS\n', ESC+TERMINATE )
-                if k == 'rh': rspStr += '{}{}{}'.\
-                    format(ESC+RED, '\n LCD   COMMANDS\n', ESC+TERMINATE )
-                if k == 'gat': rspStr += '{}{}{}'.\
-                    format(ESC+RED, '\n MISC  COMMANDS\n', ESC+TERMINATE )
+                tmpDic = {
+                'rt1': '{}{}{}'.format(REDON,  ' TEST  COMMANDS\n',REDOFF),
+                'rh' : '{}{}{}'.format(REDON,'\n LCD   COMMANDS\n',REDOFF),
+                'gat': '{}{}{}'.format(REDON,'\n MISC  COMMANDS\n',REDOFF) }
 
+                if k in tmpDic: rspStr += tmpDic[k]
                 rspStr += ' {:3} - {}\n'.format(k, v['tstMnu'] )
 
         return rspStr          # Return to srvr for forwarding to clnt.

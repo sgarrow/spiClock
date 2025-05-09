@@ -5,38 +5,48 @@ import styleMgmtRoutines as sm
 #############################################################################
 
 def getStartTime( startTime ):
-    if len(startTime) == 3:
-        hours   = int(startTime[0])
-        minutes = int(startTime[1])
-        seconds = int(startTime[2])
-        while True:
-            time.sleep(.2)
-            now    = dt.datetime.now()
-            hour   = now.hour
-            minute = now.minute
-            second = now.second
-            if (hours == hour and minute == minutes and second == seconds):
-                break
+    #print(startTime)
+    if len(startTime) > 2:
+        try:
+            hours   = min(int(startTime[0]), 23)
+            minutes = min(int(startTime[1]), 59)
+            seconds = min(int(startTime[2]), 59)
+        except ValueError:
+            #print('starttime exception, set to 23 59 58.')
+            hours   = 23
+            minutes = 59
+            seconds = 58
+        else:
+            #print('syncing provided time w/ dt.datetime.now.')
+            if len(startTime) == 3:
+                while True:
+                    time.sleep(.2)
+                    now    = dt.datetime.now()
+                    hour   = now.hour
+                    minute = now.minute
+                    second = now.second
+                    if (hours==hour and minute==minutes and second==seconds):
+                        break
+            else:
+                #print('starttime set to provided time.')
+                hour   = hours
+                minute = minutes
+                second = seconds
+
     else:
+        #print('starttime is dt.datetime.now.')
         now    = dt.datetime.now()
         hour   = now.hour
         minute = now.minute
         second = now.second
         hours, minutes, seconds = hour, minute, second
 
-    hrMSD = hours   // 10
-    hrLSD = hours    % 10
-    mnMSD = minutes // 10
-    mnLSD = minutes  % 10
-    scMSD = seconds // 10
-    scLSD = seconds  % 10
-
-    timeDict = { 'hrMSD' : { 'value' : hrMSD, 'updated' : True },
-                 'hrLSD' : { 'value' : hrLSD, 'updated' : True },
-                 'mnMSD' : { 'value' : mnMSD, 'updated' : True },
-                 'mnLSD' : { 'value' : mnLSD, 'updated' : True },
-                 'scMSD' : { 'value' : scMSD, 'updated' : True },
-                 'scLSD' : { 'value' : scLSD, 'updated' : True }}
+    timeDict = { 'hrMSD' : { 'value' : hours   // 10 , 'updated' : True },
+                 'hrLSD' : { 'value' : hours    % 10 , 'updated' : True },
+                 'mnMSD' : { 'value' : minutes // 10 , 'updated' : True },
+                 'mnLSD' : { 'value' : minutes  % 10 , 'updated' : True },
+                 'scMSD' : { 'value' : seconds // 10 , 'updated' : True },
+                 'scLSD' : { 'value' : seconds  % 10 , 'updated' : True }}
 
     return timeDict
 #############################################################################
@@ -88,9 +98,6 @@ def updateCntr(timeDict,styleDic,styleLk):
 #############################################################################
 
 def clockCntrProc( procName, qLst, startTime, styleDict, styleDictLock ):
-    debug = True
-    debug = False
-    if debug: print(' {} {}'.format(procName, 'starting'))
 
     lcdCq, lcdRq, clkCq, clkRq = qLst[0], qLst[1], qLst[2], qLst[3]
     calTime          =  1
@@ -126,9 +133,9 @@ def clockCntrProc( procName, qLst, startTime, styleDict, styleDictLock ):
             break
 
         while not lcdRq.empty():      # Get all pending responses from LCD.
-            rsp = lcdRq.get_nowait()
-            if debug:
-                print(rsp,flush=True) # Execution time.
+            lcdRq.get_nowait()
+            #rsp = lcdRq.get_nowait()
+            #print(rsp,flush=True) # Execution time.
 
         actNumDataPoints += 1
         actTime = time.perf_counter()-kStart
@@ -148,10 +155,15 @@ def clockCntrProc( procName, qLst, startTime, styleDict, styleDictLock ):
         #    currTime = now.strftime('%H:%M:%S')
         #    error = 1-actTime
         #    cumSumError += error
+        #
         #    print(' {:02}:{:02}:{:02} =? {}'.\
-        #        format( hours, minutes, seconds, currTime ))
-        #    print( ' time (req,act) = ({:.6f}, {:.6f}) sec. Num points = {}. Error = {:10.6f}. cumSumError = {:10.6f}'.\
-        #            format(calTime,actTime,actNumDataPoints, error, cumSumError))
+        #            format( hours, minutes, seconds, currTime ))
+        #
+        #    print(' time (req,act) = ({:.6f}. {:.6f}) sec. Num points = {}.'.\
+        #            format( calTime, actTime, actNumDataPoints ))
+        #
+        #    print(' Error = {:10.6f}. cumSumError = {:10.6f}.'.\
+        #            format( error, cumSumError ))
 
     clkRq.put(' {} {}'.format(procName, 'exiting'))  # Put rsp back to user.
 ##############################################################################
