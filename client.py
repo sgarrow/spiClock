@@ -3,6 +3,7 @@ This is the user interface to the server.  All of the files in this project
 must be on the RPi except this one although it may/can also be on the RPi.
 
 This file can be run on the Rpi, a PC or a phone.
+ORIGINAL
 '''
 
 try:
