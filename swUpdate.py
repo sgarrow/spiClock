@@ -1,5 +1,6 @@
 import os
 import zipfile
+import platform
 import requests
 #############################################################################
 #############################################################################
@@ -18,35 +19,27 @@ def downloadZip( dnldToPath, zipFileUrl ):
 
     fName = zipFileUrl.split('/')[-1]
     fullyQualifiedFname = dnldToPath + fName
-
     response = requests.get( zipFileUrl, timeout = 5 )
 
     if response.status_code == 200:
         with open(fullyQualifiedFname,'wb') as outFile:
             outFile.write(response.content)
-        print(' Successfully downloaded {} to {}\n'.format( fName, dnldToPath ))
-
-        print( ' dnldToPath          = {}'.format(dnldToPath         ))
-        print( ' zipFileUrl          = {}'.format(zipFileUrl         ))
-        print( ' fName               = {}'.format(fName              )) 
-        print( ' fullyQualifiedFname = {}'.format(fullyQualifiedFname)) 
-        print()
-
+        rspStr = ' Successfully downloaded {} to {}\n'.format(fName,dnldToPath)
         status = 'SUCCESS'
     else:
-        print(' Failed to download {} to {}'.format( fName, dnldToPath ))
+        rspStr = ' Failed to download {} to {}\n'.format(fName,dnldToPath)
         status = 'FAIL'
 
-    return status, fName, fullyQualifiedFname
+    return rspStr, status, fullyQualifiedFname
 #############################################################################
 
-def unzipFileTo( unzipToPath, fullyQualifiedFname ):
-    with zipfile.ZipFile(fullyQualifiedFname, 'r') as f:
-        f.extractall( unzipToPath )
-    print( ' Extraction complete!' )
-#############################################################################
+def unzipFileTo(unzipToPath, fullyQualifiedFname):
 
-def unzipFileTo2(unzipToPath, fullyQualifiedFname):
+    # Create and Unzip to the parent directory name contained in the zip file itself.
+    #with zipfile.ZipFile(fullyQualifiedFname, 'r') as f:
+    #    f.extractall( unzipToPath )
+
+    # Unzip directly into the specified directory.
     with zipfile.ZipFile(fullyQualifiedFname, 'r') as f:
         # Get the name of the top-level folder in the zip
         topLevelFolder = f.namelist()[0].split('/')[0]
@@ -67,53 +60,54 @@ def unzipFileTo2(unzipToPath, fullyQualifiedFname):
                     os.makedirs(os.path.dirname(targetPath), exist_ok=True)
                     with open(targetPath, 'wb') as outfile, f.open(member) as source:
                         outfile.write(source.read())
-    print(' Extraction complete!')
+
+    rspStr = ' Successfully extracted {} into {}'.\
+             format(fullyQualifiedFname,unzipToPath)
+
+    return rspStr
 #############################################################################
 
 def updateSw():
 
-    runningOn = 'rpi'
-    #runningOn = 'pc'
-
+    rspStr    = ''
     REPOOWNER = 'sgarrow'
     REPONAME  = 'spiClock'
+    osName    = platform.system()
+
+    ###############
+    if osName == 'Windows':
+        dwnldToPath  = 'C:/01-home/temp/' # pylint: disable=C0103
+        unzipToPath  = 'C:/01-home/temp/' # pylint: disable=C0103
+    elif osName == 'Linux':
+        dwnldToPath  = os.getcwd() + '/'
+        unzipToPath  = os.getcwd() + '/'
+    else:
+        rspStr = 'Could not determine OS.'
+        return [rspStr]
+    ###############
 
     latestTag, releaseUrl = getLatestReleaseInfo( REPOOWNER, REPONAME )
-
     if latestTag:
+        zipUrl= releaseUrl.replace('releases/tag','archive/refs/tags')+'.zip'
 
-        cwd = os.getcwd()
-        zipUrl   = releaseUrl.replace('releases/tag', 'archive/refs/tags') + '.zip'
-        targzUrl = releaseUrl.replace('releases/tag', 'archive/refs/tags') + '.tar.gz'
-        print()
-        print( ' Current Working directory:      {}'.format( cwd        ))
-        print()
-        print( ' Latest release version:         {}'.format( latestTag  ))
-        print( ' Latest release location:        {}'.format( releaseUrl ))
-        print( ' Latest release zip location:    {}'.format( zipUrl     ))
-        print( ' Latest release tar.gz location: {}'.format( targzUrl   ))
-        print()
+        rspStr += ' Latest release version:      {}\n'.format( latestTag  )
+        rspStr += ' Latest release location:     {}\n'.format( releaseUrl )
+        rspStr += ' Latest release zip location: {}\n'.format( zipUrl     )
 
-        if runningOn == 'pc':
-            dwnldToPath  = 'C:/01-home/temp/' # pylint: disable=C0103
-            unzipToPath  = 'C:/01-home/temp/' # pylint: disable=C0103
-        elif runningOn == 'rpi':
-            dwnldToPath  = cwd + '/'
-            unzipToPath  = cwd + '/' 
-        else:
-            return ['error']
+        fRspStr, sts, fullQualifiedFname = downloadZip(dwnldToPath,zipUrl)
+        rspStr += fRspStr
 
-        sts,dwnldedFname,fullQualifiedFname = downloadZip(dwnldToPath,zipUrl)
-        print(' ** ', sts, ' ** ', dwnldedFname,' ** ', fullQualifiedFname, ' ** ')
-        
         if sts == 'SUCCESS':
-            #unzipFileTo( mnUnzipToPath, fullQualifiedFname )
-            unzipFileTo2( unzipToPath, fullQualifiedFname )
+            rspStr += unzipFileTo( unzipToPath, fullQualifiedFname )
 
     else:
-        print('Failed to fetch the latest release information.')
+        rspStr = ' Failed to fetch the latest release information from {}.'.\
+                 format( 'github.com/' + REPOOWNER + '/' + REPONAME )
 
-    return ['done']
+    return [rspStr]
 #############################################################################
 if __name__ == '__main__':
-    updateSw()
+    mnRspStr = updateSw()
+    print()
+    print(mnRspStr[0])
+    print()
