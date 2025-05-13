@@ -3,13 +3,13 @@ This is the user interface to the server.  All of the files in this project
 must be on the RPi except this one although it may/can also be on the RPi.
 
 This file can be run on the Rpi, a PC or a phone.
-ORIGINAL
 '''
 
 try:
     import readline  # pylint: disable=W0611
 except ModuleNotFoundError:
-    print('\n Exception importing readline. ok to continue.\n')
+    pass
+    #print('\n Exception importing readline. ok to continue.\n')
 
 import sys
 import socket
@@ -17,6 +17,7 @@ import time
 import select
 import threading
 import queue
+import clkCfg as cc
 #############################################################################
 #############################################################################
 
@@ -43,14 +44,19 @@ def getUserInput( uiToMainQ, aLock ):
 
 if __name__ == '__main__':
 
+    cfgDict = cc.getClkCfgDict()
+
     # Each client will connect to the server with a new address.
     clientSocket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 
     #connectType = input(' ssh, lan, internet (s,l,i) -> ')
     connectType = 'l' # pylint: disable=C0103
-    #             {'s':'localhost','l':'lanAddr','i':'routerAddr'}
-    connectDict = {'s':'localhost','l':'0.0.0.0','i':'00.00.00.00'}
-    PORT = 0000
+
+    #             {'s':'localhost','l':'lanAddr',       'i':'routerAddr'}
+    connectDict = {'s':'localhost','l':cfgDict['myLan'],'i':cfgDict['myIP']}
+
+    PORT = int(cfgDict['myPort'])
+
     try:
         clientSocket.connect((connectDict[connectType], PORT ))
     except ConnectionRefusedError:
@@ -59,12 +65,11 @@ if __name__ == '__main__':
     except socket.timeout:
         print('\n TimeoutError.  Ensure server is running.\n')
         sys.exit()
+    else:
+        printSocketInfo(clientSocket)
 
-    printSocketInfo(clientSocket)
+    pwd = cfgDict['myPwd']
 
-    # Validate pWord
-    #pwd = input( ' Enter password -> ')
-    pwd = 'tempPW' # pylint: disable=C0103
     clientSocket.send(pwd.encode())
     time.sleep(.5)
     response = clientSocket.recv(1024)

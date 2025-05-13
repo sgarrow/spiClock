@@ -104,7 +104,7 @@ def clockCntrProc( procName, qLst, startTime, styleDict, styleDictLock ):
     dsrNumDataPoints = 20
     actNumDataPoints =  0
     cumSumLoopTime   =  0
-    cumSumError      =  0
+    #cumSumError      =  0
 
     timeDict = getStartTime(startTime)
     lcdCq.put(timeDict)               # Send cmd to lcdUpdateProc.

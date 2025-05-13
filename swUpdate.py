@@ -2,6 +2,7 @@ import os
 import zipfile
 import platform
 import requests
+import clkCfg   as cc # For port, pwd.
 #############################################################################
 #############################################################################
 
@@ -70,8 +71,8 @@ def unzipFileTo(unzipToPath, fullyQualifiedFname):
 def updateSw():
 
     rspStr    = ''
-    REPOOWNER = 'sgarrow'
-    REPONAME  = 'spiClock'
+    repoOwner = 'sgarrow'
+    repoName  = 'spiClock'
     osName    = platform.system()
 
     ###############
@@ -86,7 +87,7 @@ def updateSw():
         return [rspStr]
     ###############
 
-    latestTag, releaseUrl = getLatestReleaseInfo( REPOOWNER, REPONAME )
+    latestTag, releaseUrl = getLatestReleaseInfo( repoOwner, repoName )
     if latestTag:
         zipUrl= releaseUrl.replace('releases/tag','archive/refs/tags')+'.zip'
 
@@ -102,11 +103,14 @@ def updateSw():
 
     else:
         rspStr = ' Failed to fetch the latest release information from {}.'.\
-                 format( 'github.com/' + REPOOWNER + '/' + REPONAME )
+                 format( 'github.com/' + repoOwner + '/' + repoName )
 
     return [rspStr]
 #############################################################################
+
 if __name__ == '__main__':
+    ccDict = cc.getClkCfgDict()
+    print(ccDict)
     mnRspStr = updateSw()
     print()
     print(mnRspStr[0])

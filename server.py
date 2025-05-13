@@ -5,6 +5,7 @@ import time                  # For Killing Server and listThreads.
 import multiprocessing as mp # For Getting Multi Proc Shared Dict.
 import datetime        as dt # For logging server start/stop times.
 import cmdVectors      as cv # Contains vectors to "worker" functions.
+import clkCfg          as cc # For port, pwd.
 import utils           as ut # For access to openSocketsLst[].
 #############################################################################
 #############################################################################
@@ -81,8 +82,9 @@ def processKsCmd( clientSocket, clientAddress, client2ServerCmdQ,
 def handleClient( clientSocket, clientAddress, client2ServerCmdQ,
                   styleDict,    styleDictLock ):
     # Validate password
+    cfgDict = cc.getClkCfgDict()
     data = clientSocket.recv(1024)
-    if data.decode() == 'tempPW':
+    if data.decode() == cfgDict['myPwd']:
         passwordIsOk = True
         rspStr = ' Accepted connection from: {}'.format(clientAddress)
     else:
@@ -157,7 +159,8 @@ def startServer():
     #print('startServer', styleDict, styleDictLock)
 
     host = '0.0.0.0'  # Listen on all available interfaces
-    port = 0000
+    cfgDict = cc.getClkCfgDict()
+    port = int(cfgDict['myPort'])
 
     serverSocket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 
