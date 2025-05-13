@@ -11,6 +11,7 @@ import startStopClock    as cr
 import testRoutines      as tr
 import spiRoutines       as sr
 import makeScreen        as ms
+import swUpdate          as su
 import utils             as ut
 import cmds              as cm
 #############################################################################
@@ -36,7 +37,7 @@ def killSrvr():    # The ks handled directly in the handleClient func so it
 #############################################################################
 
 def getVer():
-    VER = ' v1.2.5 - 09-May-2025'
+    VER = ' v1.2.6 - 09-May-2025'
     return [VER]
 #############################################################################
 
@@ -60,6 +61,8 @@ def vector(inputStr,styleDic,styleLk): # called from handleClient.
     'mus' : 'Make  User   Style',
 
     'dp'  : 'Disp  Pics',
+
+    'us'  : 'Update SW',
 
     'gvn' : 'Get   Version Number',
     'tm'  : 'Test  Menu',
@@ -106,6 +109,9 @@ def vector(inputStr,styleDic,styleLk): # called from handleClient.
 
     # Worker Function in utils.py.
     'dp' :{ 'fun': ut.displayPics,    'prm': [[],qs,styleDic,styleLk],  'mnMnu': mTxt['dp' ]},
+
+    # Worker Function in utils.py.
+    'us' :{ 'fun': su.updateSw,       'prm': None,                      'mnMnu': mTxt['us' ]},
 
     # Worker Function in this module.
     'gvn':{ 'fun': getVer,            'prm': None,                      'mnMnu': mTxt['gvn']},

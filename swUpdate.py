@@ -24,7 +24,14 @@ def downloadZip( dnldToPath, zipFileUrl ):
     if response.status_code == 200:
         with open(fullyQualifiedFname,'wb') as outFile:
             outFile.write(response.content)
-        print(' Successfully downloaded {} to {}'.format( fName, dnldToPath ))
+        print(' Successfully downloaded {} to {}\n'.format( fName, dnldToPath ))
+
+        print( ' dnldToPath          = {}'.format(dnldToPath         ))
+        print( ' zipFileUrl          = {}'.format(zipFileUrl         ))
+        print( ' fName               = {}'.format(fName              )) 
+        print( ' fullyQualifiedFname = {}'.format(fullyQualifiedFname)) 
+        print()
+
         status = 'SUCCESS'
     else:
         print(' Failed to download {} to {}'.format( fName, dnldToPath ))
@@ -42,28 +49,31 @@ def unzipFileTo( unzipToPath, fullyQualifiedFname ):
 def unzipFileTo2(unzipToPath, fullyQualifiedFname):
     with zipfile.ZipFile(fullyQualifiedFname, 'r') as f:
         # Get the name of the top-level folder in the zip
-        top_level_folder = f.namelist()[0].split('/')[0]
-        
+        topLevelFolder = f.namelist()[0].split('/')[0]
+
         for member in f.infolist():
             # Remove the top-level folder from the path
-            member_path = member.filename
-            if member_path.startswith(top_level_folder + '/'):
-                relative_path = member_path[len(top_level_folder)+1:]
+            memberPath = member.filename
+            if memberPath.startswith(topLevelFolder + '/'):
+                relativePath = memberPath[len(topLevelFolder)+1:]
             else:
-                relative_path = member_path
+                relativePath = memberPath
 
-            if relative_path:  # skip the top-level folder itself
-                target_path = os.path.join(unzipToPath, relative_path)
+            if relativePath:  # skip the top-level folder itself
+                targetPath = os.path.join(unzipToPath, relativePath)
                 if member.is_dir():
-                    os.makedirs(target_path, exist_ok=True)
+                    os.makedirs(targetPath, exist_ok=True)
                 else:
-                    os.makedirs(os.path.dirname(target_path), exist_ok=True)
-                    with open(target_path, 'wb') as outfile, f.open(member) as source:
+                    os.makedirs(os.path.dirname(targetPath), exist_ok=True)
+                    with open(targetPath, 'wb') as outfile, f.open(member) as source:
                         outfile.write(source.read())
     print(' Extraction complete!')
 #############################################################################
 
-if __name__ == '__main__':
+def updateSw():
+
+    runningOn = 'rpi'
+    #runningOn = 'pc'
 
     REPOOWNER = 'sgarrow'
     REPONAME  = 'spiClock'
@@ -72,8 +82,11 @@ if __name__ == '__main__':
 
     if latestTag:
 
+        cwd = os.getcwd()
         zipUrl   = releaseUrl.replace('releases/tag', 'archive/refs/tags') + '.zip'
         targzUrl = releaseUrl.replace('releases/tag', 'archive/refs/tags') + '.tar.gz'
+        print()
+        print( ' Current Working directory:      {}'.format( cwd        ))
         print()
         print( ' Latest release version:         {}'.format( latestTag  ))
         print( ' Latest release location:        {}'.format( releaseUrl ))
@@ -81,16 +94,26 @@ if __name__ == '__main__':
         print( ' Latest release tar.gz location: {}'.format( targzUrl   ))
         print()
 
-        mnDwnldToPath  = 'C:/01-home/temp/' # Be sure to include ending / character.
-        mnUnzipToPath  = 'C:/01-home/temp/' # Be sure to include ending / character.
+        if runningOn == 'pc':
+            dwnldToPath  = 'C:/01-home/temp/' # pylint: disable=C0103
+            unzipToPath  = 'C:/01-home/temp/' # pylint: disable=C0103
+        elif runningOn == 'rpi':
+            dwnldToPath  = cwd + '/'
+            unzipToPath  = cwd + '/' 
+        else:
+            return ['error']
 
-        sts, dwnldedFname,fullQualifiedFname   = downloadZip( mnDwnldToPath, zipUrl )
+        sts,dwnldedFname,fullQualifiedFname = downloadZip(dwnldToPath,zipUrl)
         print(' ** ', sts, ' ** ', dwnldedFname,' ** ', fullQualifiedFname, ' ** ')
-
+        
         if sts == 'SUCCESS':
             #unzipFileTo( mnUnzipToPath, fullQualifiedFname )
-            unzipFileTo2( mnUnzipToPath, fullQualifiedFname )
+            unzipFileTo2( unzipToPath, fullQualifiedFname )
 
     else:
         print('Failed to fetch the latest release information.')
+
+    return ['done']
 #############################################################################
+if __name__ == '__main__':
+    updateSw()

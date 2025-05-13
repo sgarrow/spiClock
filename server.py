@@ -60,7 +60,7 @@ def processKsCmd( clientSocket, clientAddress, client2ServerCmdQ,
     rspStr += cv.vector('sb 0',styleDict, styleDictLock)+'\n' # Bklight off.
     rspStr += ' handleClient {} set loop break for self RE: ks'.\
               format(clientAddress)
-    print('after add hard code string', rspStr)
+    #print('after add hard code string', rspStr)
 
     clientSocket.send(rspStr.encode()) # sends all even if > 1024.
     time.sleep(1.5) # Required so .send happens before socket closed.
