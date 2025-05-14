@@ -5,7 +5,7 @@ import spiRoutines     as sr
 import clockProcess    as cp
 
 procPidDict = {'clockCntrProc': None, 'lcdUpdateProc': None}
-#####################################################################
+######################################################################
 ######################################################################
 
 def startLcdUpdateProc( qLst, styleDict, styleDictLock ):
@@ -52,7 +52,6 @@ def startClk(prmLst):
         except mp.queues.Empty:
             pass
     ########################
-
     if procPidDict['lcdUpdateProc'] is None:
         sr.setBkLight([1])     # Turn on backlight.
         pid = startLcdUpdateProc( qLst, styleDict, styleDictLock )
@@ -62,7 +61,6 @@ def startClk(prmLst):
     else:
         rspStr += ' lcdUpdateProc already started.'
     ########################
-
     if procPidDict['clockCntrProc'] is None:
         if procPidDict['lcdUpdateProc'] is not None:
             pid = startClockCntrProc( qLst, startTime, styleDict, styleDictLock )
@@ -73,7 +71,6 @@ def startClk(prmLst):
             rspStr += ' ERROR: because lcdUpdateProc is not running.'
     else:
         rspStr += ' clockCntrProc already started.'
-
     ########################
     return [rspStr]
 ######################################################################

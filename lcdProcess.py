@@ -4,7 +4,7 @@ import styleMgmtRoutines as sm
 #############################################################################
 #############################################################################
 
-def lcdUpdateProc( procName, qLst, styleDict, styleDictLock ): # pylint: disable=R0912, disable=R0915
+def lcdUpdateProc(procName,qLst,styleDict,styleDictLock): # pylint: disable=R0912, disable=R0915
     debug = True
     debug = False
     if debug: print(' {} {}'.format(procName, 'starting'))

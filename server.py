@@ -203,7 +203,6 @@ def startServer():
                     time.sleep(.1)
                 break
 
-
         # See if any new clients are trying to connect.
         try:
             clientSocket, clientAddress = serverSocket.accept()

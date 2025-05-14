@@ -168,7 +168,7 @@ def mkDigPikFile( styleName, textLst, textColor, backgroundColor ):
     return ['{} made.'.format(styleName)]
 #############################################################################
 
-def mkUsrDigPikF(parmLst):
+def mkUsrDigPikF( parmLst ):
 
     # User interface to mkDigPikFile, see comment therein.
 

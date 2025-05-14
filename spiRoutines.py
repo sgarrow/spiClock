@@ -190,7 +190,6 @@ def setEntireDisplay(displayID, pixelDataListOfBytes, sendFunc):
 
 def writeDisplayBrightness(dsrdBrightness):
     #for displayID in ['scLSD']: #csDict:
-
         #print('writing 51')
         #sendCmdToSt7789( displayID, 0x51   )
         #sendDatToSt7789( displayID, [dsrdBrightness])

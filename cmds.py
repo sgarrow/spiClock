@@ -53,7 +53,6 @@ def cmds():
         name: {'id': id, 'wrx': wrx, 'rdx': rdx, 'desc': desc}
         for id, name, wrx, rdx, desc in commands \
         if 'Read' not in desc and 'Get' not in desc }
-
     #byId = { id: {'name': name, 'wrx': wrx, 'rdx': rdx, 'desc': desc}
     #          for id, name, wrx, rdx, desc in commands \
     #          if 'Read' not in desc and 'Get' not in desc }

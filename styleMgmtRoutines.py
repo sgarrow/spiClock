@@ -91,12 +91,10 @@ def setActiveStyle(prmLst):
 #############################################################################
 
 def getAllStyles():
-
     # Returns a list of all files in digitScreenStyles subdir.  Can be called
     # by the user (client) and also called by functions in testRoutines.py
     # and by setActiveStyle(), above.  If the user specifies a non-existant
     # style the a list of available styles is given to them.
-
     dPath = 'digitScreenStyles'
     try:
         fileNameLst = os.listdir(dPath)
@@ -114,11 +112,9 @@ def getAllStyles():
 #############################################################################
 
 def loadActiveStyle(styleDict, styleDictLock):
-
     # Loads the dictionary (of digits/data) from the assocoated pickle file.
     # Called at clock startup (lcdUpdateProc start).  Also called when the
     # clock is alreadt running but the user changes the active style.
-
     activeStyle = getActiveStyle([styleDict, styleDictLock])
     dirPath = 'digitScreenStyles'
     fullFileName = os.path.join(dirPath, activeStyle[0]+'.pickle')

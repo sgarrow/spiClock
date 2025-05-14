@@ -112,6 +112,4 @@ if __name__ == '__main__':
     ccDict = cc.getClkCfgDict()
     print(ccDict)
     mnRspStr = updateSw()
-    print()
     print(mnRspStr[0])
-    print()

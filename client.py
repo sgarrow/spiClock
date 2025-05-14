@@ -96,7 +96,6 @@ if __name__ == '__main__':
         #    pass
         #else:
         #    clientSocket.send(message.encode())
-
         #with threadLock:  # Same story.
         readyToRead, _, _ = select.select([clientSocket], [], [], 0.7)
         if readyToRead:

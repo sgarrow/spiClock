@@ -53,7 +53,6 @@ def displayPics(prmLst):
     for displayID, pic in zip( dspIdLst, picLst ):
         data = ms.makePilJpgPicImage(pic)
         sr.setEntireDisplay( displayID, data, sr.sendDat2ToSt7789 )
-
     time.sleep(3)
     ##################################
 
