@@ -37,8 +37,33 @@ def killSrvr():    # The ks handled directly in the handleClient func so it
 #############################################################################
 
 def getVer():
-    VER = ' v1.2.12 - 13-May-2025'
+    VER = ' v1.2.13 - 15-May-2025'
     return [VER]
+#############################################################################
+
+def getHelp(prmLst):
+    cmds = prmLst[0]
+    vectorDict = prmLst[1]
+
+    hlpStr = ''
+    if len(cmds) == 0:
+        hlpStr += ' No command specified.  Example usage: hlp sc'
+
+    for cmd in cmds:
+        try:
+            docStr = vectorDict[cmd]['fun'].__doc__
+
+            if docStr is None:
+                hlpStr += ' No help for command {} yet available.\n'.format(cmd)
+            else:
+                hlpStr += ' Help for command {} follows:\n'.format(cmd) + docStr + '\n'
+
+        except KeyError:
+            hlpStr += ' {} is not a valid command.\n'.format(cmd)
+
+        hlpStr += '\n'
+
+    return [hlpStr]
 #############################################################################
 
 def vector(inputStr,styleDic,styleLk): # called from handleClient.
@@ -64,6 +89,7 @@ def vector(inputStr,styleDic,styleLk): # called from handleClient.
 
     'us'  : 'Update SW',
 
+    'hlp' : 'Get   Help On Any Command',
     'gvn' : 'Get   Version Number',
     'tm'  : 'Test  Menu',
 
@@ -114,6 +140,7 @@ def vector(inputStr,styleDic,styleLk): # called from handleClient.
     'us' :{ 'fun': su.updateSw,       'prm': None,                      'mnMnu': mTxt['us' ]},
 
     # Worker Function in this module.
+    'hlp':{ 'fun': getHelp,           'prm': None,                      'mnMnu': mTxt['hlp']},
     'gvn':{ 'fun': getVer,            'prm': None,                      'mnMnu': mTxt['gvn']},
     'tm' :{ 'fun': None,              'prm': None,                      'mnMnu': mTxt['tm' ]},
     #####################################################
@@ -168,6 +195,9 @@ def vector(inputStr,styleDic,styleLk): # called from handleClient.
         elif choice in ['mus'] and len(optArgsStr) > 0:
             params = optArgsStr
 
+        elif choice in ['hlp']:
+            params = [optArgsStr,vectorDict]
+
         #try:                   # Catch exceptions in command procesing.
         if params is None:
             rsp = func()   # rsp[0] = rspStr. Vector to worker.
@@ -186,7 +216,7 @@ def vector(inputStr,styleDic,styleLk): # called from handleClient.
                 tmpDic = {
                 'sc' : '{}{}{}'.format(REDON,  ' CLOCK COMMANDS\n',REDOFF),
                 'gas': '{}{}{}'.format(REDON,'\n STYLE COMMANDS\n',REDOFF),
-                'gvn': '{}{}{}'.format(REDON,'\n MISC  COMMANDS\n',REDOFF) }
+                'hlp': '{}{}{}'.format(REDON,'\n MISC  COMMANDS\n',REDOFF) }
 
                 if k in tmpDic: rspStr += tmpDic[k]
                 rspStr += ' {:3} - {}\n'.format(k, v['mnMnu'] )

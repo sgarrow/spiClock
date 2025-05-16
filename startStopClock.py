@@ -36,6 +36,8 @@ def startClockCntrProc( qLst, startTime, styleDict, styleDictLock):
 ######################################################################
 
 def startClk(prmLst):
+    ''' Starts the clock. 
+ And does other cool stuff.'''
     startTime = prmLst[0]
     qLst      = prmLst[1] # [ lcdCq, lcdRq, clkCq, clkRq ]
     styleDict, styleDictLock = prmLst[2], prmLst[3]
