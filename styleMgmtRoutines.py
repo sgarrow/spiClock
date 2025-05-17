@@ -4,19 +4,67 @@ import inspect
 #############################################################################
 #############################################################################
 
+def fixDocString(func):
+    func.__doc__ = func.__doc__.replace('<boiler>',
+        ' The style naming convention is textColorOnBackgroundColor.  For\n'
+        ' example if gas returns whiteOnBlack it means that white digits\n'
+        ' are being displayed on a black background.\n'
+        ' ================================================================= ')
+    return func
+#############################################################################
+
+def fixDocString2(func):
+    func.__doc__ = func.__doc__.replace('<boiler2>',
+        ' The 1 is just an example it can be any number up to the number of\n'
+        ' styles available. If no number is specified an error message will\n'
+        ' be displayed along with a list of valid numbers and their\n' 
+        ' associated styles.')
+    return func
+#############################################################################
+
+
+@fixDocString
 def getDayStyle(prmLst):
+    '''
+ Displays the name of the color style the clock will automatically
+ switch to at 07 00 00.
+
+ Usage: gds
+
+<boiler>
+'''
     styleDict, styleDictLock = prmLst[0], prmLst[1]
     with styleDictLock:
         dayDigitStyle = styleDict['dayDigitStyle']
     return [dayDigitStyle]
+#############################################################################
 
+@fixDocString
 def getNightStyle(prmLst):
+    '''
+ Displays the name of the color style the clock will automatically
+ switch to at 21 00 00.
+
+ Usage: gns
+
+<boiler>
+'''
     styleDict, styleDictLock = prmLst[0], prmLst[1]
     with styleDictLock:
         nightDigitStyle = styleDict['nightDigitStyle']
     return [nightDigitStyle]
+#############################################################################
 
+@fixDocString
 def getActiveStyle(prmLst):
+    '''
+ Displays the name of the color style the clock is currently
+ using.  
+
+ Usage: gas
+
+<boiler>
+'''
     styleDict, styleDictLock = prmLst[0], prmLst[1]
     with styleDictLock:
         activeDigitStyle = styleDict['activeDigitStyle']
@@ -69,19 +117,57 @@ def setStyleDriver(prmLst):
     return rspStr, digitStyleStr
 #############################################################################
 
+@fixDocString2
+@fixDocString
 def setDayStyle(prmLst):
+    '''
+ Sets the color style the clock will automatically 
+ switch to at 07 00 00.
+
+ Usage 1: sds 1
+ Usage 2: sds
+
+<boiler2>
+
+<boiler>
+'''
     #dsrdStyleIdx, styleDict, styleDictLock = prmLst[0], prmLst[1], prmLst[2]
     rspStr, dayDigitStyle = setStyleDriver(prmLst)
     return [rspStr, dayDigitStyle]
 #############################################################################
 
+@fixDocString2
+@fixDocString
 def setNightStyle(prmLst):
+    '''
+ Sets the color style the clock will automatically 
+ switch to at 21 00 00.
+
+ Usage 1: sns 1
+ Usage 2: sns
+
+<boiler2>
+
+<boiler>
+'''
     #dsrdStyleIdx, styleDict, styleDictLock = prmLst[0], prmLst[1], prmLst[2]
     rspStr, nightDigitStyle = setStyleDriver(prmLst)
     return [rspStr, nightDigitStyle]
 #############################################################################
 
+@fixDocString2
+@fixDocString
 def setActiveStyle(prmLst):
+    '''
+ Sets the color style the clock will switch to immediately.
+
+ Usage 1: sas 1
+ Usage 2: sas
+
+<boiler2>
+
+<boiler>
+'''
     #dsrdStyleIdx,styleDict,styleDictLock,lcdCq=prmLst[0],prmLst[1],prmLst[2],prmLst[3]
     lcdCq = prmLst[3]
     rspStr, activeDigitStyle = setStyleDriver(prmLst)
