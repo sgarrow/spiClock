@@ -7,18 +7,17 @@ import inspect
 def fixDocString(func):
     func.__doc__ = func.__doc__.replace('<boiler>',
         ' The style naming convention is textColorOnBackgroundColor.  For\n'
-        ' example if gas returns whiteOnBlack it means that white digits\n'
-        ' are being displayed on a black background.\n'
-        ' ================================================================= ')
+        ' example whiteOnBlack means that white digits are displayed on a\n'
+        ' black background.\n'
+        ' =================================================================')
     return func
 #############################################################################
 
 def fixDocString2(func):
     func.__doc__ = func.__doc__.replace('<boiler2>',
-        ' The 1 is just an example it can be any number up to the number of\n'
-        ' styles available. If no number is specified an error message will\n'
-        ' be displayed along with a list of valid numbers and their\n' 
-        ' associated styles.')
+        ' The 1 is just an example, can be any number up to the number of\n'
+        ' styles available. If no number is specified an error message is\n'
+        ' displayed along with a list of styles and the associated numbers.')
     return func
 #############################################################################
 
@@ -176,12 +175,20 @@ def setActiveStyle(prmLst):
     return [rspStr, activeDigitStyle]
 #############################################################################
 
+@fixDocString
 def getAllStyles():
+    '''
+ Displays a list of styles and their associated numbers.
+
+ Usage 1: gAs
+
+<boiler>
+'''
     # Returns a list of all files in digitScreenStyles subdir.  Can be called
     # by the user (client) and also called by functions in testRoutines.py
     # and by setActiveStyle(), above.  If the user specifies a non-existant
     # style the a list of available styles is given to them.
-    dPath = 'digitScreenStyles'
+    dPath= 'digitScreenStyles'
     try:
         fileNameLst = os.listdir(dPath)
     except FileNotFoundError:

@@ -165,6 +165,11 @@ def mkDigPikFile( styleName, textLst, textColor, backgroundColor ):
         pickle.dump(digitScreenDict2, handle)
     print(' {} saved.'.format(fName))
 
+    fName = 'digitScreenStyles/{}.RGB.txt'.format(styleName)
+    with open(fName, 'w', encoding='utf-8') as handle:
+        handle.write(str(textColor))
+    print(' {} saved.'.format(fName))
+
     return ['{} made.'.format(styleName)]
 #############################################################################
 
@@ -214,12 +219,13 @@ if __name__ == '__main__':
     mnDirPath = 'digitScreenStyles' # pylint: disable=C0103
     try:
         for fileName in os.listdir(mnDirPath):
-            mnFullFileName = os.path.join(mnDirPath, fileName)
-            if os.path.isfile(mnFullFileName):
-                print('Processing file: {}'.format(mnFullFileName))
-                with open(mnFullFileName, 'rb') as fn:
-                    styleDict = pickle.load(fn)
-                    print(styleDict.keys())
+            if fileName.endswith('pickle'):
+                mnFullFileName = os.path.join(mnDirPath, fileName)
+                if os.path.isfile(mnFullFileName):
+                    print('Processing file: {}'.format(mnFullFileName))
+                    with open(mnFullFileName, 'rb') as fn:
+                        styleDict = pickle.load(fn)
+                        print(styleDict.keys())
     except FileNotFoundError:
         print(f"Error: Directory '{mnDirPath}' not found.")
     except Exception as e: # pylint: disable=W0718
