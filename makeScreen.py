@@ -167,7 +167,10 @@ def mkDigPikFile( styleName, textLst, textColor, backgroundColor ):
 
     fName = 'digitScreenStyles/{}.RGB.txt'.format(styleName)
     with open(fName, 'w', encoding='utf-8') as handle:
-        handle.write(str(textColor))
+        tmpStr = ' '.join(map(str, textColor)) +  ' '
+        handle.write( tmpStr )
+        tmpStr = ' '.join(map(str, backgroundColor))
+        handle.write( tmpStr )
     print(' {} saved.'.format(fName))
 
     return ['{} made.'.format(styleName)]

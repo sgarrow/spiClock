@@ -1,6 +1,7 @@
 import os
 import pickle
 import inspect
+import pprint as pp
 #############################################################################
 #############################################################################
 
@@ -192,16 +193,31 @@ def getAllStyles():
     try:
         fileNameLst = os.listdir(dPath)
     except FileNotFoundError:
-        fileNameLstNoExt = []
+        pikFileNameDicNoExt = []
         rspStr = ' Directory {} not found.'.format(dPath)
     else:
         rspStr  = ''
-        fileNameLstNoExt = [os.path.splitext(file)[0] for file in fileNameLst]
-        fileNameDicNoExt = dict(enumerate(fileNameLstNoExt))
-        for k,v in fileNameDicNoExt.items():
-            rspStr += ' {} - {}\n'.format(k,v)
+        pikFileNameLstNoExt = [ os.path.splitext(file)[0] for file \
+                                in fileNameLst if file.endswith('pickle')]
+        rgbFileNameLst      = [ f for f in fileNameLst if f.endswith('txt')]
 
-    return [rspStr,fileNameDicNoExt]
+        pikFileNameDicNoExt = dict(enumerate(pikFileNameLstNoExt))
+        rgbFileNameDic      = dict(enumerate(rgbFileNameLst))
+
+        rgbValuesDict       = {}
+        for rgbs in rgbFileNameDic.values():
+            with open(dPath+'/'+rgbs, 'r',encoding='utf-8') as f:
+                line = f.readline()
+            rgbValuesDict[rgbs] = line
+
+        for k,v in pikFileNameDicNoExt.items():
+            rspStr += ' {:2} - {:18}'.format(k,v)
+            for k1,v1 in rgbValuesDict.items():
+                if v in k1:
+                    rspStr += ' {}\n'.format(v1)
+                    break
+
+    return [rspStr,pikFileNameDicNoExt]
 #############################################################################
 
 def loadActiveStyle(styleDict, styleDictLock):
