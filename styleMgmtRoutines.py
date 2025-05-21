@@ -1,13 +1,13 @@
 import os
 import pickle
 import inspect
-import pprint as pp
+#import pprint as pp
 #############################################################################
 #############################################################################
 
 def fixDocString(func):
     func.__doc__ = func.__doc__.replace('<boiler>',
-        ' The style naming convention is textColorOnBackgroundColor.  For\n'
+        ' \n The style naming convention is textColorOnBackgroundColor.  For\n'
         ' example whiteOnBlack means that white digits are displayed on a\n'
         ' black background.\n'
         ' =================================================================')
@@ -16,21 +16,73 @@ def fixDocString(func):
 
 def fixDocString2(func):
     func.__doc__ = func.__doc__.replace('<boiler2>',
-        ' The 1 is just an example, can be any number up to the number of\n'
+        ' \n The 1 is just an example, can be any number up to the number of\n'
         ' styles available. If no number is specified an error message is\n'
         ' displayed along with a list of styles and the associated numbers.')
     return func
 #############################################################################
 
+def getDayTime(prmLst):
+    styleDict, styleDictLock = prmLst[0], prmLst[1]
+    with styleDictLock:
+        dayTime = styleDict['dayTime']
+    return [str(dayTime), dayTime]
+#############################################################################
 
+def getNightTime(prmLst):
+    styleDict, styleDictLock = prmLst[0], prmLst[1]
+    with styleDictLock:
+        nightTime = styleDict['nightTime']
+    return [str(nightTime),nightTime]
+#############################################################################
+
+def setDayTime(prmLst):
+    timeLst, styleDict, styleDictLock = prmLst[0], prmLst[1], prmLst[2]
+    if len(timeLst) < 6:
+        return [' too few parms detected']
+    if not all( s.isdigit() for s in timeLst ):
+        return [' non digit detected']
+
+    sixNums = [ int(ii) for ii in timeLst ]
+
+    if not all(x < 10 for x in sixNums):
+        return [' > 10 detected']
+    if sixNums[0] > 2 or sixNums[2] > 6 or sixNums[4] > 6:
+        return [' invalided time detected']
+
+    with styleDictLock:
+        styleDict['dayTime'] = sixNums
+
+    return [str(sixNums)]
+#############################################################################
+
+def setNightTime(prmLst):
+    timeLst, styleDict, styleDictLock = prmLst[0], prmLst[1], prmLst[2]
+    if len(timeLst) < 6:
+        return [' too few parms detected']
+    if not all( s.isdigit() for s in timeLst ):
+        return [' non digit detected']
+
+    sixNums = [ int(ii) for ii in timeLst ]
+
+    if not all(x < 10 for x in sixNums):
+        return [' > 10 detected']
+    if sixNums[0] > 2 or sixNums[2] > 6 or sixNums[4] > 6:
+        return [' invalided time detected']
+
+    with styleDictLock:
+        styleDict['nightTime'] = sixNums
+
+    return [str(sixNums)]
+#############################################################################
 @fixDocString
 def getDayStyle(prmLst):
     '''
  Displays the name of the color style the clock will automatically
- switch to at 07 00 00.
+ switch to at 'day time'.  The current value of 'day time' can
+ be get/set via gdt and sdt commands.
 
  Usage: gds
-
 <boiler>
 '''
     styleDict, styleDictLock = prmLst[0], prmLst[1]
@@ -43,10 +95,10 @@ def getDayStyle(prmLst):
 def getNightStyle(prmLst):
     '''
  Displays the name of the color style the clock will automatically
- switch to at 21 00 00.
+ switch to at 'night time'.  The current value of 'night time' can
+ be get/set via gnt and snt commands.
 
  Usage: gns
-
 <boiler>
 '''
     styleDict, styleDictLock = prmLst[0], prmLst[1]
@@ -62,7 +114,6 @@ def getActiveStyle(prmLst):
  using.  
 
  Usage: gas
-
 <boiler>
 '''
     styleDict, styleDictLock = prmLst[0], prmLst[1]
@@ -126,9 +177,7 @@ def setDayStyle(prmLst):
 
  Usage 1: sds 1
  Usage 2: sds
-
 <boiler2>
-
 <boiler>
 '''
     #dsrdStyleIdx, styleDict, styleDictLock = prmLst[0], prmLst[1], prmLst[2]
@@ -145,9 +194,7 @@ def setNightStyle(prmLst):
 
  Usage 1: sns 1
  Usage 2: sns
-
 <boiler2>
-
 <boiler>
 '''
     #dsrdStyleIdx, styleDict, styleDictLock = prmLst[0], prmLst[1], prmLst[2]
@@ -163,9 +210,7 @@ def setActiveStyle(prmLst):
 
  Usage 1: sas 1
  Usage 2: sas
-
 <boiler2>
-
 <boiler>
 '''
     #dsrdStyleIdx,styleDict,styleDictLock,lcdCq=prmLst[0],prmLst[1],prmLst[2],prmLst[3]
@@ -179,10 +224,8 @@ def setActiveStyle(prmLst):
 @fixDocString
 def getAllStyles():
     '''
- Displays a list of styles and their associated numbers.
-
+ Displays a list of styles and their associated numbers and RGB values.
  Usage 1: gAs
-
 <boiler>
 '''
     # Returns a list of all files in digitScreenStyles subdir.  Can be called

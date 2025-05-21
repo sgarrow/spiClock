@@ -53,6 +53,7 @@ def getStartTime( startTime ):
 
 def updateCntr(timeDict,styleDic,styleLk):
 
+    kStart = time.perf_counter()
     prevDict = timeDict.copy()
 
     hours   = timeDict['hrMSD']['value'] * 10 + timeDict['hrLSD']['value']
@@ -76,11 +77,14 @@ def updateCntr(timeDict,styleDic,styleLk):
     scMSD = seconds // 10
     scLSD = seconds  % 10
 
-    setDayStyleTime   = [ 0, 7, 0, 0, 0, 0 ] # 7:00 AM
-    setNightStyleTime = [ 2, 1, 0, 0, 0, 0 ] # 9:00 PM
-    if   [ hrMSD, hrLSD, mnMSD, mnLSD, scMSD, scLSD ] == setDayStyleTime:
+    rspLst = sm.getDayTime([styleDic,styleLk])
+    dt = rspLst[1]
+    rspLst = sm.getNightTime([styleDic,styleLk])
+    nt = rspLst[1]
+
+    if   [ hrMSD, hrLSD, mnMSD, mnLSD, scMSD, scLSD ] == dt:
         style = sm.getDayStyle([styleDic,styleLk])[0]
-    elif [ hrMSD, hrLSD, mnMSD, mnLSD, scMSD, scLSD ] == setNightStyleTime:
+    elif [ hrMSD, hrLSD, mnMSD, mnLSD, scMSD, scLSD ] == nt:
         style = sm.getNightStyle([styleDic,styleLk])[0]
     else:
         style = None
@@ -93,6 +97,8 @@ def updateCntr(timeDict,styleDic,styleLk):
     'scMSD':{'value': scMSD, 'updated': prevDict['scMSD']['value'] != scMSD},
     'scLSD':{'value': scLSD, 'updated': prevDict['scLSD']['value'] != scLSD}}
 
+    exeTime = time.perf_counter()-kStart
+    #print('Time spent updating counter = {:10.6f}'.format(exeTime))
     return timeDict,style
 #############################################################################
 #############################################################################

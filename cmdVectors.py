@@ -37,7 +37,7 @@ def killSrvr():    # The ks handled directly in the handleClient func so it
 #############################################################################
 
 def getVer():
-    VER = ' v1.2.16 - 19-May-2025'
+    VER = ' v1.2.17 - 21-May-2025'
     return [VER]
 #############################################################################
 
@@ -84,6 +84,11 @@ def vector(inputStr,styleDic,styleLk): # called from handleClient.
     'sns' : 'Set   Night  Style',
 
     'mus' : 'Make  User   Style',
+
+    'gnt' : 'Get   Night  Time',
+    'gdt' : 'Get   Day    Time',
+    'snt' : 'Set   Night  Time',
+    'sdt' : 'Set   Day    Time',
 
     'dp'  : 'Disp  Pics',
 
@@ -132,6 +137,12 @@ def vector(inputStr,styleDic,styleLk): # called from handleClient.
 
     # Worker Function in makeScreens.py.
     'mus':{ 'fun': ms.mkUsrDigPikF,   'prm': dfltMDSPrm,                'mnMnu': mTxt['mus']},
+
+    # Worker Function in styleMgmtRoutines.py.
+    'gdt':{ 'fun': sm.getDayTime,     'prm': [styleDic,styleLk],        'mnMnu': mTxt['gdt']},
+    'gnt':{ 'fun': sm.getNightTime,   'prm': [styleDic,styleLk],        'mnMnu': mTxt['gnt']},
+    'sdt':{ 'fun': sm.setDayTime,     'prm': ['None',styleDic,styleLk], 'mnMnu': mTxt['sdt']},
+    'snt':{ 'fun': sm.setNightTime,   'prm': ['None',styleDic,styleLk], 'mnMnu': mTxt['snt']},
 
     # Worker Function in utils.py.
     'dp' :{ 'fun': ut.displayPics,    'prm': [[],qs,styleDic,styleLk],  'mnMnu': mTxt['dp' ]},
@@ -191,6 +202,9 @@ def vector(inputStr,styleDic,styleLk): # called from handleClient.
 
         elif choice in ['sas','sds','sns'] and len(optArgsStr) == 1:
             params[0] = optArgsStr[0]
+
+        elif choice in ['sdt','snt'] and len(optArgsStr) >= 6:
+            params[0] = optArgsStr
 
         elif choice in ['mus'] and len(optArgsStr) > 0:
             params = optArgsStr
