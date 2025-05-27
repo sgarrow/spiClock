@@ -45,6 +45,10 @@ def getUserInput( uiToMainQ, aLock ):
 if __name__ == '__main__':
 
     cfgDict = cc.getClkCfgDict()
+    if cfgDict is None:
+        print('  Client could not connect to server.')
+        print('  Missing or malformed clk.cfg file.')
+        sys.exit()
 
     # Each client will connect to the server with a new address.
     clientSocket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)

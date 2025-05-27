@@ -2,14 +2,20 @@
 #############################################################################
 
 def getClkCfgDict():
+    required_keys = ['myLan', 'myIP', 'myPort', 'myPwd']
     cfgDict = {}
-    with open('clk.cfg', 'r',encoding='utf-8') as f:
-        fLines = f.readlines()
-    for line in fLines:
-        if '#' not in line:
-            lSplit = line.split()
-            cfgDict[lSplit[0]] = lSplit[-1]
-    #for k,v in cfgDict.items():
-    #    print(k,v,type(v))
+    try:
+        with open('clk.cfg', 'r', encoding='utf-8') as f:
+            for line in f:
+                if '#' not in line and line.strip():
+                    lSplit = line.split()
+                    if len(lSplit) >= 2:
+                        cfgDict[lSplit[0]] = lSplit[-1]
+    except FileNotFoundError:
+        return None
+    else:
+        if not all(key in cfgDict for key in required_keys):
+            return None
     return cfgDict
 #############################################################################
+

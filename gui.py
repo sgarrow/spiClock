@@ -2,8 +2,11 @@ from kivy.app import App
 from kivy.uix.boxlayout import BoxLayout
 from kivy.uix.textinput import TextInput
 from kivy.uix.button import Button
+from kivy.clock import Clock
 import socket
 import threading
+import clkCfg as cc
+import sys
 
 class ClientLayout(BoxLayout):
     def __init__(self, **kwargs):
@@ -20,17 +23,38 @@ class ClientLayout(BoxLayout):
         self.client_socket = None
         self.connected = False
 
+        self.cfgDict     = cc.getClkCfgDict()
+        if self.cfgDict is None:
+            print('  Client could not connect to server.')
+            print('  Missing or malformed clk.cfg file.')
+            sys.exit()
+
+        self.connectDict = { 's' : 'localhost',
+                             'l' : self.cfgDict['myLan'],
+                             'i' : self.cfgDict['myIP' ] }
+
+        self.connectType = 'l'
+
+        self.ip   = self.connectDict[self.connectType]
+        self.port = int(self.cfgDict['myPort'])
+        self.pwd  = self.cfgDict['myPwd']
+
         threading.Thread(target=self.connect_to_server, daemon=True).start()
+
+    def update_output(self, text):
+        Clock.schedule_once(lambda dt: self._update_output_on_main(text))
+
+    def _update_output_on_main(self, text):
+        self.output.text += f"\n{text}"
 
     def connect_to_server(self):
         try:
             self.client_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-            self.client_socket.connect(('1.1.1.1', 0000))  # Change this
+            self.client_socket.connect((self.ip, self.port))
             self.connected = True
 
             # Send password
-            password = ''  # Replace with actual password or read from config
-            self.client_socket.send(password.encode())
+            self.client_socket.send(self.pwd.encode())
 
             # Receive initial server response
             response = self.client_socket.recv(1024).decode()
@@ -77,8 +101,8 @@ class ClientLayout(BoxLayout):
             self.update_output(f"Send error: {e}")
             self.connected = False
 
-    def update_output(self, text):
-        self.output.text += f"\n{text}"
+    #def update_output(self, text):
+    #    self.output.text += f"\n{text}"
 
 class MyClientApp(App):
     def build(self):
