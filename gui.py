@@ -5,41 +5,41 @@ from kivy.uix.button import Button
 from kivy.clock import Clock
 import socket
 import threading
-import clkCfg as cc
 import sys
+import clkCfg as cc
 
 class ClientLayout(BoxLayout):
     def __init__(self, **kwargs):
         super().__init__(orientation='vertical', **kwargs)
+
         self.input = TextInput(hint_text='Enter command', multiline=False)
-        self.output = TextInput(readonly=True)
         self.send_button = Button(text='Send')
-        self.send_button.bind(on_press=self.send_command)
+        self.send_button.bind(on_press=self.send_command)  # ? Fixed
+        self.output = TextInput(readonly=True)
 
         self.add_widget(self.input)
         self.add_widget(self.send_button)
         self.add_widget(self.output)
 
-        self.client_socket = None
-        self.connected = False
-
-        self.cfgDict     = cc.getClkCfgDict()
+        self.cfgDict = cc.getClkCfgDict()
         if self.cfgDict is None:
             print('  Client could not connect to server.')
             print('  Missing or malformed clk.cfg file.')
             sys.exit()
 
-        self.connectDict = { 's' : 'localhost',
-                             'l' : self.cfgDict['myLan'],
-                             'i' : self.cfgDict['myIP' ] }
+        self.connectDict = {
+            's': 'localhost',
+            'l': self.cfgDict['myLan'],
+            'i': self.cfgDict['myIP']
+        }
 
         self.connectType = 'l'
 
-        self.ip   = self.connectDict[self.connectType]
-        self.port = int(self.cfgDict['myPort'])
-        self.pwd  = self.cfgDict['myPwd']
+        ip = self.connectDict[self.connectType]
+        port = int(self.cfgDict['myPort'])
+        pwd = self.cfgDict['myPwd']
 
-        threading.Thread(target=self.connect_to_server, daemon=True).start()
+        self.conn = ClientConnection(ip, port, pwd, self.update_output)
 
     def update_output(self, text):
         Clock.schedule_once(lambda dt: self._update_output_on_main(text))
@@ -47,41 +47,50 @@ class ClientLayout(BoxLayout):
     def _update_output_on_main(self, text):
         self.output.text += f"\n{text}"
 
-    def connect_to_server(self):
+    def send_command(self, instance):
+        cmd = self.input.text.strip()
+        if not cmd:
+            return
+        self.conn.send_command(cmd)
+        self.input.text = ""  # ? Clear input after sending
+
+class ClientConnection:
+    def __init__(self, ip, port, pwd, on_receive_callback):
+        self.ip = ip                # ? Assign to self
+        self.port = port
+        self.pwd = pwd
+        self.socket = None
+        self.connected = False
+        self.on_receive = on_receive_callback
+
+        # Run connection in background
+        threading.Thread(target=self.connect, daemon=True).start()
+
+    def connect(self):
         try:
-            self.client_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-            self.client_socket.connect((self.ip, self.port))
+            self.socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+            self.socket.connect((self.ip, self.port))
+            self.socket.send(self.pwd.encode())
             self.connected = True
 
-            # Send password
-            self.client_socket.send(self.pwd.encode())
-
-            # Receive initial server response
-            response = self.client_socket.recv(1024).decode()
-            self.update_output(response)
-
+            response = self.socket.recv(1024).decode()
+            self.on_receive(response)
         except Exception as e:
-            self.update_output(f"Connection error: {e}")
+            self.on_receive(f"Connection error: {e}")
             self.connected = False
 
-    def send_command(self, instance):
+    def send_command(self, cmd):
         if not self.connected:
-            self.update_output("Not connected.")
-            return
-
-        command = self.input.text.strip()
-        if not command:
+            self.on_receive("Not connected.")
             return
 
         try:
-            self.client_socket.send(command.encode())
-
-            # Receive response (blocking but short timeout)
-            self.client_socket.settimeout(1.0)
+            self.socket.send(cmd.encode())
+            self.socket.settimeout(1.0)
             response = ''
             while True:
                 try:
-                    chunk = self.client_socket.recv(1024).decode()
+                    chunk = self.socket.recv(1024).decode()
                     if not chunk:
                         break
                     response += chunk
@@ -90,19 +99,15 @@ class ClientLayout(BoxLayout):
                 except socket.timeout:
                     break
 
-            self.update_output(response)
+            self.on_receive(response)
 
-            if command.lower() == 'close':
-                self.client_socket.close()
+            if cmd.lower() == 'close':
+                self.socket.close()
                 self.connected = False
-                self.update_output("Disconnected.")
-
+                self.on_receive("Disconnected.")
         except Exception as e:
-            self.update_output(f"Send error: {e}")
+            self.on_receive(f"Send error: {e}")
             self.connected = False
-
-    #def update_output(self, text):
-    #    self.output.text += f"\n{text}"
 
 class MyClientApp(App):
     def build(self):
