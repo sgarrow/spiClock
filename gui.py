@@ -1,11 +1,14 @@
+import socket
+import threading
+import sys
+from functools import partial
 from kivy.app import App
+from kivy.uix.gridlayout import GridLayout
+from kivy.uix.scrollview import ScrollView
 from kivy.uix.boxlayout import BoxLayout
 from kivy.uix.textinput import TextInput
 from kivy.uix.button import Button
 from kivy.clock import Clock
-import socket
-import threading
-import sys
 import clkCfg as cc
 
 class ClientLayout(BoxLayout):
@@ -13,13 +16,43 @@ class ClientLayout(BoxLayout):
         super().__init__(orientation='vertical', **kwargs)
 
         self.input = TextInput(hint_text='Enter command', multiline=False)
-        self.send_button = Button(text='Send')
-        self.send_button.bind(on_press=self.send_command)  # ? Fixed
         self.output = TextInput(readonly=True)
 
+        self.send_button = Button(text='Send') # Send generic cmd.
+        self.send_button.bind(on_press=partial(self.send_command, '')) # New way.
+
+        # GridLayout for "get" command buttons
+        self.get_button_grid = GridLayout(cols=3, spacing=5, size_hint_y=None)
+        self.get_button_grid.bind(minimum_height=self.get_button_grid.setter('height'))
+
+        # Example list of get commands
+        get_cmds = [
+            ("gas", "Get   Active Style"),
+            ("gds", "Get   Day    Style"),
+            ("gns", "Get   Night  Style"),
+            ("gAs", "Get   ALL    Styles"),
+            ("gdt", "Get   Day    Time"),
+            ("gnt", "Get   Night  Time"),
+            ("gvn", "Get   Version Number"),
+            ("gat", "Get   Active Threads"),
+            ("close", "Close Connection"),
+        ]
+        for cmd, label in get_cmds:
+            btn = Button(text=label, size_hint_y=None, height=40)
+            btn.bind(on_press=partial(self.send_command, cmd))
+            self.get_button_grid.add_widget(btn)
+
+        # Add widgets to main layout
         self.add_widget(self.input)
         self.add_widget(self.send_button)
+        self.add_widget(self.get_button_grid)
         self.add_widget(self.output)
+
+        scroll = ScrollView()
+        self.output = TextInput(readonly=True, size_hint_y=None)
+        self.output.bind(minimum_height=self.output.setter('height'))
+        scroll.add_widget(self.output)
+        self.add_widget(scroll)
 
         self.cfgDict = cc.getClkCfgDict()
         if self.cfgDict is None:
@@ -46,14 +79,24 @@ class ClientLayout(BoxLayout):
 
     def _update_output_on_main(self, text):
         self.output.text += f"\n{text}"
+        if "Server killed" in text or "Disconnected" in text:
+            self.input.disabled = True
+            self.send_button.disabled = True
+            for child in self.get_button_grid.children:
+                child.disabled = True
 
-    def send_command(self, instance):
-        cmd = self.input.text.strip()
+    def send_command(self, inText, instance ):
+
+        if instance.text == 'Send':
+            cmd = self.input.text.strip()
+        else:
+            cmd = inText.strip()
+
         if not cmd:
             return
         self.conn.send_command(cmd)
-        self.input.text = ""  # ? Clear input after sending
-
+        self.input.text = ""  # Clear input after sending
+#############################################################################
 class ClientConnection:
     def __init__(self, ip, port, pwd, on_receive_callback):
         self.ip = ip                # ? Assign to self
@@ -95,6 +138,9 @@ class ClientConnection:
                         break
                     response += chunk
                     if 'RE: ks' in response:
+                        self.socket.close()
+                        self.connected = False
+                        self.on_receive("Server killed. Disconnected.")
                         break
                 except socket.timeout:
                     break
