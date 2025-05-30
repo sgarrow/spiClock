@@ -11,6 +11,7 @@ except ModuleNotFoundError:
     pass
     #print('\n Exception importing readline. ok to continue.\n')
 
+import re
 import sys
 import socket
 import time
@@ -107,6 +108,7 @@ if __name__ == '__main__':
             while readyToRead:
                 response = clientSocket.recv(1024)
                 rspStr += response.decode()
+
 
                 if 'RE: ks' in rspStr:
                     break

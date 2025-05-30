@@ -37,7 +37,7 @@ def killSrvr():    # The ks handled directly in the handleClient func so it
 #############################################################################
 
 def getVer():
-    VER = ' v1.2.21 - 28-May-2025'
+    VER = ' v1.2.22 - 29-May-2025'
     return [VER]
 #############################################################################
 
@@ -228,9 +228,12 @@ def vector(inputStr,styleDic,styleLk): # called from handleClient.
 
             if   choice == 'm'  and 'mnMnu' in v:
                 tmpDic = {
-                'sc' : '{}{}{}'.format(REDON,  ' CLOCK COMMANDS\n',REDOFF),
-                'gas': '{}{}{}'.format(REDON,'\n STYLE COMMANDS\n',REDOFF),
-                'hlp': '{}{}{}'.format(REDON,'\n MISC  COMMANDS\n',REDOFF) }
+                'sc' : '{}'.format(  ' CLOCK COMMANDS\n'),
+                'gas': '{}'.format('\n STYLE COMMANDS\n'),
+                'hlp': '{}'.format('\n MISC  COMMANDS\n') }
+                #'sc' : '{}{}{}'.format(REDON,  ' CLOCK COMMANDS\n',REDOFF),
+                #'gas': '{}{}{}'.format(REDON,'\n STYLE COMMANDS\n',REDOFF),
+                #'hlp': '{}{}{}'.format(REDON,'\n MISC  COMMANDS\n',REDOFF) }
 
                 if k in tmpDic: rspStr += tmpDic[k]
                 rspStr += ' {:3} - {}\n'.format(k, v['mnMnu'] )
@@ -238,9 +241,12 @@ def vector(inputStr,styleDic,styleLk): # called from handleClient.
             elif choice == 'tm' and 'tstMnu' in v:
 
                 tmpDic = {
-                'rt1': '{}{}{}'.format(REDON,  ' TEST  COMMANDS\n',REDOFF),
-                'rh' : '{}{}{}'.format(REDON,'\n LCD   COMMANDS\n',REDOFF),
-                'gat': '{}{}{}'.format(REDON,'\n MISC  COMMANDS\n',REDOFF) }
+                'rt1': '{}'.format(  ' TEST  COMMANDS\n'),
+                'rh' : '{}'.format('\n LCD   COMMANDS\n'),
+                'gat': '{}'.format('\n MISC  COMMANDS\n') }
+                #'rt1': '{}{}{}'.format(REDON,  ' TEST  COMMANDS\n',REDOFF),
+                #'rh' : '{}{}{}'.format(REDON,'\n LCD   COMMANDS\n',REDOFF),
+                #'gat': '{}{}{}'.format(REDON,'\n MISC  COMMANDS\n',REDOFF) }
 
                 if k in tmpDic: rspStr += tmpDic[k]
                 rspStr += ' {:3} - {}\n'.format(k, v['tstMnu'] )
