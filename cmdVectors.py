@@ -36,8 +36,12 @@ def killSrvr():    # The ks handled directly in the handleClient func so it
                    # is done a func needs to exist. Func never called/runs.
 #############################################################################
 
+def disconnect():  # Handled directly in the handleClient func so it
+    return         # doesn't need a wrk funct, but because of way vectoring
+                   # is done a func needs to exist. Func never called/runs.
+#############################################################################
 def getVer():
-    VER = ' v1.2.23 - 30-May-2025'
+    VER = ' v1.3.1 - 30-May-2025'
     return [VER]
 #############################################################################
 
@@ -72,31 +76,32 @@ def vector(inputStr,styleDic,styleLk): # called from handleClient.
     mTxt = {
     # MAIN MENU
     'sc'  : 'Start Clock',
-    'pc'  : 'stoP  Clock',
-    'cb'  : 'Ctrl  Brightness',
+    'pc'  : 'Stop  Clock',
+    'cb'  : 'Ctrl Brightness',
 
-    'gas' : 'Get   Active Style',
-    'gds' : 'Get   Day    Style',
-    'gns' : 'Get   Night  Style',
-    'gAs' : 'Get   ALL    Styles',
-    'sas' : 'Set   Active Style',
-    'sds' : 'Set   Day    Style',
-    'sns' : 'Set   Night  Style',
+    'gas' : 'Get Active Style',
+    'gds' : 'Get Day Style',
+    'gns' : 'Get Night Style',
+    'gAs' : 'Get ALL Styles',
+    'sas' : 'Set Active Style',
+    'sds' : 'Set Day Style',
+    'sns' : 'Set Night Style',
 
-    'mus' : 'Make  User   Style',
+    'mus' : 'Make User Style',
 
-    'gnt' : 'Get   Night  Time',
-    'gdt' : 'Get   Day    Time',
-    'snt' : 'Set   Night  Time',
-    'sdt' : 'Set   Day    Time',
+    'gnt' : 'Get Night Time',
+    'gdt' : 'Get Day Time',
+    'snt' : 'Set Night Time',
+    'sdt' : 'Set Day Time',
 
-    'dp'  : 'Disp  Pics',
+    'dp'  : 'Disp Pics',
 
     'us'  : 'Update SW',
 
-    'hlp' : 'Get   Help On Any Command',
-    'gvn' : 'Get   Version Number',
-    'tm'  : 'Test  Menu',
+    'hlp' : 'Help',
+    'gvn' : 'Get Version Number',
+    'tm'  : 'Test Menu',
+    'close' : 'Disconnect',
 
     # TEST MENU
     'rt1' : 'Run   Test 1',
@@ -154,6 +159,7 @@ def vector(inputStr,styleDic,styleLk): # called from handleClient.
     'hlp':{ 'fun': getHelp,           'prm': None,                      'mnMnu': mTxt['hlp']},
     'gvn':{ 'fun': getVer,            'prm': None,                      'mnMnu': mTxt['gvn']},
     'tm' :{ 'fun': None,              'prm': None,                      'mnMnu': mTxt['tm' ]},
+    'close':{ 'fun': disconnect,      'prm': None,                      'mnMnu': mTxt['close' ]},
     #####################################################
 
     # TEST MENU (displayed when tm command issued).

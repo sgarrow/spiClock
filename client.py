@@ -92,7 +92,7 @@ if __name__ == '__main__':
 
     rspStr = ''
     while pwdIsOk:
-        prompt = '\n Choice (m=menu, q=quit) -> ' # pylint: disable=C0103
+        prompt = '\n Choice (m=menu, close) -> ' # pylint: disable=C0103
         message = input( prompt )
         clientSocket.send(message.encode())
         #try:

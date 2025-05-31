@@ -35,7 +35,7 @@ class ClientLayout(BoxLayout):
         self.input.disabled, self.set_input.disabled = True, True
         
         # Create 1 send Button widget.
-        self.send_button = Button( text = 'Send', size = 2*height, height)
+        self.send_button = Button( text = 'Send' )
         self.send_button.bind( on_press=partial( self.send_command, '' ))
 
         # Create 1 Output scrollview widget (read-only).
@@ -69,12 +69,20 @@ class ClientLayout(BoxLayout):
         self.oth_tab_content.bind(minimum_height=self.oth_tab_content.setter('height'))
         oth_scroll = ScrollView(size_hint=(1, 1))
         oth_scroll.add_widget(self.oth_tab_content)
+
         self.oth_tab = TabbedPanelItem(text="Other")
+
         self.oth_tab.add_widget(oth_scroll)
 
         # Create DEBUG tab and its content.
-        self.debug_tab = TabbedPanelItem(text="Debug")
-        self.debug_tab.add_widget(Label(text="Type commands below and hit Send"))
+        self.debug_tab_content = GridLayout(cols=3, spacing=5, size_hint_y=None)
+        self.debug_tab_content.add_widget(Label(text="Type command above and hit Send")) # orig
+        self.debug_tab_content.add_widget( self.send_button )
+        self.debug_tab_content.bind(minimum_height=self.debug_tab_content.setter('height'))
+        debug_scroll = ScrollView(size_hint=(1, 1))
+        debug_scroll.add_widget(self.debug_tab_content)
+        self.debug_tab = TabbedPanelItem(text="Debug") # orig
+        self.debug_tab.add_widget(debug_scroll)
 
         # Add the 4 tabs to the panel.
         self.tabbed_panel.add_widget( self.get_tab )
@@ -85,10 +93,9 @@ class ClientLayout(BoxLayout):
         # Now that tabbed panel is fully constructed.
         self.tabbed_panel.bind( current_tab = self.on_tab_switch )
 
-        # Add 5 widgets to final layout structure.
+        # Add 4 widgets to final layout structure.
         self.add_widget( self.input )
         self.add_widget( self.set_input )
-        self.add_widget( self.send_button )
         self.add_widget( self.tabbed_panel )
         self.add_widget( output_scroll )
 
