@@ -35,7 +35,7 @@ class ClientLayout(BoxLayout):
         self.input.disabled, self.set_input.disabled = True, True
         
         # Create 1 send Button widget.
-        self.send_button = Button( text = 'Send' )
+        self.send_button = Button( text = 'Send', size = 2*height, height)
         self.send_button.bind( on_press=partial( self.send_command, '' ))
 
         # Create 1 Output scrollview widget (read-only).
