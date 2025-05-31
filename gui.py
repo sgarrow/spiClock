@@ -3,6 +3,7 @@ import socket
 import threading
 import sys
 from functools import partial
+
 from kivy.app import App
 from kivy.uix.tabbedpanel import TabbedPanel, TabbedPanelItem
 from kivy.uix.gridlayout import GridLayout
@@ -11,38 +12,43 @@ from kivy.uix.boxlayout import BoxLayout
 from kivy.uix.textinput import TextInput
 from kivy.uix.button import Button
 from kivy.uix.label import Label
-from kivy.clock import Clock
 from kivy.utils import platform
+from kivy.clock import Clock
 from kivy.metrics import dp
+
 import clkCfg as cc
 
 class ClientLayout(BoxLayout):
     def __init__(self, **kwargs):
+        # This method creates the GUI then connects to server.
         super().__init__(orientation='vertical', **kwargs)
 
-        # Input bar
+        # Create 2 TextInput widgets.  Both hidden by default.
         height = dp(60) if platform == 'android' else 40
-        self.input = TextInput(hint_text='Enter command', multiline=False, size_hint_y=None, height=height)
-        self.set_input = TextInput(hint_text='Enter value', multiline=False, size_hint_y=None, height=height)
-        self.send_button = Button(text='Send')
-        self.send_button.bind(on_press=partial(self.send_command, ''))
 
-        #######################
-        # Add both inputs to layout, but hide them by default
-        self.input.opacity = 0
-        self.input.disabled = True
-        
-        self.set_input.opacity = 0
-        self.set_input.disabled = True
-        
-        self.send_button = Button(text='Send')
-        self.send_button.bind(on_press=partial(self.send_command, ''))
-        #######################
+        self.input     = TextInput( hint_text = 'Enter cmd',   multiline = False,
+                                    size_hint_y = None, height = height )
+        self.set_input = TextInput( hint_text = 'Enter value', multiline = False,
+                                    size_hint_y = None, height = height )
 
-        # TabbedPanel setup
+        self.input.opacity,  self.set_input.opacity  = 0, 0
+        self.input.disabled, self.set_input.disabled = True, True
+        
+        # Create 1 send Button widget.
+        self.send_button = Button( text = 'Send' )
+        self.send_button.bind( on_press=partial( self.send_command, '' ))
+
+        # Create 1 Output scrollview widget (read-only).
+        self.output = TextInput(readonly=True, size_hint_y=None)
+        self.output.bind(minimum_height=self.output.setter('height'))
+        output_scroll = ScrollView(size_hint=(1, 1))
+        output_scroll.add_widget(self.output)
+
+        # Create 1 TabbedPanel widget.
         self.tabbed_panel = TabbedPanel(do_default_tab=False)
 
-        # --- GET tab ---
+        # Create 4 tabs with contents.
+        # Create GET tab and its content.
         self.get_tab_content = GridLayout(cols=3, spacing=5, size_hint_y=None)
         self.get_tab_content.bind(minimum_height=self.get_tab_content.setter('height'))
         get_scroll = ScrollView(size_hint=(1, 1))
@@ -50,7 +56,7 @@ class ClientLayout(BoxLayout):
         self.get_tab = TabbedPanelItem(text="Get")
         self.get_tab.add_widget(get_scroll)
 
-        # --- SET tab ---
+        # Create SET tab and its content.
         self.set_tab_content = GridLayout(cols=3, spacing=5, size_hint_y=None)
         self.set_tab_content.bind(minimum_height=self.set_tab_content.setter('height'))
         set_scroll = ScrollView(size_hint=(1, 1))
@@ -58,7 +64,7 @@ class ClientLayout(BoxLayout):
         self.set_tab = TabbedPanelItem(text="Set")
         self.set_tab.add_widget(set_scroll)
 
-        # --- OTHER tab ---
+        # Create OTHER tab and its content.
         self.oth_tab_content = GridLayout(cols=3, spacing=5, size_hint_y=None)
         self.oth_tab_content.bind(minimum_height=self.oth_tab_content.setter('height'))
         oth_scroll = ScrollView(size_hint=(1, 1))
@@ -66,57 +72,68 @@ class ClientLayout(BoxLayout):
         self.oth_tab = TabbedPanelItem(text="Other")
         self.oth_tab.add_widget(oth_scroll)
 
-        # --- DEBUG tab ---
+        # Create DEBUG tab and its content.
         self.debug_tab = TabbedPanelItem(text="Debug")
         self.debug_tab.add_widget(Label(text="Type commands below and hit Send"))
-        self.tabbed_panel.add_widget(self.debug_tab)
 
-        # Add tabs to the panel
-        self.tabbed_panel.add_widget(self.get_tab)
-        self.tabbed_panel.add_widget(self.set_tab)
-        self.tabbed_panel.add_widget(self.oth_tab)
-
-        # Output (read-only) wrapped in scrollview
-        self.output = TextInput(readonly=True, size_hint_y=None)
-        self.output.bind(minimum_height=self.output.setter('height'))
-        output_scroll = ScrollView(size_hint=(1, 1))
-        output_scroll.add_widget(self.output)
-
-        # Final layout structure
-        self.add_widget(self.input)
-        self.add_widget(self.set_input)
-        self.add_widget(self.send_button)
-        self.add_widget(self.tabbed_panel)
-        self.add_widget(output_scroll)
+        # Add the 4 tabs to the panel.
+        self.tabbed_panel.add_widget( self.get_tab )
+        self.tabbed_panel.add_widget( self.set_tab )
+        self.tabbed_panel.add_widget( self.oth_tab )
+        self.tabbed_panel.add_widget( self.debug_tab )
 
         # Now that tabbed panel is fully constructed.
-        self.tabbed_panel.bind(current_tab=self.on_tab_switch)
+        self.tabbed_panel.bind( current_tab = self.on_tab_switch )
 
+        # Add 5 widgets to final layout structure.
+        self.add_widget( self.input )
+        self.add_widget( self.set_input )
+        self.add_widget( self.send_button )
+        self.add_widget( self.tabbed_panel )
+        self.add_widget( output_scroll )
 
-        # Config and Connection
+        # Get Config and Connection Info (IP, PORT, ...)
+        # Note that server also has access to the cfgDict.
         self.cfgDict = cc.getClkCfgDict()
         if self.cfgDict is None:
             print('  Client could not connect to server.')
             print('  Missing or malformed clk.cfg file.')
             sys.exit()
 
+        # Populate a connection dictionary based on cfgDict contents.
         self.connectDict = {
             's': 'localhost',
             'l': self.cfgDict['myLan'],
             'i': self.cfgDict['myIP']
         }
+
+        # Specify the desired connection type.
+        # Hard coded here for now, but eventually prompt the user at run-
+        # time for the connection type to use.
         self.connectType = 'l'
-        ip = self.connectDict[self.connectType]
+
+        # Create agrs for call to ClientConnection.
+        ip   = self.connectDict[self.connectType]
         port = int(self.cfgDict['myPort'])
-        pwd = self.cfgDict['myPwd']
+        pwd  = self.cfgDict['myPwd']
+
+        # Finally, attempt to connect to the server.
+        # If connection successful the "m" cmd is automatically sent and its
+        # response is used to add buttons on the various panels.
         self.conn = ClientConnection(ip, port, pwd, self.update_output)
     ###################
 
     def update_output(self, text):
+        # This method wraps UI updates from a background thread using Clock
+        # because Kivy requires all UI updates to happen on the main thread.
         Clock.schedule_once(lambda dt: self._update_output_ui_safe(text))
     ###################
 
     def _update_output_ui_safe(self, text):
+        # This method does the heavy lifting in displaying responses.
+        # If the response is to the "m" command then this method also 
+        # populates buttons.  Furthermore is the response to to either the
+        # "close" or "ks" command then this method disables the GUI.
         self.output.text += f"\n{text}"
 
         if 'CLOCK COMMANDS' in text:
@@ -136,7 +153,8 @@ class ClientLayout(BoxLayout):
     ###############
 
     def add_command_button(self, cmd, label):
-        # Use taller buttons on Android
+        # This method does the heavy lifting in adding buttons when a 
+        # response to the "m" command is recieved.
         height = dp(60) if platform == 'android' else 40
         btn = Button(text=label, size_hint_y=None, height=height)
         btn.bind(on_press=partial(self.send_command, cmd))
@@ -150,6 +168,8 @@ class ClientLayout(BoxLayout):
     ###################
 
     def on_tab_switch(self, instance, tab):
+        # This method takes care of hiding one or both of the input
+        # widgets depending upon which tab is active.
         if tab.text == "Debug":
             self.input.opacity = 1
             self.input.disabled = False
@@ -168,6 +188,9 @@ class ClientLayout(BoxLayout):
     ###################
 
     def send_command(self, inText, instance):
+        # This method constructs the command string to be sent to the server.
+        # The srting is built from inText parm (button cmd) + any text from
+        # an input widget (if not a Get).
         cmd = ""
         if instance.text == 'Send':
             if self.tabbed_panel.current_tab.text == "Debug":
@@ -189,7 +212,7 @@ class ClientLayout(BoxLayout):
 #############################################################################
 class ClientConnection:
     def __init__(self, ip, port, pwd, on_receive_callback):
-        self.ip = ip                # ? Assign to self
+        self.ip = ip
         self.port = port
         self.pwd = pwd
         self.socket = None
@@ -198,6 +221,7 @@ class ClientConnection:
 
         # Run connection in background
         threading.Thread(target=self.connect, daemon=True).start()
+    ###################
 
     def connect(self):
         try:
@@ -212,6 +236,7 @@ class ClientConnection:
         except Exception as e:
             self.on_receive(f"Connection error: {e}")
             self.connected = False
+    ###################
 
     def send_command(self, cmd):
         if not self.connected:
@@ -245,11 +270,14 @@ class ClientConnection:
         except Exception as e:
             self.on_receive(f"Send error: {e}")
             self.connected = False
+#############################################################################
 
 class MyClientApp(App):
     def build(self):
         return ClientLayout()
+#############################################################################
 
 if __name__ == '__main__':
     MyClientApp().run()
+#############################################################################
 
