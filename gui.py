@@ -11,17 +11,59 @@ from kivy.uix.scrollview import ScrollView
 from kivy.uix.boxlayout import BoxLayout
 from kivy.uix.textinput import TextInput
 from kivy.uix.button import Button
+from kivy.uix.popup import Popup
 from kivy.uix.label import Label
 from kivy.utils import platform
 from kivy.clock import Clock
 from kivy.metrics import dp
 
 import clkCfg as cc
+#############################################################################
+
+class ClientApp(App):
+    def build(self):
+        self.root_layout = BoxLayout()  # Temporary root
+        self.show_connection_popup()
+        return self.root_layout
+
+    def show_connection_popup(self):
+        layout = BoxLayout(orientation='vertical', spacing=10, padding=10)
+
+        popup = Popup(title='Choose Connection Type', size_hint=(None, None), size=(400, 300))
+
+        def choose_and_start(connect_type, *args):
+            popup.dismiss()
+            self.start_client(connect_type)
+
+        layout.add_widget(Button(
+            text="Connect via LAN", size_hint_y=None, height=60,
+            on_press=partial(choose_and_start, 'l')
+        ))
+        layout.add_widget(Button(
+            text="Connect via Internet", size_hint_y=None, height=60,
+            on_press=partial(choose_and_start, 'i')
+        ))
+        layout.add_widget(Button(
+            text="Connect via Localhost", size_hint_y=None, height=60,
+            on_press=partial(choose_and_start, 's')
+        ))
+
+        popup.content = layout
+        popup.open()
+
+    def start_client(self, connect_type):
+        layout = ClientLayout(connect_type)
+        self.root_layout.clear_widgets()
+        self.root_layout.add_widget(layout)
+#############################################################################
 
 class ClientLayout(BoxLayout):
-    def __init__(self, **kwargs):
+    def __init__(self, connect_type, **kwargs):
         # This method creates the GUI then connects to server.
         super().__init__(orientation='vertical', **kwargs)
+
+        self.connectType = connect_type
+        self.start_connection()
 
         # Create 2 TextInput widgets.  Both hidden by default.
         height = dp(60) if platform == 'android' else 40
@@ -98,9 +140,17 @@ class ClientLayout(BoxLayout):
         self.add_widget( self.set_input )
         self.add_widget( self.tabbed_panel )
         self.add_widget( output_scroll )
+    ###################
 
-        # Get Config and Connection Info (IP, PORT, ...)
-        # Note that server also has access to the cfgDict.
+    def _on_connection_chosen(self, choice, popup, *args):
+        self.connectType = choice
+        popup.dismiss()
+        self.start_connection()
+    ###################
+
+    def start_connection(self):
+        # Make/ Get Config and Connection Info (IP, PORT, ... from text file 
+        # ckl.cfg).  Note that server also has access to the cfgDict.
         self.cfgDict = cc.getClkCfgDict()
         if self.cfgDict is None:
             print('  Client could not connect to server.')
@@ -114,19 +164,10 @@ class ClientLayout(BoxLayout):
             'i': self.cfgDict['myIP']
         }
 
-        # Specify the desired connection type.
-        # Hard coded here for now, but eventually prompt the user at run-
-        # time for the connection type to use.
-        self.connectType = 'l'
-
-        # Create agrs for call to ClientConnection.
         ip   = self.connectDict[self.connectType]
         port = int(self.cfgDict['myPort'])
         pwd  = self.cfgDict['myPwd']
 
-        # Finally, attempt to connect to the server.
-        # If connection successful the "m" cmd is automatically sent and its
-        # response is used to add buttons on the various panels.
         self.conn = ClientConnection(ip, port, pwd, self.update_output)
     ###################
 
@@ -279,12 +320,7 @@ class ClientConnection:
             self.connected = False
 #############################################################################
 
-class MyClientApp(App):
-    def build(self):
-        return ClientLayout()
-#############################################################################
-
 if __name__ == '__main__':
-    MyClientApp().run()
+    ClientApp().run()
 #############################################################################
 

@@ -41,7 +41,7 @@ def disconnect():  # Handled directly in the handleClient func so it
                    # is done a func needs to exist. Func never called/runs.
 #############################################################################
 def getVer():
-    VER = ' v1.3.1 - 30-May-2025'
+    VER = ' v1.3.2 - 30-May-2025'
     return [VER]
 #############################################################################
 
