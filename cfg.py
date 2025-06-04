@@ -1,11 +1,11 @@
 
 #############################################################################
 
-def getClkCfgDict():
+def getCfgDict():
     required_keys = ['myLan', 'myIP', 'myPort', 'myPwd']
     cfgDict = {}
     try:
-        with open('clk.cfg', 'r', encoding='utf-8') as f:
+        with open('cfg.cfg', 'r', encoding='utf-8') as f:
             for line in f:
                 if '#' not in line and line.strip():
                     lSplit = line.split()

@@ -86,7 +86,7 @@ def processKsCmd( clientSocket, clientAddress, client2ServerCmdQ,
 def handleClient( clientSocket, clientAddress, client2ServerCmdQ,
                   styleDict,    styleDictLock ):
     # Validate password
-    cfgDict = cc.getClkCfgDict()
+    cfgDict = cfg.getCfgDict()
     data = clientSocket.recv(1024)
     if data.decode() == cfgDict['myPwd']:
         passwordIsOk = True
@@ -163,7 +163,7 @@ def startServer():
     #print('startServer', styleDict, styleDictLock)
 
     host = '0.0.0.0'  # Listen on all available interfaces
-    cfgDict = cc.getClkCfgDict()
+    cfgDict = cfg.getCfgDict()
     port = int(cfgDict['myPort'])
 
     serverSocket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)

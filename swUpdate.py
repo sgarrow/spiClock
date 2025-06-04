@@ -2,7 +2,7 @@ import os
 import zipfile
 import platform
 import requests
-import clkCfg   as cc # For port, pwd.
+import cfg
 #############################################################################
 #############################################################################
 
@@ -109,7 +109,7 @@ def updateSw():
 #############################################################################
 
 if __name__ == '__main__':
-    ccDict = cc.getClkCfgDict()
+    ccDict = cfg.getCfgDict()
     print(ccDict)
     mnRspStr = updateSw()
     print(mnRspStr[0])

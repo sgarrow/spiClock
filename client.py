@@ -18,7 +18,7 @@ import time
 import select
 import threading
 import queue
-import clkCfg as cc
+import cfg
 #############################################################################
 #############################################################################
 
@@ -45,7 +45,7 @@ def getUserInput( uiToMainQ, aLock ):
 
 if __name__ == '__main__':
 
-    cfgDict = cc.getClkCfgDict()
+    cfgDict = cfg.getCfgDict()
     if cfgDict is None:
         print('  Client could not connect to server.')
         print('  Missing or malformed clk.cfg file.')
