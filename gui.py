@@ -186,7 +186,7 @@ class ClientLayout(BoxLayout):
         # "close" or "ks" command then this method disables the GUI.
         self.output.text += f'\n{text}'
 
-        if 'CLOCK COMMANDS' in text:
+        if 'COMMANDS' in text:
             menu_lines = text.splitlines()
             for line in menu_lines:
                 match = re.match(r'\s*(\w+)\s*-\s*(.+)', line)
