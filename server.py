@@ -4,9 +4,8 @@ import queue                 # For Killing Server.
 import time                  # For Killing Server and listThreads.
 import multiprocessing as mp # For Getting Multi Proc Shared Dict.
 import datetime        as dt # For logging server start/stop times.
-
 import cmdVectors      as cv # Contains vectors to "worker" functions.
-import clkCfg          as cc # For port, pwd.
+import cfg                   # For port, pwd. 
 import utils           as ut # For access to openSocketsLst[].
 #############################################################################
 
@@ -222,7 +221,6 @@ def startServer():
                                                format(clientAddress) )
             cThrd.start()
     print('Server breaking.')
-
     serverSocket.close()
     now = dt.datetime.now()
     cDT = '{}'.format(now.isoformat( timespec = 'seconds' ))
