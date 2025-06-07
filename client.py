@@ -7,11 +7,10 @@ This file can be run on the Rpi, a PC or a phone.
 
 try:
     import readline  # pylint: disable=W0611
-except ModuleNotFoundError:
+except (ModuleNotFoundError, AttributeError):
     pass
     #print('\n Exception importing readline. ok to continue.\n')
 
-import re
 import sys
 import socket
 import time
@@ -19,7 +18,6 @@ import select
 import threading
 import queue
 import cfg
-#############################################################################
 #############################################################################
 
 def printSocketInfo(cSocket):
@@ -30,16 +28,14 @@ def printSocketInfo(cSocket):
 #############################################################################
 
 def getUserInput( uiToMainQ, aLock ):
-
     userInput = ''
     while True:
         with aLock:  # If I take just this out then after a command I get a
                      # get a prompt printed, then the rsp printed then need
                      # an extra return to get a prompt again.
-            thePrompt = '\n Choice (m=menu, q=quit) -> '
-            userInput = input( thePrompt )
-
-        uiToMainQ.put(userInput)
+            prompt = '\n Choice (m=menu, close) -> '
+            userInput = input( prompt )
+            uiToMainQ.put(userInput)
         time.sleep(.01) # Gives 'main' a chance to run.
 #############################################################################
 
@@ -48,7 +44,7 @@ if __name__ == '__main__':
     cfgDict = cfg.getCfgDict()
     if cfgDict is None:
         print('  Client could not connect to server.')
-        print('  Missing or malformed clk.cfg file.')
+        print('  Missing or malformed cfg file.')
         sys.exit()
 
     # Each client will connect to the server with a new address.
@@ -57,11 +53,9 @@ if __name__ == '__main__':
     #connectType = input(' ssh, lan, internet (s,l,i) -> ')
     connectType = 'l' # pylint: disable=C0103
 
-    #             {'s':'localhost','l':'lanAddr',       'i':'routerAddr'}
+    #             {'s':'localhost','l':'lanAddr','i':'routerAddr'}
     connectDict = {'s':'localhost','l':cfgDict['myLan'],'i':cfgDict['myIP']}
-
     PORT = int(cfgDict['myPort'])
-
     try:
         clientSocket.connect((connectDict[connectType], PORT ))
     except ConnectionRefusedError:
@@ -70,11 +64,11 @@ if __name__ == '__main__':
     except socket.timeout:
         print('\n TimeoutError.  Ensure server is running.\n')
         sys.exit()
-    else:
-        printSocketInfo(clientSocket)
 
+    printSocketInfo(clientSocket)
+
+    # Validate password
     pwd = cfgDict['myPwd']
-
     clientSocket.send(pwd.encode())
     time.sleep(.5)
     response = clientSocket.recv(1024)
@@ -88,33 +82,30 @@ if __name__ == '__main__':
     inputThread = threading.Thread( target = getUserInput,
                                     args   = (Ui2MainQ,threadLock),
                                     daemon = True )
-    #inputThread.start()
+    inputThread.start()
 
     rspStr = ''
     while pwdIsOk:
-        prompt = '\n Choice (m=menu, close) -> ' # pylint: disable=C0103
-        message = input( prompt )
-        clientSocket.send(message.encode())
-        #try:
-        #    message = Ui2MainQ.get()
-        #except queue.Empty:
-        #    pass
-        #else:
-        #    clientSocket.send(message.encode())
-        #with threadLock:  # Same story.
-        readyToRead, _, _ = select.select([clientSocket], [], [], 0.7)
-        if readyToRead:
-            rspStr = ''
-            while readyToRead:
-                response = clientSocket.recv(1024)
-                rspStr += response.decode()
+        try:
+            message = Ui2MainQ.get()
+        except queue.Empty:
+            pass
+        else:
+            clientSocket.send(message.encode())
 
+        with threadLock:  # Same story.
+            readyToRead, _, _ = select.select([clientSocket], [], [], .6)
+            if readyToRead:
+                rspStr = ''
+                while readyToRead:
+                    response = clientSocket.recv(1024)
+                    rspStr += response.decode()
 
-                if 'RE: ks' in rspStr:
-                    break
+                    if 'RE: ks' in rspStr:
+                        break
 
-                readyToRead,_, _=select.select([clientSocket],[],[],.25)
-            print('\n{}'.format(rspStr))
+                    readyToRead,_, _=select.select([clientSocket],[],[],.25)
+                print('\n{}'.format(rspStr))
 
         if message == 'close' or 'RE: ks' in rspStr:
             break
