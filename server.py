@@ -32,7 +32,6 @@ def getMultiProcSharedDict():
         'activeDigitStyle': 'whiteOnBlack',
         'dayDigitStyle'   : 'orangeOnTurquoise',
         'nightDigitStyle' : 'greyOnBlack',
-
         'nightTime'       : [ 2, 1, 0, 0, 0, 0 ],
         'dayTime'         : [ 0, 7, 0, 0, 0, 0 ],
         'alarmTime'       : [ 0, 0, 0, 0, 0, 0 ], 
@@ -56,9 +55,9 @@ def processKsCmd( clientSocket, clientAddress, client2ServerCmdQ, styleDict, sty
     rspStr = ''
     # Client sending ks has to be terminated first, I don't know why.
     # Also stop and running profiles so no dangling threads left behind.
-    rspStr += cv.vector('pc',  styleDict, styleDictLock)+'\n' # 5s to return.
-    rspStr += cv.vector('sb 0',styleDict, styleDictLock)+'\n' # Bklight off.
-    rspStr += ' handleClient {} set loop break for self RE: ks'.\
+    rspStr += cv.vector('pc',  styleDict, styleDictLock)+'\n'
+    rspStr += '\n\n' + cv.vector('sb 0',styleDict, styleDictLock)+'\n'
+    rspStr += '\n handleClient {} set loop break for self RE: ks'.\
               format(clientAddress)
     clientSocket.send(rspStr.encode()) # sends all even if > 1024.
     time.sleep(1.5) # Required so .send happens before socket closed.
