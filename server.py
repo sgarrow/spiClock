@@ -4,31 +4,27 @@ import queue                 # For Killing Server.
 import time                  # For Killing Server and listThreads.
 import multiprocessing as mp # For Getting Multi Proc Shared Dict.
 import datetime        as dt # For logging server start/stop times.
+
 import cmdVectors      as cv # Contains vectors to "worker" functions.
 import clkCfg          as cc # For port, pwd.
 import utils           as ut # For access to openSocketsLst[].
 #############################################################################
-#############################################################################
 
 def listThreads(): # Daemon to startServer, terminates w/ kill server (ks).
     while True:
-
-        #time.sleep(10)
-        time.sleep(60*60*24*7) # Once a week.
-
+        time.sleep(60*60*24*7)
         print(' ##################')
         print(' Active Threads: ')
         for t in threading.enumerate():
             print('   Name: {:11}  Daemon: {}'.format( t.name, t.daemon))
-
             #print('   Name: {} Daemon: {} ID: {} Target: {}'.\
             #    format( t.name, t.daemon, t.ident,
             #            getattr(t, '_target', None)))
-
         print(' ##################')
         print(' Open Sockets: ')
         for openS in ut.openSocketsLst:
             print('   {}'.format(openS['ca']))
+        print(' ##################')
 #############################################################################
 
 def getMultiProcSharedDict():
@@ -47,6 +43,7 @@ def getMultiProcSharedDict():
 #############################################################################
 
 def processCloseCmd(clientSocket, clientAddress):
+
     rspStr = ' handleClient {} set loop break RE: close'.format(clientAddress)
     clientSocket.send(rspStr.encode()) # sends all even if >1024.
     time.sleep(1) # Required so .send happens before socket closed.
@@ -55,18 +52,15 @@ def processCloseCmd(clientSocket, clientAddress):
     ut.openSocketsLst.remove({'cs':clientSocket,'ca':clientAddress})
 #############################################################################
 
-def processKsCmd( clientSocket, clientAddress, client2ServerCmdQ,
-                  styleDict,    styleDictLock ):
+def processKsCmd( clientSocket, clientAddress, client2ServerCmdQ, styleDict, styleDictLock ):
+
     rspStr = ''
     # Client sending ks has to be terminated first, I don't know why.
     # Also stop and running profiles so no dangling threads left behind.
-
     rspStr += cv.vector('pc',  styleDict, styleDictLock)+'\n' # 5s to return.
     rspStr += cv.vector('sb 0',styleDict, styleDictLock)+'\n' # Bklight off.
     rspStr += ' handleClient {} set loop break for self RE: ks'.\
               format(clientAddress)
-    #print('after add hard code string', rspStr)
-
     clientSocket.send(rspStr.encode()) # sends all even if > 1024.
     time.sleep(1.5) # Required so .send happens before socket closed.
 
@@ -83,8 +77,8 @@ def processKsCmd( clientSocket, clientAddress, client2ServerCmdQ,
     return 0
 #############################################################################
 
-def handleClient( clientSocket, clientAddress, client2ServerCmdQ,
-                  styleDict,    styleDictLock ):
+def handleClient( clientSocket, clientAddress, client2ServerCmdQ, styleDict, styleDictLock ):
+
     # Validate password
     cfgDict = cfg.getCfgDict()
     data = clientSocket.recv(1024)
