@@ -1,14 +1,27 @@
 import time
-import threading         as th
-import startStopClock    as cr
-import makeScreen        as ms
-import spiRoutines       as sr
-openSocketsLst = []     # Needed for processing close and ks commands.
-#############################################################################
+import multiprocessing as mp
+import threading       as th
+import startStopClock  as cr
+import makeScreen      as ms
+import spiRoutines     as sr
+openSocketsLst = []    # Needed for processing close and ks commands.
 #############################################################################
 
-def getActiveThrds():
+def getMultiProcSharedDict():
+    manager = mp.Manager()
+    styleDict = manager.dict({
+        'activeDigitStyle': 'whiteOnBlack',
+        'dayDigitStyle'   : 'orangeOnTurquoise',
+        'nightDigitStyle' : 'greyOnBlack',
+        'nightTime'       : [ 2, 1, 0, 0, 0, 0 ],
+        'dayTime'         : [ 0, 7, 0, 0, 0, 0 ],
+        'alarmTime'       : [ 0, 0, 0, 0, 0, 0 ], 
+    })
+    styleDictLock = mp.Lock()
+    return styleDict, styleDictLock
+#############################################################################
 
+def getActiveThreads():
     rspStr = ' Running Threads:\n'
     for t in th.enumerate():
         rspStr += '   {}\n'.format(t.name)
@@ -26,7 +39,7 @@ def getActiveThrds():
 
 def displayPics(prmLst):
     startTimeLst,qs,styleDic,styleLk = prmLst[0], prmLst[1], prmLst[2], prmLst[3]
-    rspStr = getActiveThrds()
+    rspStr = getActiveThreads()
     stoppedClock = False
     if 'clockCntrProc' in rspStr[0] or 'lcdUpdateProc' in rspStr[0]:
         print('stopping clock')
@@ -34,7 +47,7 @@ def displayPics(prmLst):
         stoppedClock = True
 
     ##################################
-    rspStr = getActiveThrds()
+    rspStr = getActiveThreads()
     if 'MainThread' not in rspStr[0]:
         print('reseting LCD')
 

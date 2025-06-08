@@ -2,10 +2,9 @@ import socket                # For creating and managing sockets.
 import threading             # For handling multiple clients concurrently.
 import queue                 # For Killing Server.
 import time                  # For Killing Server and listThreads.
-import multiprocessing as mp # For Getting Multi Proc Shared Dict.
 import datetime        as dt # For logging server start/stop times.
 import cmdVectors      as cv # Contains vectors to "worker" functions.
-import cfg                   # For port, pwd. 
+import cfg                   # For port, pwd.
 import utils           as ut # For access to openSocketsLst[].
 #############################################################################
 
@@ -26,22 +25,14 @@ def listThreads(): # Daemon to startServer, terminates w/ kill server (ks).
         print(' ##################')
 #############################################################################
 
-def getMultiProcSharedDict():
-    manager = mp.Manager()
-    styleDict = manager.dict({
-        'activeDigitStyle': 'whiteOnBlack',
-        'dayDigitStyle'   : 'orangeOnTurquoise',
-        'nightDigitStyle' : 'greyOnBlack',
-        'nightTime'       : [ 2, 1, 0, 0, 0, 0 ],
-        'dayTime'         : [ 0, 7, 0, 0, 0, 0 ],
-        'alarmTime'       : [ 0, 0, 0, 0, 0, 0 ], 
-    })
-    styleDictLock = mp.Lock()
-    return styleDict, styleDictLock
+def ksCleanup(styleDict, styleDictLock):
+    rspStr  = ''
+    rspStr += cv.vector('pc',  styleDict, styleDictLock)+'\n'
+    rspStr += '\n\n' + cv.vector('sb 0',styleDict, styleDictLock)+'\n'
+    return rspStr
 #############################################################################
 
 def processCloseCmd(clientSocket, clientAddress):
-
     rspStr = ' handleClient {} set loop break RE: close'.format(clientAddress)
     clientSocket.send(rspStr.encode()) # sends all even if >1024.
     time.sleep(1) # Required so .send happens before socket closed.
@@ -50,13 +41,11 @@ def processCloseCmd(clientSocket, clientAddress):
     ut.openSocketsLst.remove({'cs':clientSocket,'ca':clientAddress})
 #############################################################################
 
-def processKsCmd( clientSocket, clientAddress, client2ServerCmdQ, styleDict, styleDictLock ):
-
+def processKsCmd( clientSocket, clientAddress, client2ServerCmdQ,
+                  styleDict, styleDictLock ):
     rspStr = ''
     # Client sending ks has to be terminated first, I don't know why.
-    # Also stop and running profiles so no dangling threads left behind.
-    rspStr += cv.vector('pc',  styleDict, styleDictLock)+'\n'
-    rspStr += '\n\n' + cv.vector('sb 0',styleDict, styleDictLock)+'\n'
+    rspStr += ksCleanup(styleDict, styleDictLock)
     rspStr += '\n handleClient {} set loop break for self RE: ks'.\
               format(clientAddress)
     clientSocket.send(rspStr.encode()) # sends all even if > 1024.
@@ -75,7 +64,8 @@ def processKsCmd( clientSocket, clientAddress, client2ServerCmdQ, styleDict, sty
     return 0
 #############################################################################
 
-def handleClient( clientSocket, clientAddress, client2ServerCmdQ, styleDict, styleDictLock ):
+def handleClient( clientSocket, clientAddress, client2ServerCmdQ,
+                  styleDict, styleDictLock ):
 
     # Validate password
     cfgDict = cfg.getCfgDict()
@@ -151,7 +141,7 @@ def startServer():
     with open('log.txt', 'a',encoding='utf-8') as f:
         f.write( 'Server started at {} \n'.format(cDT))
 
-    styleDict, styleDictLock = getMultiProcSharedDict()
+    styleDict, styleDictLock = ut.getMultiProcSharedDict()
     #print('startServer', styleDict, styleDictLock)
 
     host = '0.0.0.0'  # Listen on all available interfaces
@@ -228,11 +218,10 @@ def startServer():
 #############################################################################
 
 if __name__ == '__main__':
-    import spiRoutines     as sr
+    import spiRoutines as sr
     kLst = ['hrMSD','hrLSD','mnMSD','mnLSD','scMSD','scLSD']
     sr.hwReset()           # HW Reset. Common pin to all dislays.
     for theKey in kLst:
         sr.swReset(theKey) # SW Reset & display initialization.
     print('LCD hw/sw has been reset.')
-    #cv.vector('sc')
     startServer()

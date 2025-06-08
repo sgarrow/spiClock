@@ -41,7 +41,7 @@ def disconnect():  # Handled directly in the handleClient func so it
                    # is done a func needs to exist. Func never called/runs.
 #############################################################################
 def getVer():
-    VER = ' v1.4.6 - 07-Jun-2025'
+    VER = ' v1.4.7 - 07-Jun-2025'
     return [VER]
 #############################################################################
 
@@ -175,7 +175,7 @@ def vector(inputStr,styleDic,styleLk): # called from handleClient.
     'sb' :{ 'fun': sr.setBkLight,     'prm': [0],                       'tstMnu': mTxt['sb' ]},
 
     # Worker Function in utils.py.
-    'gat':{ 'fun': ut.getActiveThrds, 'prm': None,                      'tstMnu': mTxt['gat']},
+    'gat':{ 'fun': ut.getActiveThreads, 'prm': None,                    'tstMnu': mTxt['gat']},
 
     # Worker Function in cmds.py.
     'lc' :{ 'fun': cm.cmds,           'prm': None,                      'tstMnu': mTxt['lc' ]},

@@ -17,7 +17,7 @@ def killSrvr():
     # Get all processes that are running the python server.
     pythonServerLines = []
     for line in lines:
-        if 'python' and 'server' in line: # pylint: disable=R1726
+        if 'server' in line:
             pythonServerLines.append(line)
 
     # Get all pids of processes that are running the python server.

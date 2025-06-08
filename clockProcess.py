@@ -78,13 +78,13 @@ def updateCntr(timeDict,styleDic,styleLk):
     scLSD = seconds  % 10
 
     rspLst = sm.getDayTime([styleDic,styleLk])
-    dt = rspLst[1]
+    dTime = rspLst[1]
     rspLst = sm.getNightTime([styleDic,styleLk])
-    nt = rspLst[1]
+    nTime = rspLst[1]
 
-    if   [ hrMSD, hrLSD, mnMSD, mnLSD, scMSD, scLSD ] == dt:
+    if   [ hrMSD, hrLSD, mnMSD, mnLSD, scMSD, scLSD ] == dTime:
         style = sm.getDayStyle([styleDic,styleLk])[0]
-    elif [ hrMSD, hrLSD, mnMSD, mnLSD, scMSD, scLSD ] == nt:
+    elif [ hrMSD, hrLSD, mnMSD, mnLSD, scMSD, scLSD ] == nTime:
         style = sm.getNightStyle([styleDic,styleLk])[0]
     else:
         style = None
@@ -97,7 +97,7 @@ def updateCntr(timeDict,styleDic,styleLk):
     'scMSD':{'value': scMSD, 'updated': prevDict['scMSD']['value'] != scMSD},
     'scLSD':{'value': scLSD, 'updated': prevDict['scLSD']['value'] != scLSD}}
 
-    exeTime = time.perf_counter()-kStart
+    exeTime = time.perf_counter()-kStart # pylint: disable=W0612
     #print('Time spent updating counter = {:10.6f}'.format(exeTime))
     return timeDict,style
 #############################################################################
