@@ -27,8 +27,10 @@ def listThreads(): # Daemon to startServer, terminates w/ kill server (ks).
 
 def ksCleanup(styleDict, styleDictLock):
     rspStr  = ''
-    rspStr += cv.vector('pc',  styleDict, styleDictLock)+'\n'
-    rspStr += '\n\n' + cv.vector('sb 0',styleDict, styleDictLock)+'\n'
+### START KS CODE REMOVE ###
+    rspStr += cv.vector('pc',  styleDict, styleDictLock) + '\n' 
+    rspStr += '\n\n' + cv.vector('sb 0', styleDict, styleDictLock) + '\n' 
+### END KS CODE REMOVE ###
     return rspStr
 #############################################################################
 
@@ -218,10 +220,12 @@ def startServer():
 #############################################################################
 
 if __name__ == '__main__':
+### START MN CODE REMOVE ###
     import spiRoutines as sr
     kLst = ['hrMSD','hrLSD','mnMSD','mnLSD','scMSD','scLSD']
     sr.hwReset()           # HW Reset. Common pin to all dislays.
     for theKey in kLst:
-        sr.swReset(theKey) # SW Reset & display initialization.
-    print('LCD hw/sw has been reset.')
+        sr.swReset(theKey) # SW Reset and display initialization.
+    print('LCD hw and sw has been reset.')
+### END MN CODE REMOVE ###
     startServer()
