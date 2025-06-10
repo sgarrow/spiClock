@@ -41,7 +41,7 @@ def disconnect():  # Handled directly in the handleClient func so it
                    # is done a func needs to exist. Func never called/runs.
 #############################################################################
 def getVer():
-    VER = ' v1.4.9 - 08-Jun-2025'
+    VER = ' v1.4.10 - 09-Jun-2025'
     return [VER]
 #############################################################################
 
@@ -97,6 +97,12 @@ def vector(inputStr,styleDic,styleLk): # called from handleClient.
     'dp'  : 'Disp Pics',
 
     'us'  : 'Update SW',
+    'ral' : 'Read App Log File',
+    'rsl' : 'Read Server Log File',
+    'rse' : 'Read Server Except File',
+    'cal' : 'Set (Clear) App Log File',
+    'csl' : 'Set (Clear) Server Log File',
+    'cse' : 'Set (Clear) Server Except File',
 
     'hlp' : 'Help',
     'gvn' : 'Get Version Number',
@@ -127,61 +133,67 @@ def vector(inputStr,styleDic,styleLk): # called from handleClient.
 
     # MAIN MENU (displayed when m command issued).
     # Worker Function in clockRoutines.py.
-    'sc' :{ 'fun': cr.startClk,       'prm': dfltSCPrm,                 'mnMnu': mTxt['sc' ]},
-    'pc' :{ 'fun': cr.stopClk,        'prm': qs,                        'mnMnu': mTxt['pc' ]},
-   #'cb' :{ 'fun': cr.ctrlBright,     'prm': ['None'],                  'mnMnu': mTxt['cb' ]},
+    'sc' :{ 'fun': cr.startClk,         'prm': dfltSCPrm,                    'mnMnu': mTxt['sc' ]},
+    'pc' :{ 'fun': cr.stopClk,          'prm': qs,                           'mnMnu': mTxt['pc' ]},
+   #'cb' :{ 'fun': cr.ctrlBright,       'prm': ['None'],                     'mnMnu': mTxt['cb' ]},
 
     # Worker Function in styleMgmtRoutines.py.
-    'gas':{ 'fun': sm.getActiveStyle, 'prm': [styleDic,styleLk],        'mnMnu': mTxt['gas']},
-    'gds':{ 'fun': sm.getDayStyle,    'prm': [styleDic,styleLk],        'mnMnu': mTxt['gds']},
-    'gns':{ 'fun': sm.getNightStyle,  'prm': [styleDic,styleLk],        'mnMnu': mTxt['gns']},
-    'gAs':{ 'fun': sm.getAllStyles,   'prm': None,                      'mnMnu': mTxt['gAs']},
-    'sas':{ 'fun': sm.setActiveStyle, 'prm': dfltSASParm,               'mnMnu': mTxt['sas']},
-    'sds':{ 'fun': sm.setDayStyle,    'prm': ['None',styleDic,styleLk], 'mnMnu': mTxt['sds']},
-    'sns':{ 'fun': sm.setNightStyle,  'prm': ['None',styleDic,styleLk], 'mnMnu': mTxt['sns']},
+    'gas':{ 'fun': sm.getActiveStyle,   'prm': [styleDic,styleLk],           'mnMnu': mTxt['gas']},
+    'gds':{ 'fun': sm.getDayStyle,      'prm': [styleDic,styleLk],           'mnMnu': mTxt['gds']},
+    'gns':{ 'fun': sm.getNightStyle,    'prm': [styleDic,styleLk],           'mnMnu': mTxt['gns']},
+    'gAs':{ 'fun': sm.getAllStyles,     'prm': None,                         'mnMnu': mTxt['gAs']},
+    'sas':{ 'fun': sm.setActiveStyle,   'prm': dfltSASParm,                  'mnMnu': mTxt['sas']},
+    'sds':{ 'fun': sm.setDayStyle,      'prm': ['None',styleDic,styleLk],    'mnMnu': mTxt['sds']},
+    'sns':{ 'fun': sm.setNightStyle,    'prm': ['None',styleDic,styleLk],    'mnMnu': mTxt['sns']},
 
     # Worker Function in makeScreens.py.
-    'mus':{ 'fun': ms.mkUsrDigPikF,   'prm': dfltMDSPrm,                'mnMnu': mTxt['mus']},
+    'mus':{ 'fun': ms.mkUsrDigPikF,     'prm': dfltMDSPrm,                   'mnMnu': mTxt['mus']},
 
     # Worker Function in styleMgmtRoutines.py.
-    'gdt':{ 'fun': sm.getDayTime,     'prm': [styleDic,styleLk],        'mnMnu': mTxt['gdt']},
-    'gnt':{ 'fun': sm.getNightTime,   'prm': [styleDic,styleLk],        'mnMnu': mTxt['gnt']},
-    'sdt':{ 'fun': sm.setDayTime,     'prm': ['None',styleDic,styleLk], 'mnMnu': mTxt['sdt']},
-    'snt':{ 'fun': sm.setNightTime,   'prm': ['None',styleDic,styleLk], 'mnMnu': mTxt['snt']},
+    'gdt':{ 'fun': sm.getDayTime,       'prm': [styleDic,styleLk],           'mnMnu': mTxt['gdt']},
+    'gnt':{ 'fun': sm.getNightTime,     'prm': [styleDic,styleLk],           'mnMnu': mTxt['gnt']},
+    'sdt':{ 'fun': sm.setDayTime,       'prm': ['None',styleDic,styleLk],    'mnMnu': mTxt['sdt']},
+    'snt':{ 'fun': sm.setNightTime,     'prm': ['None',styleDic,styleLk],    'mnMnu': mTxt['snt']},
 
     # Worker Function in utils.py.
-    'dp' :{ 'fun': ut.displayPics,    'prm': [[],qs,styleDic,styleLk],  'mnMnu': mTxt['dp' ]},
+    'dp' :{ 'fun': ut.displayPics,      'prm': [[],qs,styleDic,styleLk],     'mnMnu': mTxt['dp' ]},
 
     # Worker Function in utils.py.
-    'us' :{ 'fun': su.updateSw,       'prm': None,                      'mnMnu': mTxt['us' ]},
+    'us' :{ 'fun': su.updateSw,         'prm': None,                         'mnMnu': mTxt['us' ]},
+    'ral': {'fun' : ut.readFile,        'prm' : ['appLog.txt',[5]],          'mnMnu': mTxt['ral'] },
+    'rsl': {'fun' : ut.readFile,        'prm' : ['serverLog.txt',[5]],       'mnMnu': mTxt['rsl'] },
+    'rse': {'fun' : ut.readFile,        'prm' : ['serverException.txt',[5]], 'mnMnu': mTxt['rse'] },
+    'cal': {'fun' : ut.clearFile,       'prm' : ['appLog.txt'],              'mnMnu': mTxt['cal'] },
+    'csl': {'fun' : ut.clearFile,       'prm' : ['serverLog.txt'],           'mnMnu': mTxt['csl'] },
+    'cse': {'fun' : ut.clearFile,       'prm' : ['serverException.txt'],     'mnMnu': mTxt['cse'] },
 
     # Worker Function in this module.
-    'hlp':{ 'fun': getHelp,           'prm': None,                      'mnMnu': mTxt['hlp']},
-    'gvn':{ 'fun': getVer,            'prm': None,                      'mnMnu': mTxt['gvn']},
-    'tm' :{ 'fun': None,              'prm': None,                      'mnMnu': mTxt['tm' ]},
-    'close':{ 'fun': disconnect,      'prm': None,                      'mnMnu': mTxt['close' ]},
+    'hlp':{ 'fun': getHelp,             'prm': None,                         'mnMnu': mTxt['hlp']},
+    'gvn':{ 'fun': getVer,              'prm': None,                         'mnMnu': mTxt['gvn']},
+    'tm' :{ 'fun': None,                'prm': None,                         'mnMnu': mTxt['tm' ]},
+    'close':{ 'fun': disconnect,        'prm': None,                         'mnMnu': mTxt['close' ]},
     #####################################################
 
     # TEST MENU (displayed when tm command issued).
     # Worker Function in testRoutines.py.
-    'rt1':{ 'fun': tr.runTest1,       'prm': None,                      'tstMnu': mTxt['rt1']},
-    'rt2':{ 'fun': tr.runTest2,       'prm': [lcdCq,styleDic,styleLk],  'tstMnu': mTxt['rt2']},
-    'rt3':{ 'fun': tr.runTest3,       'prm': None,                      'tstMnu': mTxt['rt3']},
-    'rt4':{ 'fun': tr.runTest4,       'prm': None,                      'tstMnu': mTxt['rt4']},
+    'rt1':{ 'fun': tr.runTest1,         'prm': None,                         'tstMnu': mTxt['rt1']},
+    'rt2':{ 'fun': tr.runTest2,         'prm': [lcdCq,styleDic,styleLk],     'tstMnu': mTxt['rt2']},
+    'rt3':{ 'fun': tr.runTest3,         'prm': None,                         'tstMnu': mTxt['rt3']},
+    'rt4':{ 'fun': tr.runTest4,         'prm': None,                         'tstMnu': mTxt['rt4']},
 
     # Worker Function in spiRoutines.py.
-    'rh' :{ 'fun': sr.hwReset,        'prm': None,                      'tstMnu': mTxt['rh' ]},
-    'rs' :{ 'fun': sr.swReset,        'prm': 'scLSD',                   'tstMnu': mTxt['rs' ]},
-    'sb' :{ 'fun': sr.setBkLight,     'prm': [0],                       'tstMnu': mTxt['sb' ]},
+    'rh' :{ 'fun': sr.hwReset,          'prm': None,                         'tstMnu': mTxt['rh' ]},
+    'rs' :{ 'fun': sr.swReset,          'prm': 'scLSD',                      'tstMnu': mTxt['rs' ]},
+    'sb' :{ 'fun': sr.setBkLight,       'prm': [0],                          'tstMnu': mTxt['sb' ]},
 
     # Worker Function in utils.py.
-    'gat':{ 'fun': ut.getActiveThreads, 'prm': None,                    'tstMnu': mTxt['gat']},
+    'gat':{ 'fun': ut.getActiveThreads, 'prm': None,                       'tstMnu': mTxt['gat']},
 
     # Worker Function in cmds.py.
-    'lc' :{ 'fun': cm.cmds,           'prm': None,                      'tstMnu': mTxt['lc' ]},
+    'lc' :{ 'fun': cm.cmds,             'prm': None,                         'tstMnu': mTxt['lc' ]},
 
     # Worker Function in this module.
-    'ks' :{ 'fun': killSrvr,          'prm': None,                      'tstMnu': mTxt['ks' ]},
+    'ks' :{ 'fun': killSrvr,            'prm': None,                         'tstMnu': mTxt['ks' ]},
     #####################################################
     }
 
