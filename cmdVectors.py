@@ -41,7 +41,7 @@ def disconnect():  # Handled directly in the handleClient func so it
                    # is done a func needs to exist. Func never called/runs.
 #############################################################################
 def getVer():
-    VER = ' v1.4.11 - 10-Jun-2025'
+    VER = ' v1.4.12 - 05-Sep-2025'
     return [VER]
 #############################################################################
 
@@ -100,9 +100,9 @@ def vector(inputStr,styleDic,styleLk): # called from handleClient.
     'ral' : 'Read App Log File',
     'rsl' : 'Read Server Log File',
     'rse' : 'Read Server Except File',
-    'cal' : 'Set (Clear) App Log File',
-    'csl' : 'Set (Clear) Server Log File',
-    'cse' : 'Set (Clear) Server Except File',
+    'cal' : 'Clear App Log File',
+    'csl' : 'Clear Server Log File',
+    'cse' : 'Clear Server Except File',
 
     'hlp' : 'Help',
     'gvn' : 'Get Version Number',
@@ -159,19 +159,19 @@ def vector(inputStr,styleDic,styleLk): # called from handleClient.
     'dp' :{ 'fun': ut.displayPics,      'prm': [[],qs,styleDic,styleLk],     'mnMnu': mTxt['dp' ]},
 
     # Worker Function in utils.py.
-    'us' :{ 'fun': su.updateSw,         'prm': None,                         'mnMnu': mTxt['us' ]},
-    'ral': {'fun' : ut.readFile,        'prm' : ['appLog.txt',[5]],          'mnMnu': mTxt['ral'] },
-    'rsl': {'fun' : ut.readFile,        'prm' : ['serverLog.txt',[5]],       'mnMnu': mTxt['rsl'] },
-    'rse': {'fun' : ut.readFile,        'prm' : ['serverException.txt',[5]], 'mnMnu': mTxt['rse'] },
-    'cal': {'fun' : ut.clearFile,       'prm' : ['appLog.txt'],              'mnMnu': mTxt['cal'] },
-    'csl': {'fun' : ut.clearFile,       'prm' : ['serverLog.txt'],           'mnMnu': mTxt['csl'] },
-    'cse': {'fun' : ut.clearFile,       'prm' : ['serverException.txt'],     'mnMnu': mTxt['cse'] },
+    'us' :{ 'fun' : su.updateSw,        'prm': None,                         'mnMnu': mTxt['us' ]},
+    'ral':{ 'fun' : ut.readFile,        'prm' : ['appLog.txt',[5]],          'mnMnu': mTxt['ral'] },
+    'rsl':{ 'fun' : ut.readFile,        'prm' : ['serverLog.txt',[5]],       'mnMnu': mTxt['rsl'] },
+    'rse':{ 'fun' : ut.readFile,        'prm' : ['serverException.txt',[5]], 'mnMnu': mTxt['rse'] },
+    'cal':{ 'fun' : ut.clearFile,       'prm' : ['appLog.txt'],              'mnMnu': mTxt['cal'] },
+    'csl':{ 'fun' : ut.clearFile,       'prm' : ['serverLog.txt'],           'mnMnu': mTxt['csl'] },
+    'cse':{ 'fun' : ut.clearFile,       'prm' : ['serverException.txt'],     'mnMnu': mTxt['cse'] },
 
     # Worker Function in this module.
     'hlp':{ 'fun': getHelp,             'prm': None,                         'mnMnu': mTxt['hlp']},
     'gvn':{ 'fun': getVer,              'prm': None,                         'mnMnu': mTxt['gvn']},
     'tm' :{ 'fun': None,                'prm': None,                         'mnMnu': mTxt['tm' ]},
-    'close':{ 'fun': disconnect,        'prm': None,                         'mnMnu': mTxt['close' ]},
+    'close':{'fun':disconnect,          'prm': None,                         'mnMnu': mTxt['close' ]},
     #####################################################
 
     # TEST MENU (displayed when tm command issued).

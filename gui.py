@@ -91,9 +91,10 @@ class ClientLayout(BoxLayout):
         output_scroll.add_widget(self.output)
 
         # Create 1 TabbedPanel widget.
-        self.tabbed_panel = TabbedPanel(do_default_tab=False)
+        width = dp(82) if platform == 'android' else 80
+        self.tabbed_panel = TabbedPanel(do_default_tab=False,tab_width = width)
 
-        # Create 4 tabs with contents.
+        # Create 5 tabs with contents.
         # Create GET tab and its content.
         self.get_tab_content = GridLayout(cols=3, spacing=5, size_hint_y=None)
         self.get_tab_content.bind(minimum_height=self.get_tab_content.setter('height'))
@@ -109,6 +110,14 @@ class ClientLayout(BoxLayout):
         set_scroll.add_widget(self.set_tab_content)
         self.set_tab = TabbedPanelItem(text='Set')
         self.set_tab.add_widget(set_scroll)
+
+        # Create FILE tab and its content.
+        self.fil_tab_content = GridLayout(cols=3, spacing=5, size_hint_y=None)
+        self.fil_tab_content.bind(minimum_height=self.fil_tab_content.setter('height'))
+        fil_scroll = ScrollView(size_hint=(1, 1))
+        fil_scroll.add_widget(self.fil_tab_content)
+        self.fil_tab = TabbedPanelItem(text='File')
+        self.fil_tab.add_widget(fil_scroll)
 
         # Create OTHER tab and its content.
         self.oth_tab_content = GridLayout(cols=3, spacing=5, size_hint_y=None)
@@ -128,9 +137,10 @@ class ClientLayout(BoxLayout):
         self.debug_tab = TabbedPanelItem(text='Debug') # orig
         self.debug_tab.add_widget(debug_scroll)
 
-        # Add the 4 tabs to the panel.
+        # Add the 5 tabs to the panel.
         self.tabbed_panel.add_widget( self.get_tab )
         self.tabbed_panel.add_widget( self.set_tab )
+        self.tabbed_panel.add_widget( self.fil_tab )
         self.tabbed_panel.add_widget( self.oth_tab )
         self.tabbed_panel.add_widget( self.debug_tab )
 
@@ -200,6 +210,12 @@ class ClientLayout(BoxLayout):
                 match = re.match(r'\s*(\w+)\s*-\s*(.+)', line)
                 if match:
                     cmd, desc = match.groups()
+
+                    if 'File' in desc: 
+                        words = desc.split()
+                        words.insert(2, '\n')
+                        desc = ' '.join(words)
+
                     self.add_command_button(cmd, desc)
 
         if 'Server killed' in text or 'Disconnected' in text:
@@ -221,6 +237,8 @@ class ClientLayout(BoxLayout):
             self.get_tab_content.add_widget(btn)
         elif 'Set' in label:
             self.set_tab_content.add_widget(btn)
+        elif 'File' in label:
+            self.fil_tab_content.add_widget(btn)
         else:
             self.oth_tab_content.add_widget(btn)
     ###################
@@ -238,7 +256,7 @@ class ClientLayout(BoxLayout):
             self.input.disabled = True
             self.set_input.opacity = 1
             self.set_input.disabled = False
-        else:  # 'Get' or unknown
+        else:  # 'Get' or 'File' or unknown
             self.input.opacity = 0
             self.input.disabled = True
             self.set_input.opacity = 0

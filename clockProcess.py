@@ -4,6 +4,13 @@ import styleMgmtRoutines as sm
 #############################################################################
 #############################################################################
 
+# Started 11-Jun-25
+# Stopped 05-Sep-25
+# Num Days On 86
+# Clock Slow by 12 Sec.
+# Clock looses 1 second every 86/12 = 7.17 days.
+# Every day the clock looses .140 seconds.
+
 def getStartTime( startTime ):
     #print(startTime)
     if len(startTime) > 2:
