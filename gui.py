@@ -5,17 +5,17 @@ import sys
 from functools import partial
 
 from kivy.uix.tabbedpanel import TabbedPanel, TabbedPanelItem
-from kivy.uix.gridlayout import GridLayout
-from kivy.uix.scrollview import ScrollView
-from kivy.uix.boxlayout import BoxLayout
-from kivy.uix.textinput import TextInput
-from kivy.uix.button import Button
-from kivy.uix.popup import Popup
-from kivy.uix.label import Label
-from kivy.metrics import dp
-from kivy.utils import platform
-from kivy.clock import Clock
-from kivy.app import App
+from kivy.uix.gridlayout  import GridLayout
+from kivy.uix.scrollview  import ScrollView
+from kivy.uix.boxlayout   import BoxLayout
+from kivy.uix.textinput   import TextInput
+from kivy.uix.button      import Button
+from kivy.uix.popup       import Popup
+from kivy.uix.label       import Label
+from kivy.metrics         import dp
+from kivy.utils           import platform
+from kivy.clock           import Clock
+from kivy.app             import App
 
 import cfg
 #############################################################################
@@ -72,13 +72,13 @@ class ClientLayout(BoxLayout):
         # Create 2 TextInput widgets.  Both hidden by default.
         height = dp(60) if platform == 'android' else 40
 
-        self.input     = TextInput( hint_text = 'Enter cmd',   multiline = False,
-                                    size_hint_y = None, height = height )
-        self.set_input = TextInput( hint_text = 'Enter value', multiline = False,
-                                    size_hint_y = None, height = height )
+        self.dbg_input = TextInput( hint_text = 'Enter cmd and any required/optional parms',  
+                                    multiline = False, size_hint_y = None, height = height )
+        self.prm_input = TextInput( hint_text = 'Enter any required/optional parms',
+                                    multiline = False, size_hint_y = None, height = height )
 
-        self.input.opacity,  self.set_input.opacity  = 0, 0
-        self.input.disabled, self.set_input.disabled = True, True
+        self.dbg_input.opacity,  self.prm_input.opacity  = 0, 0
+        self.dbg_input.disabled, self.prm_input.disabled = True, True
 
         # Create 1 send Button widget.
         self.send_button = Button( text = 'Send' )
@@ -148,8 +148,8 @@ class ClientLayout(BoxLayout):
         self.tabbed_panel.bind( current_tab = self.on_tab_switch )
 
         # Add 4 widgets to final layout structure.
-        self.add_widget( self.input )
-        self.add_widget( self.set_input )
+        self.add_widget( self.dbg_input )
+        self.add_widget( self.prm_input )
         self.add_widget( self.tabbed_panel )
         self.add_widget( output_scroll )
     ###################
@@ -219,7 +219,8 @@ class ClientLayout(BoxLayout):
                     self.add_command_button(cmd, desc)
 
         if 'Server killed' in text or 'Disconnected' in text:
-            self.input.disabled = True
+            self.dbg_input.disabled   = True
+            self.prm_input.disabled   = True
             self.send_button.disabled = True
             for tab_content in [self.get_tab_content, self.set_tab_content, self.oth_tab_content]:
                 for child in tab_content.children:
@@ -247,44 +248,45 @@ class ClientLayout(BoxLayout):
         # This method takes care of hiding one or both of the input
         # widgets depending upon which tab is active.
         if tab.text == 'Debug':
-            self.input.opacity = 1
-            self.input.disabled = False
-            self.set_input.opacity = 0
-            self.set_input.disabled = True
-        elif tab.text in ['Set', 'Other']:
-            self.input.opacity = 0
-            self.input.disabled = True
-            self.set_input.opacity = 1
-            self.set_input.disabled = False
-        else:  # 'Get' or 'File' or unknown
-            self.input.opacity = 0
-            self.input.disabled = True
-            self.set_input.opacity = 0
-            self.set_input.disabled = True
+            self.dbg_input.opacity = 1
+            self.dbg_input.disabled = False
+            self.prm_input.opacity = 0
+            self.prm_input.disabled = True
+        elif tab.text in ['Set', 'File', 'Other']:
+            self.dbg_input.opacity = 0
+            self.dbg_input.disabled = True
+            self.prm_input.opacity = 1
+            self.prm_input.disabled = False
+        else:  # 'Get' or unknown
+            self.dbg_input.opacity = 0
+            self.dbg_input.disabled = True
+            self.prm_input.opacity = 0
+            self.prm_input.disabled = True
     ###################
 
     def send_command(self, inText, instance):
         # This method constructs the command string to be sent to the server.
         # The srting is built from inText parm (button cmd) + any text from
         # an input widget (if not a Get).
+        #print('inText, instance = *{}*, *{}*'.format(inText.strip(), instance.text ))
+
         cmd = ''
-        if instance.text == 'Send':
-            if self.tabbed_panel.current_tab.text == 'Debug':
-                cmd = self.input.text.strip()
-            else:
-                cmd = self.set_input.text.strip()
-        else:
-            # Button-based command
+        if instance.text == 'Send':  # Debug-based command (manually typed command).
+            cmd = self.dbg_input.text.strip()
+            self.dbg_input.text = ''
+        else:                        # Button-based command.
             cmd = inText.strip()
-            if self.tabbed_panel.current_tab.text in ['Set', 'Other']:
-                param = self.set_input.text.strip()
+            if self.tabbed_panel.current_tab.text in ['Set', 'File', 'Other']:
+                param = self.prm_input.text.strip()
+                self.prm_input.text = ''
                 if param:
                     cmd += f' {param}'
+
         if not cmd:
             return
+
+        #print('cmd: ', cmd)
         self.conn.send_command(cmd)
-        self.input.text = ''
-        self.set_input.text = ''
 #############################################################################
 class ClientConnection:
     def __init__(self, ip, port, pwd, on_receive_callback):

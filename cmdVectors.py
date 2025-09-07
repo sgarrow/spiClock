@@ -41,7 +41,7 @@ def disconnect():  # Handled directly in the handleClient func so it
                    # is done a func needs to exist. Func never called/runs.
 #############################################################################
 def getVer():
-    VER = ' v1.4.12 - 05-Sep-2025'
+    VER = ' v1.4.13 - 07-Sep-2025'
     return [VER]
 #############################################################################
 
@@ -229,6 +229,9 @@ def vector(inputStr,styleDic,styleLk): # called from handleClient.
 
         elif choice in ['hlp']:
             params = [optArgsStr,vectorDict]
+
+        elif choice in ['ral','rsl','rse'] and len(optArgsStr) > 0:
+            params[1] = optArgsStr
 
         #try:                   # Catch exceptions in command procesing.
         if params is None:

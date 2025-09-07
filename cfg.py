@@ -2,7 +2,7 @@
 #############################################################################
 
 def getCfgDict(uut):
-    print(uut)
+    #print(uut)
     requiredKeys = ['myLan', 'myIP', 'myPort', 'myPwd']
     cfgDict = {}
     try:

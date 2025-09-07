@@ -164,5 +164,3 @@ def writeFile(fName, inStr):
     with open(fName, 'a', encoding='utf-8') as f:
         f.write( inStr )
         f.flush()
-
-
