@@ -36,6 +36,8 @@ def getUserInput( uiToMainQ, aLock ):
             prompt = '\n Choice (m=menu, close) -> '
             userInput = input( prompt )
             uiToMainQ.put(userInput)
+            if userInput in ['ks','close']:
+                break
         time.sleep(.01) # Gives 'main' a chance to run.
 #############################################################################
 
