@@ -202,7 +202,8 @@ class ClientLayout(BoxLayout):
         # If the response is to the "m" command then this method also
         # populates buttons.  Furthermore is the response to to either the
         # "close" or "ks" command then this method disables the GUI.
-        self.output.text += f'\n{text}'
+        if 'COMMANDS' not in text:
+            self.output.text += f'\n{text}'
 
         if 'COMMANDS' in text:
             menu_lines = text.splitlines()

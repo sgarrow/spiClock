@@ -26,54 +26,78 @@ def getDayTime(prmLst):
     styleDict, styleDictLock = prmLst[0], prmLst[1]
     with styleDictLock:
         dayTime = styleDict['dayTime']
-    return [str(dayTime), dayTime]
+
+    logStr = ' Day Time is {}{}:{}{}:{}{}.'.\
+    format( dayTime[0], dayTime[1], dayTime[2], 
+            dayTime[3], dayTime[4], dayTime[5])
+
+    return [logStr, dayTime]
 #############################################################################
 
 def getNightTime(prmLst):
     styleDict, styleDictLock = prmLst[0], prmLst[1]
     with styleDictLock:
         nightTime = styleDict['nightTime']
-    return [str(nightTime),nightTime]
+
+    logStr = ' Night Time is {}{}:{}{}:{}{}.'.\
+    format( nightTime[0], nightTime[1], nightTime[2], 
+            nightTime[3], nightTime[4], nightTime[5])
+
+    return [logStr,nightTime]
+#############################################################################
+
+def checkTime(timeStrLst):
+    logStr = ''
+    numLst = []
+
+    timeStr   = ''.join(timeStrLst)
+    numStrLst = [ ''.join(x) for x in timeStr if x.isdigit()]
+
+    if len(numStrLst) != 6:
+        logStr += ' ERROR. num digits not six (is {}).\n'.format(len(numStrLst))
+    else:
+        numLst = [ int(x) for x in numStrLst ]
+        if numLst[0]*10 + numLst[1] > 23: logStr += ' ERROR. hour > 23.\n'
+        if numLst[2]*10 + numLst[3] > 59: logStr += ' ERROR. min  > 59.\n'
+        if numLst[4]*10 + numLst[5] > 59: logStr += ' ERROR. sec  > 59.\n'
+
+    if logStr != '':
+        logStr += ' Example time entry - 18:59:30\n'
+    return logStr, numLst
 #############################################################################
 
 def setDayTime(prmLst):
     timeLst, styleDict, styleDictLock = prmLst[0], prmLst[1], prmLst[2]
-    if len(timeLst) < 6:
-        return [' too few parms detected']
-    if not all( s.isdigit() for s in timeLst ):
-        return [' non digit detected']
+    logStr, sixNums = checkTime( timeLst )
 
-    sixNums = [ int(ii) for ii in timeLst ]
+    if 'ERROR' not in logStr:
+        with styleDictLock:
+            styleDict['dayTime'] = sixNums
 
-    if not all(x < 10 for x in sixNums):
-        return [' > 10 detected']
-    if sixNums[0] > 2 or sixNums[2] > 6 or sixNums[4] > 6:
-        return [' invalided time detected']
+        logStr += ' Day Time set to {}{}:{}{}:{}{}.'.\
+        format( sixNums[0], sixNums[1], sixNums[2], 
+                sixNums[3], sixNums[4], sixNums[5])
+    else:
+        logStr += ' Day Time not set.'
 
-    with styleDictLock:
-        styleDict['dayTime'] = sixNums
-
-    return [str(sixNums)]
+    return [logStr]
 #############################################################################
 
 def setNightTime(prmLst):
     timeLst, styleDict, styleDictLock = prmLst[0], prmLst[1], prmLst[2]
-    if len(timeLst) < 6:
-        return [' too few parms detected']
-    if not all( s.isdigit() for s in timeLst ):
-        return [' non digit detected']
+    logStr, sixNums = checkTime( timeLst )
 
-    sixNums = [ int(ii) for ii in timeLst ]
+    if 'ERROR' not in logStr:
+        with styleDictLock:
+            styleDict['nightTime'] = sixNums
 
-    if not all(x < 10 for x in sixNums):
-        return [' > 10 detected']
-    if sixNums[0] > 2 or sixNums[2] > 6 or sixNums[4] > 6:
-        return [' invalided time detected']
+        logStr += ' Night Time set to {}{}:{}{}:{}{}.'.\
+        format( sixNums[0], sixNums[1], sixNums[2], 
+                sixNums[3], sixNums[4], sixNums[5])
+    else:
+        logStr += ' Night Time not set.'
 
-    with styleDictLock:
-        styleDict['nightTime'] = sixNums
-
-    return [str(sixNums)]
+    return [logStr]
 #############################################################################
 @fixDocString
 def getDayStyle(prmLst):
@@ -257,7 +281,10 @@ def getAllStyles():
             rspStr += ' {:2} - {:18}'.format(k,v)
             for k1,v1 in rgbValuesDict.items():
                 if v in k1:
-                    rspStr += ' {}\n'.format(v1)
+                    words = v1.split()
+                    for w in words:
+                        rspStr += '{:>4}'.format(w)
+                    rspStr += '\n'
                     break
 
     return [rspStr,pikFileNameDicNoExt]
