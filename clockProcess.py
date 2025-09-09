@@ -11,42 +11,45 @@ import styleMgmtRoutines as sm
 # Clock looses 1 second every 86/12 = 7.17 days.
 # Every day the clock looses .140 seconds.
 
-def getStartTime( startTime ):
-    #print(startTime)
-    if len(startTime) > 2:
-        try:
-            hours   = min(int(startTime[0]), 23)
-            minutes = min(int(startTime[1]), 59)
-            seconds = min(int(startTime[2]), 59)
-        except ValueError:
-            #print('starttime exception, set to 23 59 58.')
-            hours   = 23
-            minutes = 59
-            seconds = 58
+def getStartTime( parmLst ): # ['12', '34', '56', 'x']
+
+    dfltHours, dfltMinutes, dfltSeconds = 23,59,58
+    usingDefault = False
+
+    containsX = any('x' in s for s in parmLst)
+    logStr, sixNums = sm.checkTime( parmLst )
+
+    if len(parmLst) == 0:
+        now = dt.datetime.now()
+        hours, minutes, seconds = now.hour, now.minute, now.second
+        #print(' time set to dt.datetime.now = {}.'.format(dt.datetime.now()))
+
+    else: # Parms were entered. Use them if they're ok, else use default.
+
+        if 'ERROR' not in logStr:
+            hours   = sixNums[0]*10 + sixNums[1]
+            minutes = sixNums[2]*10 + sixNums[3]
+            seconds = sixNums[4]*10 + sixNums[5]
+            #print(' time set to parms = {:2}:{:2}:{:2}'.format(hours, minutes, seconds))
         else:
-            #print('syncing provided time w/ dt.datetime.now.')
-            if len(startTime) == 3:
+            hours, minutes, seconds = dfltHours, dfltMinutes, dfltSeconds
+            #print(' time set to default = 23:59:58')
+            usingDefault = True
+
+        if not containsX:
+            if not usingDefault:
+                #print(' syncing')
                 while True:
                     time.sleep(.2)
-                    now    = dt.datetime.now()
-                    hour   = now.hour
-                    minute = now.minute
-                    second = now.second
-                    if (hours==hour and minute==minutes and second==seconds):
+                    now = dt.datetime.now()
+                    if ( hours   == now.hour   and \
+                         minutes == now.minute and \
+                         seconds == now.second):
+                        #print(' sync complete')
                         break
             else:
-                #print('starttime set to provided time.')
-                hour   = hours
-                minute = minutes
-                second = seconds
-
-    else:
-        #print('starttime is dt.datetime.now.')
-        now    = dt.datetime.now()
-        hour   = now.hour
-        minute = now.minute
-        second = now.second
-        hours, minutes, seconds = hour, minute, second
+                pass
+                #print(' cannot sync when using defaults')
 
     timeDict = { 'hrMSD' : { 'value' : hours   // 10 , 'updated' : True },
                  'hrLSD' : { 'value' : hours    % 10 , 'updated' : True },
