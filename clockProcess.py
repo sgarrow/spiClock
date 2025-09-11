@@ -4,13 +4,6 @@ import styleMgmtRoutines as sm
 #############################################################################
 #############################################################################
 
-# Started 11-Jun-25
-# Stopped 05-Sep-25
-# Num Days On 86
-# Clock Slow by 12 Sec.
-# Clock looses 1 second every 86/12 = 7.17 days.
-# Every day the clock looses .140 seconds.
-
 def getStartTime( parmLst ): # ['12', '34', '56', 'x']
 
     dfltHours, dfltMinutes, dfltSeconds = 23,59,58
@@ -19,26 +12,26 @@ def getStartTime( parmLst ): # ['12', '34', '56', 'x']
     containsX = any('x' in s for s in parmLst)
     logStr, sixNums = sm.checkTime( parmLst )
 
-    if len(parmLst) == 0:
-        now = dt.datetime.now()
+    if len(parmLst) == 0:          # Parms entered?
+        now = dt.datetime.now()    # Parms not entered, use dt.datetime.
         hours, minutes, seconds = now.hour, now.minute, now.second
         #print(' time set to dt.datetime.now = {}.'.format(dt.datetime.now()))
 
-    else: # Parms were entered. Use them if they're ok, else use default.
+    else:
 
-        if 'ERROR' not in logStr:
+        if 'ERROR' not in logStr:  # Parms entered, use them if they're ok.
             hours   = sixNums[0]*10 + sixNums[1]
             minutes = sixNums[2]*10 + sixNums[3]
             seconds = sixNums[4]*10 + sixNums[5]
             #print(' time set to parms = {:2}:{:2}:{:2}'.format(hours, minutes, seconds))
-        else:
+        else:                      # Parms not ok, use defaults.
             hours, minutes, seconds = dfltHours, dfltMinutes, dfltSeconds
             #print(' time set to default = 23:59:58')
             usingDefault = True
 
-        if not containsX:
-            if not usingDefault:
-                #print(' syncing')
+        if not containsX:          # Parm to use eXact entered?
+            if not usingDefault:   # yes, sync to dt.datetime.
+                #print(' syncing') 
                 while True:
                     time.sleep(.2)
                     now = dt.datetime.now()
@@ -48,9 +41,10 @@ def getStartTime( parmLst ): # ['12', '34', '56', 'x']
                         #print(' sync complete')
                         break
             else:
-                pass
+                pass               # No, don't sync. Use eXact time entered.
                 #print(' cannot sync when using defaults')
 
+    # Initialize/return timeDict for use in updating LCD (via Q in clockCntrProc)
     timeDict = { 'hrMSD' : { 'value' : hours   // 10 , 'updated' : True },
                  'hrLSD' : { 'value' : hours    % 10 , 'updated' : True },
                  'mnMSD' : { 'value' : minutes // 10 , 'updated' : True },
@@ -61,8 +55,18 @@ def getStartTime( parmLst ): # ['12', '34', '56', 'x']
     return timeDict
 #############################################################################
 
-def updateCntr(timeDict,styleDic,styleLk):
+# Test data
+# Started 11-Jun-25
+# Stopped 05-Sep-25
+# Num Days On 86
+# Clock Slow by 12 Sec.
+# Clock looses 1 second every 86/12 = 7.17 days.
+# 7.17 days = 7.17 * 24 * 60 * 60 = 619,488 seconds.
+# Clock looses 1 second every 619,488 seconds.
+# Every 619,488 seconds schedule adding an extra second.
 
+def updateCntr(timeDict,styleDic,styleLk):
+    # Update timeDict which was previoulsy initialized via getStartTime.
     kStart = time.perf_counter()
     prevDict = timeDict.copy()
 
@@ -99,6 +103,7 @@ def updateCntr(timeDict,styleDic,styleLk):
     else:
         style = None
 
+    # Update/return timeDict for use in updating LCD (via Q in clockCntrProc)
     timeDict = {
     'hrMSD':{'value': hrMSD, 'updated': prevDict['hrMSD']['value'] != hrMSD},
     'hrLSD':{'value': hrLSD, 'updated': prevDict['hrLSD']['value'] != hrLSD},
