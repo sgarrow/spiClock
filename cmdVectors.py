@@ -41,7 +41,7 @@ def disconnect():  # Handled directly in the handleClient func so it
                    # is done a func needs to exist. Func never called/runs.
 #############################################################################
 def getVer():
-    VER = ' v1.4.16 - 10-Sep-2025'
+    VER = ' v1.4.17 - 11-Sep-2025'
     return [VER]
 #############################################################################
 
@@ -124,7 +124,6 @@ def vector(inputStr,styleDic,styleLk): # called from handleClient.
 
     'ks'  : 'Kill  Server',
     }
-    dfltMDSPrm  = [ 'redOnGreen', '255','0','0', '0','0','255' ]
     dfltSCPrm   = [ [], qs, styleDic, styleLk ]
     dfltSASParm = [ 'None', styleDic, styleLk, lcdCq ]
 
@@ -147,7 +146,7 @@ def vector(inputStr,styleDic,styleLk): # called from handleClient.
     'sns':{ 'fun': sm.setNightStyle,    'prm': ['None',styleDic,styleLk],    'mnMnu': mTxt['sns']},
 
     # Worker Function in makeScreens.py.
-    'mus':{ 'fun': ms.mkUsrDigPikF,     'prm': dfltMDSPrm,                   'mnMnu': mTxt['mus']},
+    'mus':{ 'fun': ms.mkUsrDigPikF,     'prm': [],                           'mnMnu': mTxt['mus']},
 
     # Worker Function in styleMgmtRoutines.py.
     'gdt':{ 'fun': sm.getDayTime,       'prm': [styleDic,styleLk],           'mnMnu': mTxt['gdt']},
@@ -160,12 +159,12 @@ def vector(inputStr,styleDic,styleLk): # called from handleClient.
 
     # Worker Function in utils.py.
     'us' :{ 'fun' : su.updateSw,        'prm': None,                         'mnMnu': mTxt['us' ]},
-    'ral':{ 'fun' : ut.readFile,        'prm' : ['appLog.txt',[5]],          'mnMnu': mTxt['ral'] },
-    'rsl':{ 'fun' : ut.readFile,        'prm' : ['serverLog.txt',[5]],       'mnMnu': mTxt['rsl'] },
-    'rse':{ 'fun' : ut.readFile,        'prm' : ['serverException.txt',[5]], 'mnMnu': mTxt['rse'] },
-    'cal':{ 'fun' : ut.clearFile,       'prm' : ['appLog.txt'],              'mnMnu': mTxt['cal'] },
-    'csl':{ 'fun' : ut.clearFile,       'prm' : ['serverLog.txt'],           'mnMnu': mTxt['csl'] },
-    'cse':{ 'fun' : ut.clearFile,       'prm' : ['serverException.txt'],     'mnMnu': mTxt['cse'] },
+    'ral':{ 'fun' : ut.readFile,        'prm': ['appLog.txt',[5]],           'mnMnu': mTxt['ral'] },
+    'rsl':{ 'fun' : ut.readFile,        'prm': ['serverLog.txt',[5]],        'mnMnu': mTxt['rsl'] },
+    'rse':{ 'fun' : ut.readFile,        'prm': ['serverException.txt',[5]],  'mnMnu': mTxt['rse'] },
+    'cal':{ 'fun' : ut.clearFile,       'prm': ['appLog.txt'],               'mnMnu': mTxt['cal'] },
+    'csl':{ 'fun' : ut.clearFile,       'prm': ['serverLog.txt'],            'mnMnu': mTxt['csl'] },
+    'cse':{ 'fun' : ut.clearFile,       'prm': ['serverException.txt'],      'mnMnu': mTxt['cse'] },
 
     # Worker Function in this module.
     'hlp':{ 'fun': getHelp,             'prm': None,                         'mnMnu': mTxt['hlp']},

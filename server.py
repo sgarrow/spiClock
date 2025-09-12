@@ -10,7 +10,7 @@ import utils           as ut # For access to openSocketsLst[].
 
 def listThreads(): # Daemon to startServer, terminates w/ kill server (ks).
     while True:
-        time.sleep(60*60*24*7)
+        time.sleep(60*60*24*365)
         print(' ##################')
         print(' Active Threads: ')
         for t in threading.enumerate():

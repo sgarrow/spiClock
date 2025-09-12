@@ -1,5 +1,6 @@
 import os
 import pickle
+import time
 from PIL import Image, ImageDraw, ImageFont # pylint: disable=E0401
 #############################################################################
 #############################################################################
@@ -153,7 +154,7 @@ def mkDigPikFile( styleName, textLst, textColor, backgroundColor ):
     #
     # This function is also called by functions in testRoutines.py.
 
-    print('making',styleName)
+    #print('making',styleName)
 
     digitScreenDict2 = {}
     for t in textLst:
@@ -163,7 +164,7 @@ def mkDigPikFile( styleName, textLst, textColor, backgroundColor ):
     fName = 'digitScreenStyles/{}.pickle'.format(styleName)
     with open(fName, 'wb') as handle:
         pickle.dump(digitScreenDict2, handle)
-    print(' {} saved.'.format(fName))
+    #print(' {} saved.'.format(fName))
 
     fName = 'digitScreenStyles/{}.RGB.txt'.format(styleName)
     with open(fName, 'w', encoding='utf-8') as handle:
@@ -171,7 +172,7 @@ def mkDigPikFile( styleName, textLst, textColor, backgroundColor ):
         handle.write( tmpStr )
         tmpStr = ' '.join(map(str, backgroundColor))
         handle.write( tmpStr )
-    print(' {} saved.'.format(fName))
+    #print(' {} saved.'.format(fName))
 
     return ['{} made.'.format(styleName)]
 #############################################################################
@@ -180,22 +181,32 @@ def mkUsrDigPikF( parmLst ):
 
     # User interface to mkDigPikFile, see comment therein.
 
-    if len(parmLst) < 7:
-        print('too few parms')
-        return ['done']
+    #kStart = time.perf_counter()
+
+    usage = ''' ERROR: {}
+ Required Parameters: styleName R G B R G B
+ Example: redOnBlue 255 0 0 0 0 255
+ The first parm is the name of the style.
+ Next 3 parms are the RGB values used for the digit
+ Last 3 parms are the RGB values used for the background.'''
+
+    if len(parmLst) != 7:
+        return [usage.format('Incorrect number of parameters.')]
     if not all( s.isdigit() for s in parmLst[1:] ):
-        print('non digit detected')
-        return ['done']
+        return [usage.format('Non-digit detected.')]
+
     sixNums = [ int(ii) for ii in parmLst[1:] ]
+
     if not all(x < 256 for x in sixNums):
-        print('> 255 detected')
-        return ['done']
+        return [usage.format('> 255 detected.')]
 
     textLst = ['0','1','2','3','4','5','6','7','8','9']
     st  = parmLst[0]
     tc  = ( sixNums[0],sixNums[1],sixNums[2] )
     bc  = ( sixNums[3],sixNums[4],sixNums[5] )
     rsp = mkDigPikFile(st, textLst, tc, bc)
+    #exeTime = time.perf_counter()-kStart # pylint: disable=W0612
+    #print('Time spent updating counter = {:10.6f}'.format(exeTime))
 
     return rsp
 #############################################################################
@@ -207,13 +218,14 @@ if __name__ == '__main__':
     white     = ( 255, 255, 255 )
     orange    = ( 239, 144,   1 )
     turquoise = (  18, 151, 128 )
+    lightRed  = (  96,   0,   0 )
     txtLst   = ['0','1','2','3','4','5','6','7','8','9']
 
     styleNames = [ 'whiteOnBlack',      'blackOnWhite',
                    'orangeOnTurquoise', 'turquoiseOnOrange',
-                   'greyOnBlack']
-    txtColors  = [ white, black, orange,    turquoise, grey  ]
-    backColors = [ black, white, turquoise, orange,    black ]
+                   'greyOnBlack',       'ltRedOnBlack']
+    txtColors  = [ white, black, orange,    turquoise, grey,  lightRed ]
+    backColors = [ black, white, turquoise, orange,    black, black ]
 
     for style,tColor,bColor in zip(styleNames, txtColors, backColors):
         resp = mkDigPikFile(style, txtLst, tColor, bColor)

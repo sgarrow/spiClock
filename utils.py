@@ -43,14 +43,14 @@ def displayPics(prmLst):
     rspStr = getActiveThreads()
     stoppedClock = False
     if 'clockCntrProc' in rspStr[0] or 'lcdUpdateProc' in rspStr[0]:
-        print('stopping clock')
+        #print('stopping clock')
         cr.stopClk(qs)
         stoppedClock = True
 
     ##################################
     rspStr = getActiveThreads()
     if 'MainThread' not in rspStr[0]:
-        print('reseting LCD')
+        #print('reseting LCD')
 
         dspIdLst = [ 'hrMSD','hrLSD','mnMSD','mnLSD','scMSD','scLSD' ]
         sr.hwReset()              # HW Reset
@@ -71,7 +71,7 @@ def displayPics(prmLst):
     ##################################
 
     if stoppedClock:
-        print('starting clock')
+        #print('starting clock')
         cr.startClk([startTimeLst,qs,styleDic,styleLk])
 
     return ['done']

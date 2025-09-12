@@ -103,7 +103,10 @@ if __name__ == '__main__':
             clientSocket.send(message.encode())
 
         with threadLock:  # Same story.
-            readyToRead, _, _ = select.select([clientSocket], [], [], .6)
+            if any(word in message for word in ['mus', 'ks']):
+                readyToRead, _, _ = select.select([clientSocket], [], [], 1.6)
+            else:
+                readyToRead, _, _ = select.select([clientSocket], [], [], .6)
             if readyToRead:
                 rspStr = ''
                 while readyToRead:
