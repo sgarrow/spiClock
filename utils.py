@@ -13,7 +13,7 @@ def getMultiProcSharedDict():
     styleDict = manager.dict({
         'activeDigitStyle': 'whiteOnBlack',
         'dayDigitStyle'   : 'orangeOnTurquoise',
-        'nightDigitStyle' : 'greyOnBlack',
+        'nightDigitStyle' : 'ltRedOnBlack',
         'nightTime'       : [ 2, 1, 0, 0, 0, 0 ],
         'dayTime'         : [ 0, 7, 0, 0, 0, 0 ],
         'alarmTime'       : [ 0, 0, 0, 0, 0, 0 ], 

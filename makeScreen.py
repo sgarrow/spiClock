@@ -1,6 +1,7 @@
 import os
 import pickle
 import time
+import styleMgmtRoutines as sm
 from PIL import Image, ImageDraw, ImageFont # pylint: disable=E0401
 #############################################################################
 #############################################################################
@@ -209,6 +210,36 @@ def mkUsrDigPikF( parmLst ):
     #print('Time spent updating counter = {:10.6f}'.format(exeTime))
 
     return rsp
+#############################################################################
+
+def delUsrDigPikF( parmLst ):
+
+    usage = ''' ERROR: {}
+ Required Parameters: styleNumber
+ Example: 5
+ The parm is the index number of the style to delete.
+{} '''
+
+    rspLst      = sm.getAllStyles()
+    funcRspStr  = rspLst[0]
+    allStyleDic = rspLst[1]  # eg: {0: 'whiteOnBlack', 1: 'blackOnWhite'}.
+
+    if len(parmLst) != 1:
+        return [usage.format(' Incorrect number of parameters.',funcRspStr)]
+    if not all( s.isdigit() for s in parmLst ):
+        return [usage.format(' Non-digit detected.',funcRspStr)]
+    
+    dsrdStyleIdx = int(parmLst[0])
+
+    if dsrdStyleIdx not in allStyleDic:
+        return [usage.format(' Invalid index.',funcRspStr)]
+
+    fName = 'digitScreenStyles/{}.RGB.txt'.format(allStyleDic[int(dsrdStyleIdx)] )
+    os.remove(fName)
+    fName = 'digitScreenStyles/{}.pickle'.format( allStyleDic[int(dsrdStyleIdx)] )
+    os.remove(fName)
+
+    return [' Style {} deleted'.format(allStyleDic[int(dsrdStyleIdx)])]
 #############################################################################
 
 if __name__ == '__main__':
