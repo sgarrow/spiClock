@@ -223,23 +223,45 @@ def delUsrDigPikF( parmLst ):
     rspLst      = sm.getAllStyles()
     funcRspStr  = rspLst[0]
     allStyleDic = rspLst[1]  # eg: {0: 'whiteOnBlack', 1: 'blackOnWhite'}.
+    greyOnBlackKey = next((k for k, v in allStyleDic.items() if v == 'greyOnBlack'), None)
 
-    if len(parmLst) != 1:
+    if parmLst[0] == 'None' or len(parmLst[0]) != 1:
         return [usage.format(' Incorrect number of parameters.',funcRspStr)]
-    if not all( s.isdigit() for s in parmLst ):
-        return [usage.format(' Non-digit detected.',funcRspStr)]
+    if not all( s.isdigit() for s in parmLst[0] ):
+        return [usage.format(' Non-digit detected in parameter.',funcRspStr)]
     
-    dsrdStyleIdx = int(parmLst[0])
+    dsrdStyleIdx,styleDict,styleDictLock,lcdCq = \
+    int(parmLst[0][0]),parmLst[1],parmLst[2],parmLst[3]
 
     if dsrdStyleIdx not in allStyleDic:
-        return [usage.format(' Invalid index.',funcRspStr)]
+        return [usage.format(' Parameter out of range.',funcRspStr)]
 
-    fName = 'digitScreenStyles/{}.RGB.txt'.format(allStyleDic[int(dsrdStyleIdx)] )
+    if allStyleDic[dsrdStyleIdx] == 'greyOnBlack':
+        return [usage.format(' Style greyOnBlack cannot be deleted.',funcRspStr)]
+
+
+    rspStr = ''
+    ads = sm.getActiveStyle( [styleDict, styleDictLock] )[0]
+    dds = sm.getDayStyle(    [styleDict, styleDictLock] )[0]
+    nds = sm.getNightStyle(  [styleDict, styleDictLock] )[0]
+
+    if ads == allStyleDic[dsrdStyleIdx]:
+        sm.setActiveStyle( [str(greyOnBlackKey), styleDict, styleDictLock,lcdCq] )
+        rspStr += ' Active Style changed from {} to greyOnBlack.\n'.format(ads)
+    if dds == allStyleDic[dsrdStyleIdx]:
+        sm.setDayStyle( [str(greyOnBlackKey), styleDict, styleDictLock] )
+        rspStr += ' Day Style changed from {} to greyOnBlack.\n'.format(dds)
+    if nds == allStyleDic[dsrdStyleIdx]:
+        sm.setNightStyle( [str(greyOnBlackKey), styleDict, styleDictLock] )
+        rspStr += ' Night Style changed from {} to greyOnBlack.\n'.format(nds)
+
+    fName = 'digitScreenStyles/{}.RGB.txt'.format(allStyleDic[dsrdStyleIdx] )
     os.remove(fName)
-    fName = 'digitScreenStyles/{}.pickle'.format( allStyleDic[int(dsrdStyleIdx)] )
+    fName = 'digitScreenStyles/{}.pickle'.format( allStyleDic[dsrdStyleIdx] )
     os.remove(fName)
 
-    return [' Style {} deleted'.format(allStyleDic[int(dsrdStyleIdx)])]
+    rspStr += ' Style {} deleted.'.format(allStyleDic[dsrdStyleIdx])
+    return [rspStr]
 #############################################################################
 
 if __name__ == '__main__':

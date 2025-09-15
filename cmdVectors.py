@@ -41,7 +41,7 @@ def disconnect():  # Handled directly in the handleClient func so it
                    # is done a func needs to exist. Func never called/runs.
 #############################################################################
 def getVer():
-    VER = ' v1.4.18 - 12-Sep-2025'
+    VER = ' v1.4.19 - 14-Sep-2025'
     return [VER]
 #############################################################################
 
@@ -148,7 +148,7 @@ def vector(inputStr,styleDic,styleLk): # called from handleClient.
 
     # Worker Function in makeScreens.py.
     'mus':{ 'fun': ms.mkUsrDigPikF,     'prm': [],                           'mnMnu': mTxt['mus']},
-    'dus':{ 'fun': ms.delUsrDigPikF,    'prm': [],                           'mnMnu': mTxt['dus']},
+    'dus':{ 'fun': ms.delUsrDigPikF,    'prm': dfltSASParm,                  'mnMnu': mTxt['dus']},
 
     # Worker Function in styleMgmtRoutines.py.
     'gdt':{ 'fun': sm.getDayTime,       'prm': [styleDic,styleLk],           'mnMnu': mTxt['gdt']},
@@ -225,8 +225,11 @@ def vector(inputStr,styleDic,styleLk): # called from handleClient.
         elif choice in ['sdt','snt'] and len(optArgsStr) > 0:
             params[0] = optArgsStr
 
-        elif choice in ['mus','dus'] and len(optArgsStr) > 0:
+        elif choice in ['mus'] and len(optArgsStr) > 0:
             params = optArgsStr
+
+        elif choice in ['dus'] and len(optArgsStr) > 0:
+            params[0] = optArgsStr
 
         elif choice in ['hlp']:
             params = [optArgsStr,vectorDict]
