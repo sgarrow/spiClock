@@ -132,7 +132,7 @@ def getNightStyle(prmLst):
 #############################################################################
 
 @fixDocString
-def getActiveStyle(prmLst):
+def getActStyle(prmLst):
     '''
  Displays the name of the color style the clock is currently
  using.  
@@ -155,7 +155,7 @@ def setStyleDriver(prmLst):
     with styleDictLock:
         if    whoCalledMe == 'setDayStyle':    digitStyleStr = styleDict['dayDigitStyle']
         elif  whoCalledMe == 'setNightStyle':  digitStyleStr = styleDict['nightDigitStyle']
-        elif  whoCalledMe == 'setActiveStyle': digitStyleStr = styleDict['activeDigitStyle']
+        elif  whoCalledMe == 'setActStyle': digitStyleStr = styleDict['activeDigitStyle']
         else: digitStyleStr = 'ERROR' # Should never get here.
 
     rspLst      = getAllStyles()
@@ -171,7 +171,7 @@ def setStyleDriver(prmLst):
 
     if len(allStyleDic) > 0:
         if dsrdStyleIdx.isnumeric() and int(dsrdStyleIdx) < len(allStyleDic):
-            # if 'Style set' in rspStr: check is performed in setActiveStyle.
+            # if 'Style set' in rspStr: check is performed in setActStyle.
             rspStr  = ' Style set to {}.'.format(allStyleDic[int(dsrdStyleIdx)])
             digitStyleStr = allStyleDic[int(dsrdStyleIdx)] # eg: 'whiteOnBlack'.
             with styleDictLock:
@@ -179,7 +179,7 @@ def setStyleDriver(prmLst):
                     styleDict['dayDigitStyle']    = allStyleDic[int(dsrdStyleIdx)]
                 elif whoCalledMe == 'setNightStyle':
                     styleDict['nightDigitStyle']  = allStyleDic[int(dsrdStyleIdx)]
-                elif whoCalledMe == 'setActiveStyle':
+                elif whoCalledMe == 'setActStyle':
                     styleDict['activeDigitStyle'] = allStyleDic[int(dsrdStyleIdx)]
         else:
             rspStr  = ' Style not set.\n'
@@ -228,7 +228,7 @@ def setNightStyle(prmLst):
 
 @fixDocString2
 @fixDocString
-def setActiveStyle(prmLst):
+def setActStyle(prmLst):
     '''
  Sets the color style the clock will switch to immediately.
 
@@ -254,7 +254,7 @@ def getAllStyles():
 '''
     # Returns a list of all files in digitScreenStyles subdir.  Can be called
     # by the user (client) and also called by functions in testRoutines.py
-    # and by setActiveStyle(), above.  If the user specifies a non-existant
+    # and by setActStyle(), above.  If the user specifies a non-existant
     # style the a list of available styles is given to them.
     dPath= 'digitScreenStyles'
     try:
@@ -294,7 +294,7 @@ def loadActiveStyle(styleDict, styleDictLock):
     # Loads the dictionary (of digits/data) from the assocoated pickle file.
     # Called at clock startup (lcdUpdateProc start).  Also called when the
     # clock is alreadt running but the user changes the active style.
-    activeStyle = getActiveStyle([styleDict, styleDictLock])
+    activeStyle = getActStyle([styleDict, styleDictLock])
     dirPath = 'digitScreenStyles'
     fullFileName = os.path.join(dirPath, activeStyle[0]+'.pickle')
     #print(fullFileName)

@@ -241,12 +241,12 @@ def delUsrDigPikF( parmLst ):
 
 
     rspStr = ''
-    ads = sm.getActiveStyle( [styleDict, styleDictLock] )[0]
+    ads = sm.getActStyle( [styleDict, styleDictLock] )[0]
     dds = sm.getDayStyle(    [styleDict, styleDictLock] )[0]
     nds = sm.getNightStyle(  [styleDict, styleDictLock] )[0]
 
     if ads == allStyleDic[dsrdStyleIdx]:
-        sm.setActiveStyle( [str(greyOnBlackKey), styleDict, styleDictLock,lcdCq] )
+        sm.setActStyle( [str(greyOnBlackKey), styleDict, styleDictLock,lcdCq] )
         rspStr += ' Active Style changed from {} to greyOnBlack.\n'.format(ads)
     if dds == allStyleDic[dsrdStyleIdx]:
         sm.setDayStyle( [str(greyOnBlackKey), styleDict, styleDictLock] )

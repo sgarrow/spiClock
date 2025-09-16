@@ -41,7 +41,7 @@ def disconnect():  # Handled directly in the handleClient func so it
                    # is done a func needs to exist. Func never called/runs.
 #############################################################################
 def getVer():
-    VER = ' v1.4.19 - 14-Sep-2025'
+    VER = ' v1.4.20 - 15-Sep-2025'
     return [VER]
 #############################################################################
 
@@ -72,129 +72,57 @@ def getHelp(prmLst):
 
 def vector(inputStr,styleDic,styleLk): # called from handleClient.
 
-#    print('vector',styleDic, styleLk)
-    mTxt = {
-    # MAIN MENU
-    'sc'  : 'Start Clock',
-    'pc'  : 'Stop  Clock',
-    'cb'  : 'Ctrl Brightness',
-
-    'gas' : 'Get Active Style',
-    'gds' : 'Get Day Style',
-    'gns' : 'Get Night Style',
-    'gAs' : 'Get ALL Styles',
-    'sas' : 'Set Active Style',
-    'sds' : 'Set Day Style',
-    'sns' : 'Set Night Style',
-
-    'mus' : 'Make User Style',
-    'dus' : 'Delete User Style',
-
-    'gnt' : 'Get Night Time',
-    'gdt' : 'Get Day Time',
-    'snt' : 'Set Night Time',
-    'sdt' : 'Set Day Time',
-
-    'dp'  : 'Disp Pics',
-
-    'us'  : 'Update SW',
-    'ral' : 'Read App Log File',
-    'rsl' : 'Read Server Log File',
-    'rse' : 'Read Server Except File',
-    'cal' : 'Clear App Log File',
-    'csl' : 'Clear Server Log File',
-    'cse' : 'Clear Server Except File',
-
-    'hlp' : 'Help',
-    'gvn' : 'Get Version Number',
-    'tm'  : 'Test Menu',
-    'close' : 'Disconnect',
-
-    # TEST MENU
-    'rt1' : 'Run   Test 1',
-    'rt2' : 'Run   Test 2',
-    'rt3' : 'Run   Test 3',
-    'rt4' : 'Run   Test 4',
-
-    'rh'  : 'Reset LCD HW',
-    'rs'  : 'Reset LCD SW',
-    'sb'  : 'Set   LCD Backlight',
-
-    'gat' : 'Get   Active Threads',
-    'lc'  : 'List  Commands',
-
-    'ks'  : 'Kill  Server',
-    }
     dfltSCPrm   = [ [], qs, styleDic, styleLk ]
     dfltSASParm = [ 'None', styleDic, styleLk, lcdCq ]
 
     # This dictionary embodies the worker function vector (and menu) info.
     vectorDict = {
+    # GET COMMANDS
+    'gas':{ 'fun': sm.getActStyle,  'prm': [styleDic,styleLk],         'menu': 'Get Active Style'  },
+    'gds':{ 'fun': sm.getDayStyle,  'prm': [styleDic,styleLk],         'menu': 'Get Day Style'     },
+    'gns':{ 'fun': sm.getNightStyle,'prm': [styleDic,styleLk],         'menu': 'Get Night Style'   },
+    'gAs':{ 'fun': sm.getAllStyles, 'prm': None,                       'menu': 'Get ALL Styles'    },
+    'gdt':{ 'fun': sm.getDayTime,   'prm': [styleDic,styleLk],         'menu': 'Get Day Time'      },
+    'gnt':{ 'fun': sm.getNightTime, 'prm': [styleDic,styleLk],         'menu': 'Get Night Time'    },
+    'gat':{ 'fun': ut.getActThrds,  'prm': None,                       'menu': 'Get Active Threads'},
+    'gvn':{ 'fun': getVer,          'prm': None,                       'menu': 'Get Version Number'},
+                                                                                            
+    # SET COMMANDS
+    'sas':{ 'fun': sm.setActStyle,  'prm': dfltSASParm,                'menu': 'Set Active Style'  },
+    'sds':{ 'fun': sm.setDayStyle,  'prm': ['None',styleDic,styleLk],  'menu': 'Set Day Style'     },
+    'sns':{ 'fun': sm.setNightStyle,'prm': ['None',styleDic,styleLk],  'menu': 'Set Night Style'   },
+    'sdt':{ 'fun': sm.setDayTime,   'prm': ['None',styleDic,styleLk],  'menu': 'Set Day Time'      },
+    'snt':{ 'fun': sm.setNightTime, 'prm': ['None',styleDic,styleLk],  'menu': 'Set Night Time'    },
 
-    # MAIN MENU (displayed when m command issued).
-    # Worker Function in clockRoutines.py.
-    'sc' :{ 'fun': cr.startClk,         'prm': dfltSCPrm,                    'mnMnu': mTxt['sc' ]},
-    'pc' :{ 'fun': cr.stopClk,          'prm': qs,                           'mnMnu': mTxt['pc' ]},
-   #'cb' :{ 'fun': cr.ctrlBright,       'prm': ['None'],                     'mnMnu': mTxt['cb' ]},
+    # FILE COMMANDS
+    'ral':{ 'fun': ut.readFile,     'prm': ['appLog.txt',[5]],         'menu': 'Read App Log File'      },
+    'rsl':{ 'fun': ut.readFile,     'prm': ['serverLog.txt',[5]],      'menu': 'Read Server Log File'   },
+    'rse':{ 'fun': ut.readFile,     'prm': ['serverException.txt',[5]],'menu': 'Read Server Except File'},
+    'cal':{ 'fun': ut.clearFile,    'prm': ['appLog.txt'],             'menu': 'Clr App Log File'       },
+    'csl':{ 'fun': ut.clearFile,    'prm': ['serverLog.txt'],          'menu': 'Clr Server Log File'    },
+    'cse':{ 'fun': ut.clearFile,    'prm': ['serverException.txt'],    'menu': 'Clr Server Except File' },
 
-    # Worker Function in styleMgmtRoutines.py.
-    'gas':{ 'fun': sm.getActiveStyle,   'prm': [styleDic,styleLk],           'mnMnu': mTxt['gas']},
-    'gds':{ 'fun': sm.getDayStyle,      'prm': [styleDic,styleLk],           'mnMnu': mTxt['gds']},
-    'gns':{ 'fun': sm.getNightStyle,    'prm': [styleDic,styleLk],           'mnMnu': mTxt['gns']},
-    'gAs':{ 'fun': sm.getAllStyles,     'prm': None,                         'mnMnu': mTxt['gAs']},
-    'sas':{ 'fun': sm.setActiveStyle,   'prm': dfltSASParm,                  'mnMnu': mTxt['sas']},
-    'sds':{ 'fun': sm.setDayStyle,      'prm': ['None',styleDic,styleLk],    'mnMnu': mTxt['sds']},
-    'sns':{ 'fun': sm.setNightStyle,    'prm': ['None',styleDic,styleLk],    'mnMnu': mTxt['sns']},
+    # OTHER COMMANDS
+    'sc' :{ 'fun': cr.startClk,     'prm': dfltSCPrm,                  'menu': 'Start Clock'      },
+    'pc' :{ 'fun': cr.stopClk,      'prm': qs,                         'menu': 'Stop Clock'       },
+    'mus':{ 'fun': ms.mkUsrDigPikF, 'prm': [],                         'menu': 'Make User Style'  },
+    'dus':{ 'fun': ms.delUsrDigPikF,'prm': dfltSASParm,                'menu': 'Delete User Style'},
+    'dp' :{ 'fun': ut.displayPics,  'prm': [[],qs,styleDic,styleLk],   'menu': 'Display Pics'     },
+    'us' :{ 'fun': su.updateSw,     'prm': None,                       'menu': 'Update SW'        },
+    'hlp':{ 'fun': getHelp,         'prm': None,                       'menu': 'Help'             },
+    'close':{'fun':disconnect,      'prm': None,                       'menu': 'Disconnect'       },
+    'ks' :{ 'fun': killSrvr,        'prm': None,                       'menu': 'Kill Server'},
 
-    # Worker Function in makeScreens.py.
-    'mus':{ 'fun': ms.mkUsrDigPikF,     'prm': [],                           'mnMnu': mTxt['mus']},
-    'dus':{ 'fun': ms.delUsrDigPikF,    'prm': dfltSASParm,                  'mnMnu': mTxt['dus']},
+    # TEST COMMANDS
+    'rt1':{ 'fun': tr.runTest1,     'prm': None,                       'menu': 'Run Test 1'},
+    'rt2':{ 'fun': tr.runTest2,     'prm': [lcdCq,styleDic,styleLk],   'menu': 'Run Test 2'},
+    'rt3':{ 'fun': tr.runTest3,     'prm': None,                       'menu': 'Run Test 3'},
+    'rt4':{ 'fun': tr.runTest4,     'prm': None,                       'menu': 'Run Test 4'},
 
-    # Worker Function in styleMgmtRoutines.py.
-    'gdt':{ 'fun': sm.getDayTime,       'prm': [styleDic,styleLk],           'mnMnu': mTxt['gdt']},
-    'gnt':{ 'fun': sm.getNightTime,     'prm': [styleDic,styleLk],           'mnMnu': mTxt['gnt']},
-    'sdt':{ 'fun': sm.setDayTime,       'prm': ['None',styleDic,styleLk],    'mnMnu': mTxt['sdt']},
-    'snt':{ 'fun': sm.setNightTime,     'prm': ['None',styleDic,styleLk],    'mnMnu': mTxt['snt']},
-
-    # Worker Function in utils.py.
-    'dp' :{ 'fun': ut.displayPics,      'prm': [[],qs,styleDic,styleLk],     'mnMnu': mTxt['dp' ]},
-
-    # Worker Function in utils.py.
-    'us' :{ 'fun' : su.updateSw,        'prm': None,                         'mnMnu': mTxt['us' ]},
-    'ral':{ 'fun' : ut.readFile,        'prm': ['appLog.txt',[5]],           'mnMnu': mTxt['ral'] },
-    'rsl':{ 'fun' : ut.readFile,        'prm': ['serverLog.txt',[5]],        'mnMnu': mTxt['rsl'] },
-    'rse':{ 'fun' : ut.readFile,        'prm': ['serverException.txt',[5]],  'mnMnu': mTxt['rse'] },
-    'cal':{ 'fun' : ut.clearFile,       'prm': ['appLog.txt'],               'mnMnu': mTxt['cal'] },
-    'csl':{ 'fun' : ut.clearFile,       'prm': ['serverLog.txt'],            'mnMnu': mTxt['csl'] },
-    'cse':{ 'fun' : ut.clearFile,       'prm': ['serverException.txt'],      'mnMnu': mTxt['cse'] },
-
-    # Worker Function in this module.
-    'hlp':{ 'fun': getHelp,             'prm': None,                         'mnMnu': mTxt['hlp']},
-    'gvn':{ 'fun': getVer,              'prm': None,                         'mnMnu': mTxt['gvn']},
-    'tm' :{ 'fun': None,                'prm': None,                         'mnMnu': mTxt['tm' ]},
-    'close':{'fun':disconnect,          'prm': None,                         'mnMnu': mTxt['close' ]},
-    #####################################################
-
-    # TEST MENU (displayed when tm command issued).
-    # Worker Function in testRoutines.py.
-    'rt1':{ 'fun': tr.runTest1,         'prm': None,                         'tstMnu': mTxt['rt1']},
-    'rt2':{ 'fun': tr.runTest2,         'prm': [lcdCq,styleDic,styleLk],     'tstMnu': mTxt['rt2']},
-    'rt3':{ 'fun': tr.runTest3,         'prm': None,                         'tstMnu': mTxt['rt3']},
-    'rt4':{ 'fun': tr.runTest4,         'prm': None,                         'tstMnu': mTxt['rt4']},
-
-    # Worker Function in spiRoutines.py.
-    'rh' :{ 'fun': sr.hwReset,          'prm': None,                         'tstMnu': mTxt['rh' ]},
-    'rs' :{ 'fun': sr.swReset,          'prm': 'scLSD',                      'tstMnu': mTxt['rs' ]},
-    'sb' :{ 'fun': sr.setBkLight,       'prm': [0],                          'tstMnu': mTxt['sb' ]},
-
-    # Worker Function in utils.py.
-    'gat':{ 'fun': ut.getActiveThreads, 'prm': None,                       'tstMnu': mTxt['gat']},
-
-    # Worker Function in cmds.py.
-    'lc' :{ 'fun': cm.cmds,             'prm': None,                         'tstMnu': mTxt['lc' ]},
-
-    # Worker Function in this module.
-    'ks' :{ 'fun': killSrvr,            'prm': None,                         'tstMnu': mTxt['ks' ]},
+    'rh' :{ 'fun': sr.hwReset,      'prm': None,                       'menu': 'Reset LCD HW Test' },
+    'rs' :{ 'fun': sr.swReset,      'prm': 'scLSD',                    'menu': 'Reset LCD SW Test' },
+    'sb' :{ 'fun': sr.setBkLight,   'prm': [0],                        'menu': 'LCD Backlight Test'},
+    'lc' :{ 'fun': cm.cmds,         'prm': None,                       'menu': 'List Commands Test'},
     #####################################################
     }
 
@@ -247,34 +175,21 @@ def vector(inputStr,styleDic,styleLk): # called from handleClient.
         #except Exception as e: # pylint: disable = W0718
         #    return str(e)
 
-    if choice in ['m','tm']:
+    if choice == 'm':
         rspStr = ''
         for k,v in vectorDict.items():
 
-            if   choice == 'm'  and 'mnMnu' in v:
+            if   choice == 'm':
                 tmpDic = {
-                'sc' : '{}'.format(  ' CLOCK COMMANDS\n'),
-                'gas': '{}'.format('\n STYLE COMMANDS\n'),
-                'hlp': '{}'.format('\n MISC  COMMANDS\n') }
-                #'sc' : '{}{}{}'.format(REDON,  ' CLOCK COMMANDS\n',REDOFF),
-                #'gas': '{}{}{}'.format(REDON,'\n STYLE COMMANDS\n',REDOFF),
-                #'hlp': '{}{}{}'.format(REDON,'\n MISC  COMMANDS\n',REDOFF) }
+                'gas' : '{}'.format(   ' === GET   COMMANDS === \n' ),
+                'sas' : '{}'.format( '\n === SET   COMMANDS === \n' ),
+                'ral' : '{}'.format( '\n === FILE  COMMANDS === \n' ),
+                'sc'  : '{}'.format( '\n === OTHER COMMANDS === \n' ),
+                'rt1' : '{}'.format( '\n === TEST  COMMANDS === \n' ) }
 
-                if k in tmpDic: rspStr += tmpDic[k]
-                rspStr += ' {:3} - {}\n'.format(k, v['mnMnu'] )
-
-            elif choice == 'tm' and 'tstMnu' in v:
-
-                tmpDic = {
-                'rt1': '{}'.format(  ' TEST  COMMANDS\n'),
-                'rh' : '{}'.format('\n LCD   COMMANDS\n'),
-                'gat': '{}'.format('\n MISC  COMMANDS\n') }
-                #'rt1': '{}{}{}'.format(REDON,  ' TEST  COMMANDS\n',REDOFF),
-                #'rh' : '{}{}{}'.format(REDON,'\n LCD   COMMANDS\n',REDOFF),
-                #'gat': '{}{}{}'.format(REDON,'\n MISC  COMMANDS\n',REDOFF) }
-
-                if k in tmpDic: rspStr += tmpDic[k]
-                rspStr += ' {:3} - {}\n'.format(k, v['tstMnu'] )
+                if k in tmpDic:
+                    rspStr += tmpDic[k]
+                rspStr += ' {:3} - {}\n'.format(k, v['menu'] )
 
         return rspStr          # Return to srvr for forwarding to clnt.
 

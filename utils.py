@@ -22,7 +22,7 @@ def getMultiProcSharedDict():
     return styleDict, styleDictLock
 #############################################################################
 
-def getActiveThreads():
+def getActThrds():
     rspStr = ' Running Threads:\n'
     for t in th.enumerate():
         rspStr += '   {}\n'.format(t.name)
@@ -40,7 +40,7 @@ def getActiveThreads():
 
 def displayPics(prmLst):
     startTimeLst,qs,styleDic,styleLk = prmLst[0], prmLst[1], prmLst[2], prmLst[3]
-    rspStr = getActiveThreads()
+    rspStr = getActThrds()
     stoppedClock = False
     if 'clockCntrProc' in rspStr[0] or 'lcdUpdateProc' in rspStr[0]:
         #print('stopping clock')
@@ -48,7 +48,7 @@ def displayPics(prmLst):
         stoppedClock = True
 
     ##################################
-    rspStr = getActiveThreads()
+    rspStr = getActThrds()
     if 'MainThread' not in rspStr[0]:
         #print('reseting LCD')
 

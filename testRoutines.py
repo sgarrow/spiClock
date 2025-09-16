@@ -122,7 +122,7 @@ def runTest2(prmLst):
 
     rspStr = ''
     for styleIdx in allStyleDic:
-        rspLst = sm.setActiveStyle([str(styleIdx),styleDic,styleLk,lcdCq])
+        rspLst = sm.setActStyle([str(styleIdx),styleDic,styleLk,lcdCq])
         rspLst = sm.loadActiveStyle(styleDic, styleLk)
         digitScreenDict = rspLst[1]
         for txt in textLst[5:]:

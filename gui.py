@@ -94,7 +94,7 @@ class ClientLayout(BoxLayout):
         width = dp(82) if platform == 'android' else 80
         self.tabbed_panel = TabbedPanel(do_default_tab=False,tab_width = width)
 
-        # Create 5 tabs with contents.
+        # Create 6 tabs with contents.
         # Create GET tab and its content.
         self.get_tab_content = GridLayout(cols=3, spacing=5, size_hint_y=None)
         self.get_tab_content.bind(minimum_height=self.get_tab_content.setter('height'))
@@ -119,6 +119,14 @@ class ClientLayout(BoxLayout):
         self.fil_tab = TabbedPanelItem(text='File')
         self.fil_tab.add_widget(fil_scroll)
 
+        # Create TEST tab and its content.
+        self.tst_tab_content = GridLayout(cols=3, spacing=5, size_hint_y=None)
+        self.tst_tab_content.bind(minimum_height=self.tst_tab_content.setter('height'))
+        tst_scroll = ScrollView(size_hint=(1, 1))
+        tst_scroll.add_widget(self.tst_tab_content)
+        self.tst_tab = TabbedPanelItem(text='Test')
+        self.tst_tab.add_widget(tst_scroll)
+
         # Create OTHER tab and its content.
         self.oth_tab_content = GridLayout(cols=3, spacing=5, size_hint_y=None)
         self.oth_tab_content.bind(minimum_height=self.oth_tab_content.setter('height'))
@@ -137,11 +145,12 @@ class ClientLayout(BoxLayout):
         self.debug_tab = TabbedPanelItem(text='Debug') # orig
         self.debug_tab.add_widget(debug_scroll)
 
-        # Add the 5 tabs to the panel.
+        # Add the 6 tabs to the panel.
         self.tabbed_panel.add_widget( self.get_tab )
         self.tabbed_panel.add_widget( self.set_tab )
         self.tabbed_panel.add_widget( self.fil_tab )
         self.tabbed_panel.add_widget( self.oth_tab )
+        self.tabbed_panel.add_widget( self.tst_tab )
         self.tabbed_panel.add_widget( self.debug_tab )
 
         # Now that tabbed panel is fully constructed.
@@ -203,7 +212,7 @@ class ClientLayout(BoxLayout):
         # populates buttons.  Furthermore is the response to to either the
         # "close" or "ks" command then this method disables the GUI.
         if 'COMMANDS' not in text:
-            self.output.text += f'\n{text}'
+             self.output.text += f'\n{text}'
 
         if 'COMMANDS' in text:
             menu_lines = text.splitlines()
@@ -241,6 +250,8 @@ class ClientLayout(BoxLayout):
             self.set_tab_content.add_widget(btn)
         elif 'File' in label:
             self.fil_tab_content.add_widget(btn)
+        elif 'Test' in label:
+            self.tst_tab_content.add_widget(btn)
         else:
             self.oth_tab_content.add_widget(btn)
     ###################
