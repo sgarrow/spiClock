@@ -109,7 +109,7 @@ def updateSw():
 #############################################################################
 
 if __name__ == '__main__':
-    ccDict = cfg.getCfgDict()
+    ccDict = cfg.getCfgDict('clk')
     print(ccDict)
     mnRspStr = updateSw()
     print(mnRspStr[0])

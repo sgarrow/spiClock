@@ -1,5 +1,6 @@
 import sys
 import time
+import datetime        as dt
 import multiprocessing as mp
 import threading       as th
 import startStopClock  as cr
@@ -84,7 +85,7 @@ def readFileWrk(parmLst, inFile):
     try:
         with open( inFile, 'r',encoding='utf-8') as f:
             numLinesInFile = sum(1 for line in f)
-    except:
+    except FileNotFoundError:
         return ' Could not open file {} for reading'.format(inFile)
 
     # Get/Calc number of lines to return (parmLst[0]).
@@ -139,9 +140,8 @@ def readFileWrk(parmLst, inFile):
 #############################################################################
 
 def clearFileWrk(inFile):
-    rspLst = tr.getTimeDate(False)
-    curDT  = rspLst[1]
-    cDT    = '{}'.format(curDT['now'].isoformat( timespec = 'seconds' ))
+    now = dt.datetime.now()
+    cDT    = '{}'.format(now.isoformat( timespec = 'seconds' ))
     with open(inFile, 'w',encoding='utf-8') as f:
         f.write( 'File cleared on {} \n'.format(cDT))
     return ' {} file cleared.'.format(inFile)

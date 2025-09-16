@@ -28,8 +28,8 @@ def listThreads(): # Daemon to startServer, terminates w/ kill server (ks).
 def ksCleanup(styleDict, styleDictLock):
     rspStr  = ''
 ### START KS CODE REMOVE ###
-    rspStr += cv.vector('pc',  styleDict, styleDictLock) + '\n' 
-    rspStr += '\n\n' + cv.vector('sb 0', styleDict, styleDictLock) + '\n' 
+    rspStr += cv.vector('pc',  styleDict, styleDictLock) + '\n'
+    rspStr += '\n\n' + cv.vector('sb 0', styleDict, styleDictLock) + '\n'
 ### END KS CODE REMOVE ###
     return rspStr
 #############################################################################
@@ -118,7 +118,8 @@ def handleClient( clientSocket, clientAddress, client2ServerCmdQ,
 
         # Process a "ks" message and send response back to other client(s).
         elif data.decode() == 'ks':
-            logStr += processKsCmd(clientSocket, clientAddress, client2ServerCmdQ, styleDict, styleDictLock)
+            logStr += processKsCmd( clientSocket, clientAddress,
+                                    client2ServerCmdQ, styleDict, styleDictLock )
 
         # Process a "standard" msg and send response back to the client,
         # (and look (try) for UNEXPECTED EVENT).

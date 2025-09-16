@@ -143,19 +143,6 @@ def runTest2(prmLst):
     return [rspStr]
 #############################################################################
 
-def runTest3():
-    rspStr = ' Not Implemented'
-    #for b in range(255,0,-5):
-    #    r = sr.writeDisplayBrightness(b)[0] + '\n'
-    #    print(r)
-    #    rspStr += r
-    return [rspStr]
-#############################################################################
-
-def runTest4():
-    return ['done']
-#############################################################################
-
 if __name__ == '__main__':
     import multiprocessing as mp
     mnLcdCq = mp.Queue() # LCD Cmd Q. mp queue must be used here.

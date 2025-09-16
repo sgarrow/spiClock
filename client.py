@@ -46,7 +46,7 @@ if __name__ == '__main__':
     arguments  = sys.argv
     scriptName = arguments[0]
     userArgs   = arguments[1:]
-    uut        = userArgs[0] 
+    uut        = userArgs[0]
     cfgDict    = cfg.getCfgDict(uut)
 
     if cfgDict is None:

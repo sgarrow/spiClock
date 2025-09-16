@@ -26,8 +26,8 @@ if __name__ == '__main__':
     arguments  = sys.argv
     scriptName = arguments[0]
     userArgs   = arguments[1:]
-    uut        = userArgs[0] 
+    mnUut      = userArgs[0]
     print(scriptName)
     print(userArgs  )
-    dict = getCfgDict(uut)
-    pp.pprint(dict)
+    mnCfgDict = getCfgDict(mnUut)
+    pp.pprint(mnCfgDict)

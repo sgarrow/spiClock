@@ -41,7 +41,7 @@ def disconnect():  # Handled directly in the handleClient func so it
                    # is done a func needs to exist. Func never called/runs.
 #############################################################################
 def getVer():
-    VER = ' v1.4.20 - 15-Sep-2025'
+    VER = ' v1.4.21 - 16-Sep-2025'
     return [VER]
 #############################################################################
 
@@ -78,51 +78,49 @@ def vector(inputStr,styleDic,styleLk): # called from handleClient.
     # This dictionary embodies the worker function vector (and menu) info.
     vectorDict = {
     # GET COMMANDS
-    'gas':{ 'fun': sm.getActStyle,  'prm': [styleDic,styleLk],         'menu': 'Get Active Style'  },
-    'gds':{ 'fun': sm.getDayStyle,  'prm': [styleDic,styleLk],         'menu': 'Get Day Style'     },
-    'gns':{ 'fun': sm.getNightStyle,'prm': [styleDic,styleLk],         'menu': 'Get Night Style'   },
-    'gAs':{ 'fun': sm.getAllStyles, 'prm': None,                       'menu': 'Get ALL Styles'    },
-    'gdt':{ 'fun': sm.getDayTime,   'prm': [styleDic,styleLk],         'menu': 'Get Day Time'      },
-    'gnt':{ 'fun': sm.getNightTime, 'prm': [styleDic,styleLk],         'menu': 'Get Night Time'    },
-    'gat':{ 'fun': ut.getActThrds,  'prm': None,                       'menu': 'Get Active Threads'},
-    'gvn':{ 'fun': getVer,          'prm': None,                       'menu': 'Get Version Number'},
-                                                                                            
+    'gas':{ 'fun': sm.getActStyle,  'prm':[styleDic,styleLk],         'menu':'Get Active Style'  },
+    'gds':{ 'fun': sm.getDayStyle,  'prm':[styleDic,styleLk],         'menu':'Get Day Style'     },
+    'gns':{ 'fun': sm.getNightStyle,'prm':[styleDic,styleLk],         'menu':'Get Night Style'   },
+    'gAs':{ 'fun': sm.getAllStyles, 'prm':None,                       'menu':'Get ALL Styles'    },
+    'gdt':{ 'fun': sm.getDayTime,   'prm':[styleDic,styleLk],         'menu':'Get Day Time'      },
+    'gnt':{ 'fun': sm.getNightTime, 'prm':[styleDic,styleLk],         'menu':'Get Night Time'    },
+    'gat':{ 'fun': ut.getActThrds,  'prm':None,                       'menu':'Get Active Threads'},
+    'gvn':{ 'fun': getVer,          'prm':None,                       'menu':'Get Version Number'},
+
     # SET COMMANDS
-    'sas':{ 'fun': sm.setActStyle,  'prm': dfltSASParm,                'menu': 'Set Active Style'  },
-    'sds':{ 'fun': sm.setDayStyle,  'prm': ['None',styleDic,styleLk],  'menu': 'Set Day Style'     },
-    'sns':{ 'fun': sm.setNightStyle,'prm': ['None',styleDic,styleLk],  'menu': 'Set Night Style'   },
-    'sdt':{ 'fun': sm.setDayTime,   'prm': ['None',styleDic,styleLk],  'menu': 'Set Day Time'      },
-    'snt':{ 'fun': sm.setNightTime, 'prm': ['None',styleDic,styleLk],  'menu': 'Set Night Time'    },
+    'sas':{ 'fun': sm.setActStyle,  'prm':dfltSASParm,                'menu':'Set Active Style'  },
+    'sds':{ 'fun': sm.setDayStyle,  'prm':['None',styleDic,styleLk],  'menu':'Set Day Style'     },
+    'sns':{ 'fun': sm.setNightStyle,'prm':['None',styleDic,styleLk],  'menu':'Set Night Style'   },
+    'sdt':{ 'fun': sm.setDayTime,   'prm':['None',styleDic,styleLk],  'menu':'Set Day Time'      },
+    'snt':{ 'fun': sm.setNightTime, 'prm':['None',styleDic,styleLk],  'menu':'Set Night Time'    },
 
     # FILE COMMANDS
-    'ral':{ 'fun': ut.readFile,     'prm': ['appLog.txt',[5]],         'menu': 'Read App Log File'      },
-    'rsl':{ 'fun': ut.readFile,     'prm': ['serverLog.txt',[5]],      'menu': 'Read Server Log File'   },
-    'rse':{ 'fun': ut.readFile,     'prm': ['serverException.txt',[5]],'menu': 'Read Server Except File'},
-    'cal':{ 'fun': ut.clearFile,    'prm': ['appLog.txt'],             'menu': 'Clr App Log File'       },
-    'csl':{ 'fun': ut.clearFile,    'prm': ['serverLog.txt'],          'menu': 'Clr Server Log File'    },
-    'cse':{ 'fun': ut.clearFile,    'prm': ['serverException.txt'],    'menu': 'Clr Server Except File' },
+    'ral':{ 'fun': ut.readFile,     'prm':['appLog.txt',[5]],         'menu':'Read App Log File' },
+    'rsl':{ 'fun': ut.readFile,     'prm':['serverLog.txt',[5]],      'menu':'Read Srvr Log File'},
+    'rse':{ 'fun': ut.readFile,     'prm':['serverException.txt',[5]],'menu':'Read Srvr Exc File'},
+    'cal':{ 'fun': ut.clearFile,    'prm':['appLog.txt'],             'menu':'Clr App Log File'  },
+    'csl':{ 'fun': ut.clearFile,    'prm':['serverLog.txt'],          'menu':'Clr Srvr Log File' },
+    'cse':{ 'fun': ut.clearFile,    'prm':['serverException.txt'],  'menu':'Clr Srvr Except File'},
 
     # OTHER COMMANDS
-    'sc' :{ 'fun': cr.startClk,     'prm': dfltSCPrm,                  'menu': 'Start Clock'      },
-    'pc' :{ 'fun': cr.stopClk,      'prm': qs,                         'menu': 'Stop Clock'       },
-    'mus':{ 'fun': ms.mkUsrDigPikF, 'prm': [],                         'menu': 'Make User Style'  },
-    'dus':{ 'fun': ms.delUsrDigPikF,'prm': dfltSASParm,                'menu': 'Delete User Style'},
-    'dp' :{ 'fun': ut.displayPics,  'prm': [[],qs,styleDic,styleLk],   'menu': 'Display Pics'     },
-    'us' :{ 'fun': su.updateSw,     'prm': None,                       'menu': 'Update SW'        },
-    'hlp':{ 'fun': getHelp,         'prm': None,                       'menu': 'Help'             },
-    'close':{'fun':disconnect,      'prm': None,                       'menu': 'Disconnect'       },
-    'ks' :{ 'fun': killSrvr,        'prm': None,                       'menu': 'Kill Server'},
+    'sc' :{ 'fun': cr.startClk,     'prm':dfltSCPrm,                  'menu':'Start Clock'       },
+    'pc' :{ 'fun': cr.stopClk,      'prm':qs,                         'menu':'Stop Clock'        },
+    'mus':{ 'fun': ms.mkUsrDigPikF, 'prm':[],                         'menu':'Make User Style'   },
+    'dus':{ 'fun': ms.delUsrDigPikF,'prm':dfltSASParm,                'menu':'Delete User Style' },
+    'dp' :{ 'fun': ut.displayPics,  'prm':[[],qs,styleDic,styleLk],   'menu':'Display Pics'      },
+    'us' :{ 'fun': su.updateSw,     'prm':None,                       'menu':'Update SW'         },
+    'hlp':{ 'fun': getHelp,         'prm':None,                       'menu':'Help'              },
+    'close':{'fun':disconnect,      'prm':None,                       'menu':'Disconnect'        },
+    'ks' :{ 'fun': killSrvr,        'prm':None,                       'menu':'Kill Server'       },
 
     # TEST COMMANDS
-    'rt1':{ 'fun': tr.runTest1,     'prm': None,                       'menu': 'Run Test 1'},
-    'rt2':{ 'fun': tr.runTest2,     'prm': [lcdCq,styleDic,styleLk],   'menu': 'Run Test 2'},
-    'rt3':{ 'fun': tr.runTest3,     'prm': None,                       'menu': 'Run Test 3'},
-    'rt4':{ 'fun': tr.runTest4,     'prm': None,                       'menu': 'Run Test 4'},
+    'rt1':{ 'fun': tr.runTest1,     'prm':None,                       'menu':'Run Test 1'        },
+    'rt2':{ 'fun': tr.runTest2,     'prm':[lcdCq,styleDic,styleLk],   'menu':'Run Test 2'        },
 
-    'rh' :{ 'fun': sr.hwReset,      'prm': None,                       'menu': 'Reset LCD HW Test' },
-    'rs' :{ 'fun': sr.swReset,      'prm': 'scLSD',                    'menu': 'Reset LCD SW Test' },
-    'sb' :{ 'fun': sr.setBkLight,   'prm': [0],                        'menu': 'LCD Backlight Test'},
-    'lc' :{ 'fun': cm.cmds,         'prm': None,                       'menu': 'List Commands Test'},
+    'rh' :{ 'fun': sr.hwReset,      'prm':None,                       'menu':'Reset LCD HW Test' },
+    'rs' :{ 'fun': sr.swReset,      'prm':'scLSD',                    'menu':'Reset LCD SW Test' },
+    'sb' :{ 'fun': sr.setBkLight,   'prm':[0],                        'menu':'LCD Backlight Test'},
+    'lc' :{ 'fun': cm.cmds,         'prm':None,                       'menu':'List Commands Test'},
     #####################################################
     }
 
@@ -141,29 +139,23 @@ def vector(inputStr,styleDic,styleLk): # called from handleClient.
         func   = vectorDict[choice]['fun']
         params = vectorDict[choice]['prm']
 
-        if choice in ['sc'] and len(optArgsStr) > 0:
+        if choice in ['sc', 'sdt','snt', 'dus'] and len(optArgsStr) > 0:
             params[0] = optArgsStr
-
-        elif choice in ['sb'] and len(optArgsStr) == 1:
-            params = optArgsStr
 
         elif choice in ['sas','sds','sns'] and len(optArgsStr) == 1:
             params[0] = optArgsStr[0]
 
-        elif choice in ['sdt','snt'] and len(optArgsStr) > 0:
-            params[0] = optArgsStr
+        elif choice in ['ral','rsl','rse'] and len(optArgsStr) > 0:
+            params[1] = optArgsStr
+
+        elif choice in ['sb'] and len(optArgsStr) == 1:
+            params = optArgsStr
 
         elif choice in ['mus'] and len(optArgsStr) > 0:
             params = optArgsStr
 
-        elif choice in ['dus'] and len(optArgsStr) > 0:
-            params[0] = optArgsStr
-
         elif choice in ['hlp']:
             params = [optArgsStr,vectorDict]
-
-        elif choice in ['ral','rsl','rse'] and len(optArgsStr) > 0:
-            params[1] = optArgsStr
 
         #try:                   # Catch exceptions in command procesing.
         if params is None:
@@ -177,19 +169,17 @@ def vector(inputStr,styleDic,styleLk): # called from handleClient.
 
     if choice == 'm':
         rspStr = ''
+        tmpDic = {
+        'gas' : '{}'.format(   ' === GET   COMMANDS === \n' ),
+        'sas' : '{}'.format( '\n === SET   COMMANDS === \n' ),
+        'ral' : '{}'.format( '\n === FILE  COMMANDS === \n' ),
+        'sc'  : '{}'.format( '\n === OTHER COMMANDS === \n' ),
+        'rt1' : '{}'.format( '\n === TEST  COMMANDS === \n' ) }
         for k,v in vectorDict.items():
 
-            if   choice == 'm':
-                tmpDic = {
-                'gas' : '{}'.format(   ' === GET   COMMANDS === \n' ),
-                'sas' : '{}'.format( '\n === SET   COMMANDS === \n' ),
-                'ral' : '{}'.format( '\n === FILE  COMMANDS === \n' ),
-                'sc'  : '{}'.format( '\n === OTHER COMMANDS === \n' ),
-                'rt1' : '{}'.format( '\n === TEST  COMMANDS === \n' ) }
-
-                if k in tmpDic:
-                    rspStr += tmpDic[k]
-                rspStr += ' {:3} - {}\n'.format(k, v['menu'] )
+            if k in tmpDic:
+                rspStr += tmpDic[k]
+            rspStr += ' {:3} - {}\n'.format(k, v['menu'] )
 
         return rspStr          # Return to srvr for forwarding to clnt.
 

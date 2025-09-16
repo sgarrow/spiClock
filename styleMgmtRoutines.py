@@ -28,7 +28,7 @@ def getDayTime(prmLst):
         dayTime = styleDict['dayTime']
 
     logStr = ' Day Time is {}{}:{}{}:{}{}.'.\
-    format( dayTime[0], dayTime[1], dayTime[2], 
+    format( dayTime[0], dayTime[1], dayTime[2],
             dayTime[3], dayTime[4], dayTime[5])
 
     return [logStr, dayTime]
@@ -40,7 +40,7 @@ def getNightTime(prmLst):
         nightTime = styleDict['nightTime']
 
     logStr = ' Night Time is {}{}:{}{}:{}{}.'.\
-    format( nightTime[0], nightTime[1], nightTime[2], 
+    format( nightTime[0], nightTime[1], nightTime[2],
             nightTime[3], nightTime[4], nightTime[5])
 
     return [logStr,nightTime]
@@ -75,7 +75,7 @@ def setDayTime(prmLst):
             styleDict['dayTime'] = sixNums
 
         logStr += ' Day Time set to {}{}:{}{}:{}{}.'.\
-        format( sixNums[0], sixNums[1], sixNums[2], 
+        format( sixNums[0], sixNums[1], sixNums[2],
                 sixNums[3], sixNums[4], sixNums[5])
     else:
         logStr += ' Day Time not set.'
@@ -92,7 +92,7 @@ def setNightTime(prmLst):
             styleDict['nightTime'] = sixNums
 
         logStr += ' Night Time set to {}{}:{}{}:{}{}.'.\
-        format( sixNums[0], sixNums[1], sixNums[2], 
+        format( sixNums[0], sixNums[1], sixNums[2],
                 sixNums[3], sixNums[4], sixNums[5])
     else:
         logStr += ' Night Time not set.'

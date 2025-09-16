@@ -1,8 +1,8 @@
 import os
 import pickle
-import time
-import styleMgmtRoutines as sm
+#import time
 from PIL import Image, ImageDraw, ImageFont # pylint: disable=E0401
+import styleMgmtRoutines as sm
 #############################################################################
 #############################################################################
 
@@ -229,7 +229,7 @@ def delUsrDigPikF( parmLst ):
         return [usage.format(' Incorrect number of parameters.',funcRspStr)]
     if not all( s.isdigit() for s in parmLst[0] ):
         return [usage.format(' Non-digit detected in parameter.',funcRspStr)]
-    
+
     dsrdStyleIdx,styleDict,styleDictLock,lcdCq = \
     int(parmLst[0][0]),parmLst[1],parmLst[2],parmLst[3]
 
@@ -292,8 +292,8 @@ if __name__ == '__main__':
                 if os.path.isfile(mnFullFileName):
                     print('Processing file: {}'.format(mnFullFileName))
                     with open(mnFullFileName, 'rb') as fn:
-                        styleDict = pickle.load(fn)
-                        print(styleDict.keys())
+                        mnStyleDict = pickle.load(fn)
+                        print(mnStyleDict.keys())
     except FileNotFoundError:
         print(f"Error: Directory '{mnDirPath}' not found.")
     except Exception as e: # pylint: disable=W0718

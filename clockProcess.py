@@ -31,7 +31,7 @@ def getStartTime( parmLst ): # ['12', '34', '56', 'x']
 
         if not containsX:          # Parm to use eXact entered?
             if not usingDefault:   # yes, sync to dt.datetime.
-                #print(' syncing') 
+                #print(' syncing')
                 while True:
                     time.sleep(.2)
                     now = dt.datetime.now()
