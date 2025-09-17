@@ -1,4 +1,5 @@
 import time
+import utils             as ut
 import makeScreen        as ms
 import spiRoutines       as sr
 import styleMgmtRoutines as sm
@@ -14,12 +15,18 @@ def runTest1():
     # Test 5 - Fill entire screen w/ constructed PIL test images in one shot.
     # Test 6 - Fill entire screen w/ constructed PIL RGB/JPG images in one shot.
 
+    # This test only works correctly if the clock is not running.
+    rspStr = ut.getActThrds()
+    if 'clockCntrProc' in rspStr[0] or 'lcdUpdateProc' in rspStr[0]:
+        rspStr = ' Can\'t run rt1 while clock is running.'
+        return[rspStr]
+
     # Set the desired display to scLSD and initialize that display.
     kLst = ['hrMSD','hrLSD','mnMSD','mnLSD','scMSD','scLSD']
-    displayID = kLst[-1]
-    sr.hwReset()          # HW Reset
-    sr.swReset(displayID) # SW Reset and the display initialization.
-    sr.setBkLight([1])    # Turn on backlight.
+    displayID = kLst[-1]  # Test will be run on this display only.
+    sr.hwReset()          # HW Reset on all displays.
+    sr.swReset(displayID) # SW Reset and the display init on 1 display.
+    sr.setBkLight([1])    # Turn on (all) backlights.
     ###########################################
 
     rPixLst,rRowLst,rScrLst = ms.makeColoredPRSLstsOfBytes(0xFF0000) # pylint: disable=W0612
@@ -93,7 +100,16 @@ def runTest1():
     ####################################################
 
     sr.setEntireDisplay(displayID, wScrLst, sr.sendDat2ToSt7789)
-    sr.setBkLight([0]) # Turn off backlight.
+    time.sleep(1)
+
+    # Re-init all displays so the clock will be able to run after this test.
+    # Note ALL displays are initialized at boot time by main in server.py.
+    kLst = ['hrMSD','hrLSD','mnMSD','mnLSD','scMSD','scLSD']
+    sr.hwReset()          # HW Reset
+    for dId in kLst:
+        sr.swReset(dId)   # SW Reset and the display initialization.
+    sr.setBkLight([0])    # Turn off backlight.
+    ###########################################
 
     return [rspStr]
 #############################################################################
@@ -103,7 +119,12 @@ def runTest2(prmLst):
     styleDic = prmLst[1]
     styleLk  = prmLst[2]
 
-    # Performs 1 test on all displays.
+    rspStr = ut.getActThrds()
+    if 'clockCntrProc' in rspStr[0] or 'lcdUpdateProc' in rspStr[0]:
+        rspStr = ' Can\'t run rt2 while clock is running.'
+        return[rspStr]
+
+    # Performs 1 test on ALL displays.
     # Displays all characters stored in the digitScreenDict on all displays.
     # digitScreenDict is made by running 'python3 makescreen.py' from the RPi\
     # command line.
@@ -135,10 +156,16 @@ def runTest2(prmLst):
                     rspStr += ' LCD update time {:.6f} sec. {} {} {}.\n'.\
                         format(delta, allStyleDic[styleIdx], txt, displayID)
 
-    sr.hwReset()              # HW Reset
-    for displayID in kLst:
-        sr.swReset(displayID) # SW Reset and the display initialization.
-    sr.setBkLight([0])        # Turn off backlight.
+    time.sleep(1)
+
+    # Re-init all displays so the clock will be able to run after this test.
+    # Note ALL displays are initialized at boot time by main in server.py.
+    kLst = ['hrMSD','hrLSD','mnMSD','mnLSD','scMSD','scLSD']
+    sr.hwReset()          # HW Reset
+    for dId in kLst:
+        sr.swReset(dId)   # SW Reset and the display initialization.
+    sr.setBkLight([0])    # Turn off backlight.
+    ###########################################
 
     return [rspStr]
 #############################################################################
