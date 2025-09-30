@@ -73,7 +73,7 @@ def handleClient( clientSocket, clientAddress, client2ServerCmdQ,
 
     rspStr = ''
     # Validate password
-    cfgDict = cfg.getCfgDict('clk')
+    cfgDict = cfg.getCfgDict('clk2')
     data = clientSocket.recv(1024)
     if data.decode() == cfgDict['myPwd']:
         passwordIsOk = True
@@ -160,7 +160,7 @@ def startServer():
     #print('startServer', styleDict, styleDictLock)
 
     host = '0.0.0.0'  # Listen on all available interfaces
-    cfgDict = cfg.getCfgDict('clk')
+    cfgDict = cfg.getCfgDict('clk2')
     port = int(cfgDict['myPort'])
 
     serverSocket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)

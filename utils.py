@@ -1,5 +1,6 @@
 import sys
 import time
+import pprint          as pp
 import datetime        as dt
 import multiprocessing as mp
 import threading       as th
@@ -29,8 +30,18 @@ def getActThrds():
         rspStr += '   {}\n'.format(t.name)
 
     rspStr += '\n Open Sockets:\n'
-    for openS in openSocketsLst:
-        rspStr += '   {}\n'.format(openS['ca'])
+    for ii,openS in enumerate(openSocketsLst):
+
+        rspStr+='   Socket {} Object Information \n'.format(ii)
+        rspStr+='     Remote Addr, Port: {}\n'.format(openS['cs'].getpeername())
+        rspStr+='      Local Addr, Port: {}\n'.format(openS['cs'].getsockname())
+        rspStr+='       File descriptor: {}\n'.format(openS['cs'].fileno()     )
+        rspStr+='              Protocol: {}\n'.format(openS['cs'].proto        )
+        rspStr+='                Family: {}\n'.format(openS['cs'].family       )
+        rspStr+='                  Type: {}\n'.format(openS['cs'].type         )
+
+        rspStr+='   Socket {} Address Information \n'.format(ii)
+        rspStr+='               Address: {}\n\n'.format(openS['ca'])
 
     rspStr += '\n Running Processes:\n'
     for k,v in cr.procPidDict.items():
