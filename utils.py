@@ -1,5 +1,4 @@
 import sys
-import multiprocessing as mp
 import threading       as th
 
 import time
@@ -8,20 +7,6 @@ import makeScreen      as ms
 import spiRoutines     as sr
 
 openSocketsLst = []    # Needed for processing close and ks commands.
-#############################################################################
-
-def getMultiProcSharedDict():
-    manager = mp.Manager()
-    styleDict = manager.dict({
-        'activeDigitStyle': 'whiteOnBlack',
-        'dayDigitStyle'   : 'orangeOnTurquoise',
-        'nightDigitStyle' : 'ltRedOnBlack',
-        'nightTime'       : [ 2, 1, 0, 0, 0, 0 ],
-        'dayTime'         : [ 0, 7, 0, 0, 0, 0 ],
-        'alarmTime'       : [ 0, 0, 0, 0, 0, 0 ], 
-    })
-    styleDictLock = mp.Lock()
-    return styleDict, styleDictLock
 #############################################################################
 
 def getActThrds():
