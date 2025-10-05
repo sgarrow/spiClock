@@ -13,6 +13,7 @@ import rpiShellCmds      as sc
 import spiRoutines       as sr
 import makeScreen        as ms
 import swUpdate          as su
+import fileIO            as fio
 import utils             as ut
 import cmds              as cm
 #############################################################################
@@ -42,7 +43,7 @@ def disconnect():  # Handled directly in the handleClient func so it
                    # is done a func needs to exist. Func never called/runs.
 #############################################################################
 def getVer():
-    VER = ' v1.5.5 - 04-Oct-2025'
+    VER = ' v1.5.6 - 04-Oct-2025'
     return [VER]
 #############################################################################
 
@@ -96,12 +97,12 @@ def vector(inputStr,styleDic,styleLk): # called from handleClient.
     'snt':{ 'fun': sm.setNightTime, 'prm':['None',styleDic,styleLk],  'menu':'Set Night Time'    },
 
     # FILE COMMANDS
-    'ral':{ 'fun': ut.readFile,     'prm':['appLog.txt',[5]],         'menu':'Read App Log File' },
-    'rsl':{ 'fun': ut.readFile,     'prm':['serverLog.txt',[5]],      'menu':'Read Srvr Log File'},
-    'rse':{ 'fun': ut.readFile,     'prm':['serverException.txt',[5]],'menu':'Read Srvr Exc File'},
-    'cal':{ 'fun': ut.clearFile,    'prm':['appLog.txt'],             'menu':'Clr App Log File'  },
-    'csl':{ 'fun': ut.clearFile,    'prm':['serverLog.txt'],          'menu':'Clr Srvr Log File' },
-    'cse':{ 'fun': ut.clearFile,    'prm':['serverException.txt'],  'menu':'Clr Srvr Except File'},
+    'ral':{ 'fun': fio.readFile,    'prm':['appLog.txt',[5]],         'menu':'Read App Log File' },
+    'rsl':{ 'fun': fio.readFile,    'prm':['serverLog.txt',[5]],      'menu':'Read Srvr Log File'},
+    'rse':{ 'fun': fio.readFile,    'prm':['serverException.txt',[5]],'menu':'Read Srvr Exc File'},
+    'cal':{ 'fun': fio.clearFile,   'prm':['appLog.txt'],             'menu':'Clr App Log File'  },
+    'csl':{ 'fun': fio.clearFile,   'prm':['serverLog.txt'],          'menu':'Clr Srvr Log File' },
+    'cse':{ 'fun': fio.clearFile,   'prm':['serverException.txt'],  'menu':'Clr Srvr Except File'},
 
     # OTHER COMMANDS
     'sc' :{ 'fun': cr.startClk,     'prm':dfltSCPrm,                  'menu':'Start Clock'       },
