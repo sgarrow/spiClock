@@ -43,7 +43,7 @@ def disconnect():  # Handled directly in the handleClient func so it
                    # is done a func needs to exist. Func never called/runs.
 #############################################################################
 def getVer():
-    VER = ' v1.5.6 - 04-Oct-2025'
+    VER = ' v1.5.7 - 05-Oct-2025'
     return [VER]
 #############################################################################
 
@@ -109,7 +109,7 @@ def vector(inputStr,styleDic,styleLk): # called from handleClient.
     'pc' :{ 'fun': cr.stopClk,      'prm':qs,                         'menu':'Stop Clock'        },
     'mus':{ 'fun': ms.mkUsrDigPikF, 'prm':[],                         'menu':'Make User Style'   },
     'dus':{ 'fun': ms.delUsrDigPikF,'prm':dfltSASParm,                'menu':'Delete User Style' },
-    'dp' :{ 'fun': ut.displayPics,  'prm':[[],qs,styleDic,styleLk],   'menu':'Display Pics'      },
+    'dp' :{ 'fun': ms.displayPics,  'prm':[[],qs,styleDic,styleLk],   'menu':'Display Pics'      },
     'us' :{ 'fun': su.updateSw,     'prm':None,                       'menu':'Update SW'         },
     'hlp':{ 'fun': getHelp,         'prm':None,                       'menu':'Help'              },
     'close':{'fun':disconnect,      'prm':None,                       'menu':'Disconnect'        },

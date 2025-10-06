@@ -243,12 +243,12 @@ if __name__ == '__main__':
     import spiRoutines as sr
     arguments  = sys.argv
     scriptName = arguments[0]
-    mnUut        = None            # pylint: disable=C0103
-    mnCfgDict    = None            # pylint: disable=C0103
+    mnUut      = None            # pylint: disable=C0103
+    mnCfgDict  = None            # pylint: disable=C0103
     if len(arguments) >= 2:
         userArgs   = arguments[1:]
-        mnUut        = userArgs[0]
-        mnCfgDict    = cfg.getCfgDict(mnUut) # pylint: disable=C0103
+        mnUut       = userArgs[0]
+        mnCfgDict   = cfg.getCfgDict(mnUut) # pylint: disable=C0103
 
     if mnUut is None or mnCfgDict is None:
         print('  Server not started.')
