@@ -3,35 +3,12 @@ import socket                # For creating and managing sockets.
 import threading       as th # For handling multiple clients concurrently.
 import queue                 # For Killing Server.
 import time                  # For Killing Server and listThreads.
-import multiprocessing as mp
 import datetime        as dt # For logging server start/stop times.
 import cmdVectors      as cv # Contains vectors to "worker" functions.
 import cfg                   # For port, pwd.
 import fileIO          as fio
 import utils           as ut # For access to openSocketsLst[].
-#############################################################################
-
-def getMultiProcSharedDict():
-    manager = mp.Manager()
-    styleDict = manager.dict({
-        'activeDigitStyle': 'whiteOnBlack',
-        'dayDigitStyle'   : 'orangeOnTurquoise',
-        'nightDigitStyle' : 'ltRedOnBlack',
-        'nightTime'       : [ 2, 1, 0, 0, 0, 0 ],
-        'dayTime'         : [ 0, 7, 0, 0, 0, 0 ],
-        'alarmTime'       : [ 0, 0, 0, 0, 0, 0 ], 
-    })
-    styleDictLock = mp.Lock()
-    return styleDict, styleDictLock
-#############################################################################
-
-def ksCleanup(styleDict, styleDictLock):
-    rspStr  = ''
-### START KS CODE REMOVE ###
-    rspStr += cv.vector('pc',  styleDict, styleDictLock) + '\n'
-    rspStr += '\n\n' + cv.vector('sb 0', styleDict, styleDictLock) + '\n'
-### END KS CODE REMOVE ###
-    return rspStr
+import serverCustomize as sc
 #############################################################################
 
 def processCloseCmd(clientSocket, clientAddress):
@@ -47,7 +24,7 @@ def processKsCmd( clientSocket, clientAddress, client2ServerCmdQ,
                   styleDict, styleDictLock ):
     rspStr = ''
     # Client sending ks has to be terminated first, I don't know why.
-    rspStr += ksCleanup(styleDict, styleDictLock)
+    rspStr += sc.ksCleanup(styleDict, styleDictLock)
     rspStr += '\n handleClient {} set loop break for self RE: ks \n'.\
               format(clientAddress)
     clientSocket.send(rspStr.encode()) # sends all even if > 1024.
@@ -156,7 +133,7 @@ def startServer(uut):
     fio.writeFile('serverLog.txt', logStr)
     #print(logStr)
 
-    styleDict, styleDictLock = getMultiProcSharedDict()
+    styleDict, styleDictLock = sc.getMultiProcSharedDict()
     #print('startServer', styleDict, styleDictLock)
 
     host = '0.0.0.0'  # Listen on all available interfaces
@@ -240,7 +217,6 @@ def startServer(uut):
 
 if __name__ == '__main__':
 
-    import spiRoutines as sr
     arguments  = sys.argv
     scriptName = arguments[0]
     mnUut      = None            # pylint: disable=C0103
@@ -257,12 +233,6 @@ if __name__ == '__main__':
         print('  usage1: python server.py uut (uut = spr, clk, clk2).')
         sys.exit()
     else:
-    ### START MN CODE REMOVE ###
-        kLst = ['hrMSD','hrLSD','mnMSD','mnLSD','scMSD','scLSD']
-        sr.hwReset()           # HW Reset. Common pin to all dislays.
-        for theKey in kLst:
-            sr.swReset(theKey) # SW Reset and display initialization.
-        print('LCD hw and sw has been reset.')
-    ### END MN CODE REMOVE ###
+        sc.hwInit()
 
     startServer(mnUut)
