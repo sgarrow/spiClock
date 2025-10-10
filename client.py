@@ -11,6 +11,7 @@ except (ModuleNotFoundError, AttributeError):
     pass
     #print('\n Exception importing readline. ok to continue.\n')
 
+import os
 import sys
 import socket
 import time
@@ -18,6 +19,15 @@ import select
 import threading
 import queue
 import cfg
+#############################################################################
+
+def readBinFileInChunks(inFile, chunkSize=4096):
+    with open(inFile, 'rb') as f:
+        while True:
+            outChunk = f.read(chunkSize)
+            if not outChunk:  # An empty bytes object indicates the end of the file
+                break
+            yield outChunk
 #############################################################################
 
 def printSocketInfo(cSocket):
@@ -39,6 +49,8 @@ def getUserInput( uiToMainQ, aLock ):
             if userInput in ['ks','close']:
                 break
         time.sleep(.01) # Gives 'main' a chance to run.
+        if userInput == 'up':
+            time.sleep(.5) # Gives 'main' a chance to run.
 #############################################################################
 
 if __name__ == '__main__':
@@ -94,31 +106,62 @@ if __name__ == '__main__':
     inputThread.start()
 
     rspStr = ''
+    longExeTimeMsgs = ['mus', 'ks'] # These cmds take long time on server.
+    xLngExeTimeMsgs = []        # These cmds take extra long time on server.
+    normWaitTime = 0.6
+    longWaitTime = 1.6
+    xLngWaitTime = 3.3
     while pwdIsOk:
+        # Get and send a message from the Q to the server.
         try:
             message = Ui2MainQ.get()
-        except queue.Empty:
-            pass
-        else:
-            clientSocket.send(message.encode())
-
-        with threadLock:  # Same story.
-            if any(word in message for word in ['mus', 'ks']):
-                readyToRead, _, _ = select.select([clientSocket], [], [], 1.6)
+            waitTime = normWaitTime
+            if any(word in message for word in longExeTimeMsgs):
+                waitTime = longWaitTime
             else:
-                readyToRead, _, _ = select.select([clientSocket], [], [], .6)
+                if any(word in message for word in xLngExeTimeMsgs):
+                    waitTime = xLngWaitTime
+
+        except queue.Empty:
+            pass                    # No message to send.
+
+        else:
+            if message == 'up':     # Send special message.
+                file = 'pics/240x320a.jpg'
+                try:
+                    fStat = os.stat(file)
+                    fSizeBytes = fStat.st_size
+                    print(' File {} has {:,} bytes.'.format(file,fSizeBytes))
+                    message += ' {}'.format(fSizeBytes)
+                    print(message)
+                    clientSocket.send(message.encode())
+                    time.sleep(.1)
+                except FileNotFoundError:
+                    print(' Error: {} was not found.'.format(file))
+                except OSError as e:
+                    print(' Error accessing {}: {}'.format(file,e))
+                else:
+                    for chunk in readBinFileInChunks(file, chunkSize=1024):
+                        #print(f"Read chunk of size: {len(chunk)} bytes")
+                        clientSocket.send(chunk)
+
+            else:                    # Send normal message.
+                clientSocket.send(message.encode())
+
+        # Reseive and print response from server.
+        with threadLock:
+            readyToRead, _, _ = select.select([clientSocket],[],[],waitTime)
             if readyToRead:
                 rspStr = ''
                 while readyToRead:
                     response = clientSocket.recv(1024)
                     rspStr += response.decode()
-
-                    if 'RE: ks' in rspStr:
+                    if 'RE: ks' in rspStr: # Early exit on ks cmd.
                         break
-
                     readyToRead,_, _=select.select([clientSocket],[],[],.25)
                 print('\n{}'.format(rspStr))
 
+        # Exit client on a close or ks cmd.
         if message == 'close' or 'RE: ks' in rspStr:
             break
 

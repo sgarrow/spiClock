@@ -304,6 +304,10 @@ if __name__ == '__main__':
 
 #############################################################################
 
+def uploadPic():
+    return ['done']
+#############################################################################
+
 def displayPics(prmLst):
     startTimeLst,qs,styleDic,styleLk = prmLst[0], prmLst[1], prmLst[2], prmLst[3]
     rspStr = ut.getActThrds()
