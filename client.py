@@ -11,6 +11,7 @@ except (ModuleNotFoundError, AttributeError):
     pass
     #print('\n Exception importing readline. ok to continue.\n')
 
+from PIL import Image
 import os
 import sys
 import socket
@@ -71,8 +72,8 @@ if __name__ == '__main__':
     # Each client will connect to the server with a new address.
     clientSocket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 
-    connectType = input(' ssh, lan, internet (s,l,i) -> ')
-    #connectType = 'i' # pylint: disable=C0103
+    #connectType = input(' ssh, lan, internet (s,l,i) -> ')
+    connectType = 'l' # pylint: disable=C0103
 
     #             {'s':'localhost','l':'lanAddr','i':'routerAddr'}
     connectDict = {'s':'localhost','l':cfgDict['myLan'],'i':cfgDict['myIP']}
@@ -107,10 +108,8 @@ if __name__ == '__main__':
 
     rspStr = ''
     longExeTimeMsgs = ['mus', 'ks'] # These cmds take long time on server.
-    xLngExeTimeMsgs = []        # These cmds take extra long time on server.
     normWaitTime = 0.6
     longWaitTime = 1.6
-    xLngWaitTime = 3.3
     while pwdIsOk:
         # Get and send a message from the Q to the server.
         try:
@@ -118,22 +117,19 @@ if __name__ == '__main__':
             waitTime = normWaitTime
             if any(word in message for word in longExeTimeMsgs):
                 waitTime = longWaitTime
-            else:
-                if any(word in message for word in xLngExeTimeMsgs):
-                    waitTime = xLngWaitTime
 
         except queue.Empty:
             pass                    # No message to send.
 
         else:
             if message == 'up':     # Send special message.
-                file = 'pics/240x320a.jpg'
+                fileA = 'pics/SHG07393.JPG'
+                fileA = 'pics/240x320a.jpg'
+                file = fileA.replace('\\','/')
                 try:
                     fStat = os.stat(file)
                     fSizeBytes = fStat.st_size
-                    print(' File {} has {:,} bytes.'.format(file,fSizeBytes))
-                    message += ' {}'.format(fSizeBytes)
-                    print(message)
+                    message += ' {} {}'.format(fSizeBytes, file)
                     clientSocket.send(message.encode())
                     time.sleep(.1)
                 except FileNotFoundError:
@@ -141,9 +137,19 @@ if __name__ == '__main__':
                 except OSError as e:
                     print(' Error accessing {}: {}'.format(file,e))
                 else:
-                    for chunk in readBinFileInChunks(file, chunkSize=1024):
-                        #print(f"Read chunk of size: {len(chunk)} bytes")
-                        clientSocket.send(chunk)
+                    img = Image.open(file)
+                    width, height = img.size
+                    img.close()
+
+                    print('\n {} width x height; size = '.format(file))
+                    print('   {:,d} x {:,d} pixels; {:,d} bytes'.\
+                        format(width, height, fSizeBytes))
+
+                    if (width,height) != (240,320):
+                        print('\n ERROR.  Image must be 240 x 320 pixels.')
+                    else:
+                        for chunk in readBinFileInChunks(file, chunkSize=1024):
+                            clientSocket.send(chunk)
 
             else:                    # Send normal message.
                 clientSocket.send(message.encode())

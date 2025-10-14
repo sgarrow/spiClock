@@ -1,3 +1,4 @@
+from pathlib import Path
 import sys                   # For getting command line args.
 import socket                # For creating and managing sockets.
 import threading       as th # For handling multiple clients concurrently.
@@ -74,7 +75,7 @@ def handleClient( clientSocket, clientAddress, client2ServerCmdQ,
         # Recieve msg from the client (and look (try) for UNEXPECTED EVENT).
         try: # In case user closed client window (x) instead of by close cmd.
             data = clientSocket.recv(1024) # Broke if any msg > 1024.
-            print(data)
+            print(data.decode())
             print('**************')
         except ConnectionResetError: # Windows throws this on (x).
             logStr += ' handleClient {} ConnectRstErr except in s.recv\n'.format(clientAddress)
@@ -89,32 +90,38 @@ def handleClient( clientSocket, clientAddress, client2ServerCmdQ,
             continue           # loop if another client has issued a ks cmd.
 
         # Getting here means a command has been received.
-        logStr = ' handleClient {} received: {}\n'.format(clientAddress, data.decode())
+        logStr = ' handleClient {} received: {}\n'.\
+            format(clientAddress, data.decode())
 
-        # Process a close special message and send response back to this client.
-        if data.decode() == 'close':  # Close this client's socket and send response.
+        # Process close special message & send response back to this client.
+        if data.decode() == 'close':  # Close this client's socket.
             logStr += processCloseCmd(clientSocket, clientAddress)
 
-        # Process a ks    special message and send response back to all  clients.
-        elif data.decode() == 'ks':   # Close this and all client sockets and send responses.
-            logStr += processKsCmd( clientSocket, clientAddress,
-                                    client2ServerCmdQ, styleDict, styleDictLock )
+        # Process a ks special message & send response back to all clients.
+        elif data.decode() == 'ks': # Close all client sockets.
+            logStr += processKsCmd(clientSocket, clientAddress,
+                                   client2ServerCmdQ,styleDict,styleDictLock)
 
-        # Process a up    special message and send response back to this  client.
-        elif 'up' == data.decode().split()[0]:
-            print(data.decode().split())
-            expectedNumBytes = int(data.decode().split()[1])
+        # Process up special message and send response back to this client.
+        elif 'up' == data.decode().split()[0]: # up numBytes fPath 
+            
+            inParms    = data.decode().split()
+            inNumBytes = int(inParms[1])
+            inFileName = inParms[2].split('/')[-1]
+            outFile    = 'pics/{}'.format(inFileName)
+
             packetNum     = 0
             totRcvTime    = 0
             totBytesRecvd = 0
             response = ''
-            with open('pics/new.jpg', 'wb') as f:
 
-                while totBytesRecvd < expectedNumBytes:
-                    kStart = time.time() # recv timeout is 3 sec.
+            with open(outFile, 'wb') as f:
+
+                while totBytesRecvd < inNumBytes:
+                    kStart = time.time() # recv timeout = 3 sec.
 
                     try:
-                        data = clientSocket.recv(1024) # Broke if any msg > 1024.
+                        data = clientSocket.recv(1024) # Broke if msg>1024.
                     except socket.timeout:
                         response = 'unexpected socket timeout'
                         break
@@ -122,14 +129,16 @@ def handleClient( clientSocket, clientAddress, client2ServerCmdQ,
                         f.write( data )
                         elapsedTime = time.time()-kStart
                         totBytesRecvd += len(data)
-                        print('Time to rcv/save data pkt {:4} = {:08.6f}'.format(packetNum, elapsedTime))
-                        print('     {} of {} bytes\n'.format(totBytesRecvd, expectedNumBytes))
+                        print('Time to rcv/save data pkt {:4} = {:08.6f}'.\
+                            format(packetNum, elapsedTime))
+                        print('     {} of {} bytes\n'.\
+                            format(totBytesRecvd, inNumBytes))
                         packetNum  += 1
                         totRcvTime += elapsedTime
 
             if response == '':
                 print(totBytesRecvd)
-                response = ' File Received. {:,d} bytes in {:6.3f} sec'.\
+                response = ' File sent. {:,d} bytes in {:6.3f} sec'.\
                     format(totBytesRecvd,totRcvTime)
 
             clientSocket.send(response.encode())
@@ -138,10 +147,11 @@ def handleClient( clientSocket, clientAddress, client2ServerCmdQ,
         # (and look (try) for UNEXPECTED EVENT).
         else:
             response = cv.vector(data.decode(),styleDict, styleDictLock)
-            try: # In case user closed client window (x) instead of by close cmd.
+            try: # If user closed client window (x) instead of by close cmd.
                 clientSocket.send(response.encode())
             except BrokenPipeError:      # RPi throws this on (x).
-                logStr += ' handleClient {} BrokePipeErr except in s.send\n'.format(clientAddress)
+                logStr +=' handleClient {} BrokePipeErr except in s.send\n'.\
+                    format(clientAddress)
                 # Breaks the loop. handler/thread stops. Connection closed.
                 ut.openSocketsLst.remove({'cs':clientSocket,'ca':clientAddress})
 
@@ -199,6 +209,8 @@ def startServer(uut):
     logStr += printSocketInfo(serverSocket)
     fio.writeFile('serverLog.txt', logStr)
     #print(logStr)
+    # sndBufSize =  16,384  # 0.25 * 64K
+    # rcvBufSize = 131,072  # 2.00 * 64K
 
     while True:
         logStr = ''
