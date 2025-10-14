@@ -103,11 +103,11 @@ def handleClient( clientSocket, clientAddress, client2ServerCmdQ,
                                    client2ServerCmdQ,styleDict,styleDictLock)
 
         # Process up special message and send response back to this client.
-        elif 'up' == data.decode().split()[0]: # up numBytes fPath 
+        elif 'up' == data.decode().split()[0]: # up fPath numBytes
             
             inParms    = data.decode().split()
-            inNumBytes = int(inParms[1])
-            inFileName = inParms[2].split('/')[-1]
+            inNumBytes = int(inParms[2])
+            inFileName = inParms[1].split('/')[-1]
             outFile    = 'pics/{}'.format(inFileName)
 
             packetNum     = 0

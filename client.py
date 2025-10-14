@@ -122,10 +122,9 @@ if __name__ == '__main__':
             pass                    # No message to send.
 
         else:
-            if message == 'up':     # Send special message.
-                fileA = 'pics/SHG07393.JPG'
-                fileA = 'pics/240x320a.jpg'
-                file = fileA.replace('\\','/')
+            if message.startswith('up'):     # Send special message.
+                msgLst = message.split()
+                file = msgLst[1].replace('\\','/')
                 try:
                     fStat = os.stat(file)
                     fSizeBytes = fStat.st_size
