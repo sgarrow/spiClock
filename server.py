@@ -75,8 +75,8 @@ def handleClient( clientSocket, clientAddress, client2ServerCmdQ,
         # Recieve msg from the client (and look (try) for UNEXPECTED EVENT).
         try: # In case user closed client window (x) instead of by close cmd.
             data = clientSocket.recv(1024) # Broke if any msg > 1024.
-            print(data.decode())
-            print('**************')
+            #print(data.decode())
+            #print('**************')
         except ConnectionResetError: # Windows throws this on (x).
             logStr += ' handleClient {} ConnectRstErr except in s.recv\n'.format(clientAddress)
             # Breaks the loop. handler/thread stops. Connection closed.
@@ -106,6 +106,7 @@ def handleClient( clientSocket, clientAddress, client2ServerCmdQ,
         elif 'up' == data.decode().split()[0]: # up fPath numBytes
             
             inParms    = data.decode().split()
+            #print(inParms)
             inNumBytes = int(inParms[2])
             inFileName = inParms[1].split('/')[-1]
             outFile    = 'pics/{}'.format(inFileName)
@@ -129,18 +130,19 @@ def handleClient( clientSocket, clientAddress, client2ServerCmdQ,
                         f.write( data )
                         elapsedTime = time.time()-kStart
                         totBytesRecvd += len(data)
-                        print('Time to rcv/save data pkt {:4} = {:08.6f}'.\
-                            format(packetNum, elapsedTime))
-                        print('     {} of {} bytes\n'.\
-                            format(totBytesRecvd, inNumBytes))
+                        #print('Time to rcv/save data pkt {:4} = {:08.6f}'.\
+                        #    format(packetNum, elapsedTime))
+                        #print('     {} of {} bytes\n'.\
+                        #    format(totBytesRecvd, inNumBytes))
                         packetNum  += 1
                         totRcvTime += elapsedTime
 
             if response == '':
-                print(totBytesRecvd)
+                #print(totBytesRecvd)
                 response = ' File sent. {:,d} bytes in {:6.3f} sec'.\
                     format(totBytesRecvd,totRcvTime)
 
+            #print(response)
             clientSocket.send(response.encode())
 
         # Process a normal message and send response back to this client.

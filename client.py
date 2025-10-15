@@ -50,8 +50,8 @@ def getUserInput( uiToMainQ, aLock ):
             if userInput in ['ks','close']:
                 break
         time.sleep(.01) # Gives 'main' a chance to run.
-        if userInput == 'up':
-            time.sleep(.5) # Gives 'main' a chance to run.
+        if 'up' in userInput:
+            time.sleep(.2) # Gives 'main' a chance to run.
 #############################################################################
 
 if __name__ == '__main__':
@@ -107,9 +107,9 @@ if __name__ == '__main__':
     inputThread.start()
 
     rspStr = ''
-    longExeTimeMsgs = ['mus', 'ks'] # These cmds take long time on server.
+    longExeTimeMsgs = ['mus', 'ks', 'pc','up'] # These cmds take long time on server.
     normWaitTime = 0.6
-    longWaitTime = 1.6
+    longWaitTime = 2.0
     while pwdIsOk:
         # Get and send a message from the Q to the server.
         try:
@@ -122,7 +122,7 @@ if __name__ == '__main__':
             pass                    # No message to send.
 
         else:
-            if message.startswith('up'):     # Send special message.
+            if message.lstrip().startswith('up'):  # Send special message.
                 msgLst = message.split()
                 file = msgLst[1].replace('\\','/')
                 try:
@@ -164,7 +164,7 @@ if __name__ == '__main__':
                     if 'RE: ks' in rspStr: # Early exit on ks cmd.
                         break
                     readyToRead,_, _=select.select([clientSocket],[],[],.25)
-                print('\n{}'.format(rspStr))
+                print('\n{}'.format(rspStr),flush = True)
 
         # Exit client on a close or ks cmd.
         if message == 'close' or 'RE: ks' in rspStr:
