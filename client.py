@@ -11,8 +11,6 @@ except (ModuleNotFoundError, AttributeError):
     pass
     #print('\n Exception importing readline. ok to continue.\n')
 
-from PIL import Image
-import os
 import sys
 import socket
 import time
@@ -20,15 +18,7 @@ import select
 import threading
 import queue
 import cfg
-#############################################################################
-
-def readBinFileInChunks(inFile, chunkSize=4096):
-    with open(inFile, 'rb') as f:
-        while True:
-            outChunk = f.read(chunkSize)
-            if not outChunk:  # An empty bytes object indicates the end of the file
-                break
-            yield outChunk
+import clientCustomize as cc
 #############################################################################
 
 def printSocketInfo(cSocket):
@@ -51,7 +41,7 @@ def getUserInput( uiToMainQ, aLock ):
                 break
         time.sleep(.01) # Gives 'main' a chance to run.
         if 'up' in userInput:
-            time.sleep(.2) # Gives 'main' a chance to run.
+            time.sleep(.3) # Gives 'main' a chance to run.
 #############################################################################
 
 if __name__ == '__main__':
@@ -73,11 +63,10 @@ if __name__ == '__main__':
     clientSocket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 
     #connectType = input(' ssh, lan, internet (s,l,i) -> ')
-    connectType = 'l' # pylint: disable=C0103
+    connectType  = 'l' # pylint: disable=C0103
+    connectDict  = {'s':'localhost','l':cfgDict['myLan'],'i':cfgDict['myIP']}
+    PORT         = int(cfgDict['myPort'])
 
-    #             {'s':'localhost','l':'lanAddr','i':'routerAddr'}
-    connectDict = {'s':'localhost','l':cfgDict['myLan'],'i':cfgDict['myIP']}
-    PORT = int(cfgDict['myPort'])
     try:
         clientSocket.connect((connectDict[connectType], PORT ))
     except ConnectionRefusedError:
@@ -106,68 +95,59 @@ if __name__ == '__main__':
                                     daemon = True )
     inputThread.start()
 
-    rspStr = ''
-    longExeTimeMsgs = ['mus', 'ks', 'pc','up'] # These cmds take long time on server.
-    normWaitTime = 0.6
-    longWaitTime = 2.0
+    rspStr          = ''
+    specialDict     = { 'clk':['up'],           # Special cmds.
+                        'spr':['dummy'] }
+    longExeTimeMsgs = ['mus','ks','pc','up']    # Cmds that take long.
+    normWaitTime    = 0.6
+    longWaitTime    = 2.0
+
     while pwdIsOk:
-        # Get and send a message from the Q to the server.
+        
         try:
-            message = Ui2MainQ.get()
+            message = Ui2MainQ.get()            # Get/send msg from Q.
             waitTime = normWaitTime
             if any(word in message for word in longExeTimeMsgs):
                 waitTime = longWaitTime
-
         except queue.Empty:
-            pass                    # No message to send.
+            print('q empty')
+            pass                                # No message to send.
 
-        else:
-            if message.lstrip().startswith('up'):  # Send special message.
-                msgLst = message.split()
-                file = msgLst[1].replace('\\','/')
-                try:
-                    fStat = os.stat(file)
-                    fSizeBytes = fStat.st_size
-                    message += ' {} {}'.format(fSizeBytes, file)
-                    clientSocket.send(message.encode())
-                    time.sleep(.1)
-                except FileNotFoundError:
-                    print(' Error: {} was not found.'.format(file))
-                except OSError as e:
-                    print(' Error accessing {}: {}'.format(file,e))
-                else:
-                    img = Image.open(file)
-                    width, height = img.size
-                    img.close()
+        else:                                       
+            msgLst = message.split()
 
-                    print('\n {} width x height; size = '.format(file))
-                    print('   {:,d} x {:,d} pixels; {:,d} bytes'.\
-                        format(width, height, fSizeBytes))
+            if   uut.startswith('clk')  and \
+                 len(msgLst) > 0        and \
+                 msgLst[0].lstrip() in specialDict['clk']:
+                 # Send special message.  
+                 print(cc.processSpecialCmd('uploadPic', 
+                                             clientSocket,
+                                             msgLst), end = '')
 
-                    if (width,height) != (240,320):
-                        print('\n ERROR.  Image must be 240 x 320 pixels.')
-                    else:
-                        for chunk in readBinFileInChunks(file, chunkSize=1024):
-                            clientSocket.send(chunk)
+            elif uut.startswith('spr') and \
+                 len(msgLst) > 0       and \
+                 msgLst[0].lstrip() in specialDict['spr']:
+                 # Send special message.  
+                 print(cc.processSpecialCmd('uploadPic', 
+                                             clientSocket,
+                                             msgLst), end = '')
 
-            else:                    # Send normal message.
+            else:                               # Send normal message.
                 clientSocket.send(message.encode())
 
-        # Reseive and print response from server.
-        with threadLock:
+        with threadLock:                        # Receive/print response. 
             readyToRead, _, _ = select.select([clientSocket],[],[],waitTime)
             if readyToRead:
                 rspStr = ''
                 while readyToRead:
                     response = clientSocket.recv(1024)
                     rspStr += response.decode()
-                    if 'RE: ks' in rspStr: # Early exit on ks cmd.
+                    if 'RE: ks' in rspStr:          # Early exit on ks cmd.
                         break
                     readyToRead,_, _=select.select([clientSocket],[],[],.25)
                 print('\n{}'.format(rspStr),flush = True)
 
-        # Exit client on a close or ks cmd.
-        if message == 'close' or 'RE: ks' in rspStr:
+        if message=='close' or 'RE: ks' in rspStr:  # Exit on close or ks.
             break
 
     print('\n Client closing Socket')

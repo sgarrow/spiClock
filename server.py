@@ -92,6 +92,7 @@ def handleClient( clientSocket, clientAddress, client2ServerCmdQ,
         # Getting here means a command has been received.
         logStr = ' handleClient {} received: {}\n'.\
             format(clientAddress, data.decode())
+        print(logStr)
 
         # Process close special message & send response back to this client.
         if data.decode() == 'close':  # Close this client's socket.
@@ -106,9 +107,8 @@ def handleClient( clientSocket, clientAddress, client2ServerCmdQ,
         elif 'up' == data.decode().split()[0]: # up fPath numBytes
             
             inParms    = data.decode().split()
-            #print(inParms)
-            inNumBytes = int(inParms[2])
             inFileName = inParms[1].split('/')[-1]
+            inNumBytes = int(inParms[2])
             outFile    = 'pics/{}'.format(inFileName)
 
             packetNum     = 0
@@ -128,19 +128,19 @@ def handleClient( clientSocket, clientAddress, client2ServerCmdQ,
                         break
                     else:
                         f.write( data )
-                        elapsedTime = time.time()-kStart
+                        elapsedTime    = time.time()-kStart
                         totBytesRecvd += len(data)
+                        packetNum     += 1
+                        totRcvTime    += elapsedTime
                         #print('Time to rcv/save data pkt {:4} = {:08.6f}'.\
                         #    format(packetNum, elapsedTime))
                         #print('     {} of {} bytes\n'.\
                         #    format(totBytesRecvd, inNumBytes))
-                        packetNum  += 1
-                        totRcvTime += elapsedTime
 
             if response == '':
                 #print(totBytesRecvd)
-                response = ' File sent. {:,d} bytes in {:6.3f} sec'.\
-                    format(totBytesRecvd,totRcvTime)
+                response = ' Server received file {} in {:,d} packets ({:,d} bytes) in {:6.3f} sec.\n'.\
+                    format(outFile, packetNum, totBytesRecvd, totRcvTime)
 
             #print(response)
             clientSocket.send(response.encode())
