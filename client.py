@@ -41,7 +41,7 @@ def getUserInput( uiToMainQ, aLock ):
                 break
         time.sleep(.01) # Gives 'main' a chance to run.
         if 'up' in userInput:
-            time.sleep(.3) # Gives 'main' a chance to run.
+            time.sleep(1) # Gives 'main' a chance to run.
 #############################################################################
 
 if __name__ == '__main__':
@@ -119,7 +119,7 @@ if __name__ == '__main__':
             if   uut.startswith('clk')  and \
                  len(msgLst) > 0        and \
                  msgLst[0].lstrip() in specialDict['clk']:
-                 # Send special message.  
+                                                # Send special message.  
                  print(cc.processSpecialCmd('uploadPic', 
                                              clientSocket,
                                              msgLst), end = '')
@@ -127,7 +127,7 @@ if __name__ == '__main__':
             elif uut.startswith('spr') and \
                  len(msgLst) > 0       and \
                  msgLst[0].lstrip() in specialDict['spr']:
-                 # Send special message.  
+                                                # Send special message.  
                  print(cc.processSpecialCmd('uploadPic', 
                                              clientSocket,
                                              msgLst), end = '')

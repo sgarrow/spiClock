@@ -12,14 +12,15 @@ def readBinFileInChunks(inFile, chunkSize=4096):
             yield outChunk
 #############################################################################
 
-def uploadPic(clientSocket,cmd,file,rspStr):
-
+def uploadPic(clientSocket,cmd,file):
     try:
         fStat = os.stat(file)
     except FileNotFoundError:
-        return ' {}\n ERROR: File {} was not found.\n'.format(rspStr, file)
+        return ' \n ERROR: File {} was not found.\n'.format(file)
     except OSError as e:
-        return ' {}\n ERROR: Could not access file {}: {}\n'.format(rspStr, file,e)
+        return ' \n ERROR: Could not access file {}: {}\n'.format(file,e)
+    except:
+        return ' \n ERROR: test\n'.format(file,e)
     else:
         fSizeBytes = fStat.st_size
         message = '{} {} {}'.format(cmd, file, fSizeBytes )
@@ -30,7 +31,7 @@ def uploadPic(clientSocket,cmd,file,rspStr):
     width, height = img.size
     img.close()
 
-    rspStr += '\n File {} is {}x{} pixels, {} bytes.\n'.\
+    rspStr = '\n File {} is {}x{} pixels, {} bytes.\n'.\
         format(file, width, height, fSizeBytes)
 
     if (width,height) != (240,320):
@@ -42,10 +43,10 @@ def uploadPic(clientSocket,cmd,file,rspStr):
     numPacketsSent = 0
     numBytesSent   = 0
     for chunk in readBinFileInChunks(file, chunkSize=1024):
-        clientSocket.send(chunk)
+        serverRsp = clientSocket.send(chunk)
         numPacketsSent += 1
         numBytesSent += len(chunk)
-    rspStr += ' Client sent file {} in {:,d} packets ({:,d} bytes).\n'.\
+    rspStr = ' Client sent file {} in {:,d} packets ({:,d} bytes).\n'.\
         format(file, numPacketsSent, numBytesSent)
 
     return rspStr
@@ -58,7 +59,7 @@ def processSpecialCmd(funcName, clientSocket, inMsgLst):
         return ' Invalid funcName {}'.format(funcName)
 
     if len(inMsgLst) < 2:
-        return 'ERROR: Too few command line parms.'
+        return ' ERROR: Too few command line parms.'
 
     cmd       = inMsgLst[0].strip() # up
     fileSpec  = inMsgLst[1].replace('\\','/')
@@ -78,8 +79,8 @@ def processSpecialCmd(funcName, clientSocket, inMsgLst):
         fileLst = [fileSpec]
 
     for f in fileLst:
-        rspStr += uploadPic(clientSocket,cmd,f,rspStr)
-        time.sleep(1)
+        rspStr += uploadPic(clientSocket,cmd,f)
+        time.sleep(.2)
     return rspStr
 #############################################################################
 
