@@ -128,7 +128,7 @@ if __name__ == '__main__':
                  len(msgLst) > 0       and \
                  msgLst[0].lstrip() in specialDict['spr']:
                                                 # Send special message.  
-                 print(cc.processSpecialCmd('uploadPic', 
+                 print(cc.processSpecialCmd('dummy', 
                                              clientSocket,
                                              msgLst), end = '')
 

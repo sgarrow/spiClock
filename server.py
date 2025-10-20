@@ -1,4 +1,3 @@
-from pathlib import Path
 import sys                   # For getting command line args.
 import socket                # For creating and managing sockets.
 import threading       as th # For handling multiple clients concurrently.
@@ -104,45 +103,9 @@ def handleClient( clientSocket, clientAddress, client2ServerCmdQ,
                                    client2ServerCmdQ,styleDict,styleDictLock)
 
         # Process up special message and send response back to this client.
-        elif 'up' == data.decode().split()[0]: # up fPath numBytes
-            
-            inParms    = data.decode().split()
-            inFileName = inParms[1].split('/')[-1]
-            inNumBytes = int(inParms[2])
-            outFile    = 'pics/{}'.format(inFileName)
-
-            packetNum     = 0
-            totRcvTime    = 0
-            totBytesRecvd = 0
-            response = ''
-
-            with open(outFile, 'wb') as f:
-
-                while totBytesRecvd < inNumBytes:
-                    kStart = time.time() # recv timeout = 3 sec.
-
-                    try:
-                        data = clientSocket.recv(1024) # Broke if msg>1024.
-                    except socket.timeout:
-                        response = 'unexpected socket timeout'
-                        break
-                    else:
-                        f.write( data )
-                        elapsedTime    = time.time()-kStart
-                        totBytesRecvd += len(data)
-                        packetNum     += 1
-                        totRcvTime    += elapsedTime
-                        #print('Time to rcv/save data pkt {:4} = {:08.6f}'.\
-                        #    format(packetNum, elapsedTime))
-                        #print('     {} of {} bytes\n'.\
-                        #    format(totBytesRecvd, inNumBytes))
-
-            if response == '':
-                #print(totBytesRecvd)
-                response = ' Server received file {} in {:,d} packets ({:,d} bytes) in {:6.3f} sec.\n'.\
-                    format(outFile, packetNum, totBytesRecvd, totRcvTime)
-
-            #print(response)
+        elif data.decode().split()[0] in sc.specialCmds: # up fPath numBytes
+            inParms  = data.decode().split()
+            response = sc.specialCmdHndlr( inParms, clientSocket )
             clientSocket.send(response.encode())
 
         # Process a normal message and send response back to this client.

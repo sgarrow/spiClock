@@ -19,8 +19,6 @@ def uploadPic(clientSocket,cmd,file):
         return ' \n ERROR: File {} was not found.\n'.format(file)
     except OSError as e:
         return ' \n ERROR: Could not access file {}: {}\n'.format(file,e)
-    except:
-        return ' \n ERROR: test\n'.format(file,e)
     else:
         fSizeBytes = fStat.st_size
         message = '{} {} {}'.format(cmd, file, fSizeBytes )
