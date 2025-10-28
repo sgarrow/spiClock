@@ -267,6 +267,124 @@ def delUsrDigPikF( parmLst ):
     return [rspStr]
 #############################################################################
 
+def removePic(parmLst):
+    usage = ''' ERROR:
+{}
+ Required Parameters: picNumber
+ The parm is the index number of the pic to delete.
+{} '''
+
+    rspStr    = ''
+    picDicStr = ''
+    dPath     = 'pics'
+    nonDigitDetected = False
+
+    if parmLst[0] == 'None' or len(parmLst) != 1:
+        rspStr += ' Incorrect number of parameters.\n'
+    if not all( s.isdigit() for s in parmLst[0] ):
+        rspStr += ' Non-digit detected in parameter.\n'
+        nonDigitDetected = True
+
+    try:
+        picDic= {idx:nme for idx,nme in enumerate(sorted(os.listdir(dPath)))}
+    except FileNotFoundError:
+        rspStr += ' Directory {} not found.\n'.format(dPath)
+    else:
+        if len(picDic) == 0:
+            rspStr += ' No pictures to remove.\n'.format(dPath)
+        else:
+            for k,v in picDic.items():
+                picDicStr += '\n {:2} - {}'.format(k,v)
+
+    if not nonDigitDetected:
+        dicIdx = int(parmLst[0])
+        if dicIdx > len(picDic):
+            rspStr += ' Parameter out of range.'
+
+    if rspStr != '':
+        return [usage.format(rspStr,picDicStr)]
+
+    fName = '{}/{}'.format(dPath,picDic[dicIdx] )
+    os.remove(fName)
+    rspStr = '{} removed'.format(fName )
+    return [rspStr]
+#############################################################################
+#############################################################################
+
+def repeatListToMatchLength(listToRepeat, targetList):
+    """
+    Repeats a list until its length matches the length of a target list.
+    Args:
+        listToRepeat: The list to be repeated.
+        targetList: The list whose length should be matched.
+    Returns:
+        A new list that is a repeated version of listToRepeat,
+        truncated or extended to match the length of targetList.
+    """
+    if not listToRepeat:
+        return []
+
+    targetLength = len(targetList)
+    repeatedList = (listToRepeat * (targetLength // len(listToRepeat))) + \
+                    listToRepeat[:targetLength % len(listToRepeat)]
+    return repeatedList
+#################################################################
+
+def displayPics(prmLst):
+
+    dPath  = 'pics'
+    picLst = sorted(os.listdir(dPath))
+    if len(picLst) == 0:
+        return [' No pics found.']
+
+    startTimeLst,qs,styleDic,styleLk = prmLst[0], prmLst[1], prmLst[2], prmLst[3]
+    rspStr = ut.getActThrds()
+    dspIdLst = [ 'hrMSD','hrLSD','mnMSD','mnLSD','scMSD','scLSD' ]
+    lenDspIdLst = len(dspIdLst)
+    stoppedClock = False
+    if 'clockCntrProc' in rspStr[0] or 'lcdUpdateProc' in rspStr[0]:
+        #print('stopping clock')
+        cr.stopClk(qs)
+        stoppedClock = True
+
+    ##################################
+    rspStr = ut.getActThrds()
+    if 'MainThread' not in rspStr[0]:
+        #print('reseting LCD')
+
+        sr.hwReset()              # HW Reset
+        for displayID in dspIdLst:
+            sr.swReset(displayID) # SW Reset and the display initialization.
+
+    sr.setBkLight([1])            # Turn on backlight.
+
+    # Shortest list is list to repeat.
+    if len(picLst) < len(dspIdLst):
+        #                                 (lstToRepeat, targetLst)
+        picLst   = repeatListToMatchLength(picLst,      dspIdLst )
+    else:
+        #                                 (lstToRepeat, targetLst)
+        dspIdLst = repeatListToMatchLength(dspIdLst,    picLst   )
+
+    for ii,(d,p) in enumerate(zip(dspIdLst, picLst)):
+        slept = False
+        data = makePilJpgPicImage('{}{}{}'.format(dPath,'/',p))
+        sr.setEntireDisplay( d, data, sr.sendDat2ToSt7789 )
+        #print(d,p)
+        if  (ii+1) % lenDspIdLst == 0:
+            time.sleep(3)
+            slept = True
+    if not slept:
+        time.sleep(3)
+    ##################################
+
+    if stoppedClock:
+        #print('starting clock')
+        cr.startClk([startTimeLst,qs,styleDic,styleLk])
+
+    return ['done']
+#############################################################################
+
 if __name__ == '__main__':
 
     black     = (   0,   0,   0 )
@@ -301,79 +419,5 @@ if __name__ == '__main__':
         print(f"Error: Directory '{mnDirPath}' not found.")
     except Exception as e: # pylint: disable=W0718
         print(f"An error occurred: {e}")
-
 #############################################################################
 
-def uploadPic():
-    return ['done']
-#############################################################################
-
-def repeatListToMatchLength(listToRepeat, targetList):
-    """
-    Repeats a list until its length matches the length of a target list.
-    Args:
-        listToRepeat: The list to be repeated.
-        targetList: The list whose length should be matched.
-    Returns:
-        A new list that is a repeated version of listToRepeat,
-        truncated or extended to match the length of targetList.
-    """
-    if not listToRepeat:
-        return []
-
-    targetLength = len(targetList)
-    repeatedList = (listToRepeat * (targetLength // len(listToRepeat))) + \
-                    listToRepeat[:targetLength % len(listToRepeat)]
-    return repeatedList
-#################################################################
-
-def displayPics(prmLst):
-    startTimeLst,qs,styleDic,styleLk = prmLst[0], prmLst[1], prmLst[2], prmLst[3]
-    rspStr = ut.getActThrds()
-    dspIdLst = [ 'hrMSD','hrLSD','mnMSD','mnLSD','scMSD','scLSD' ]
-    lenDspIdLst = len(dspIdLst)
-    stoppedClock = False
-    if 'clockCntrProc' in rspStr[0] or 'lcdUpdateProc' in rspStr[0]:
-        #print('stopping clock')
-        cr.stopClk(qs)
-        stoppedClock = True
-
-    ##################################
-    rspStr = ut.getActThrds()
-    if 'MainThread' not in rspStr[0]:
-        #print('reseting LCD')
-
-        sr.hwReset()              # HW Reset
-        for displayID in dspIdLst:
-            sr.swReset(displayID) # SW Reset and the display initialization.
-
-    sr.setBkLight([1])            # Turn on backlight.
-    dPath  = 'pics'
-    picLst = sorted(os.listdir(dPath))
-
-    # Shortest list is list to repeat.
-    if len(picLst) < len(dspIdLst):
-        #                                 (lstToRepeat, targetLst)
-        picLst   = repeatListToMatchLength(picLst,      dspIdLst )
-    else:
-        #                                 (lstToRepeat, targetLst)
-        dspIdLst = repeatListToMatchLength(dspIdLst,    picLst   )
-
-    for ii,(d,p) in enumerate(zip(dspIdLst, picLst)):
-        slept = False
-        data = makePilJpgPicImage('{}{}{}'.format(dPath,'/',p))
-        sr.setEntireDisplay( d, data, sr.sendDat2ToSt7789 )
-        #print(d,p)
-        if  (ii+1) % lenDspIdLst == 0:
-            time.sleep(3)
-            slept = True
-    if not slept:
-        time.sleep(3)
-    ##################################
-
-    if stoppedClock:
-        #print('starting clock')
-        cr.startClk([startTimeLst,qs,styleDic,styleLk])
-
-    return ['done']
-#############################################################################

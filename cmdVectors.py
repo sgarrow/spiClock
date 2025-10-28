@@ -42,6 +42,12 @@ def disconnect():  # Handled directly in the handleClient func so it
     return         # doesn't need a wrk funct, but because of way vectoring
                    # is done a func needs to exist. Func never called/runs.
 #############################################################################
+
+def uploadPic():   # Handled directly in the handleClient func so it        
+    return         # doesn't need a wrk funct, but because of way vectoring 
+                   # is done a func needs to exist. Func never called/runs. 
+#############################################################################
+
 def getVer():
     VER = ' v1.5.90 - 20-Oct-2025'
     return [VER]
@@ -110,7 +116,8 @@ def vector(inputStr,styleDic,styleLk): # called from handleClient.
     'mus':{ 'fun': ms.mkUsrDigPikF, 'prm':[],                         'menu':'Make User Style'   },
     'dus':{ 'fun': ms.delUsrDigPikF,'prm':dfltSASParm,                'menu':'Delete User Style' },
     'dp' :{ 'fun': ms.displayPics,  'prm':[[],qs,styleDic,styleLk],   'menu':'Display Pics'     },
-    'up' :{ 'fun': ms.uploadPic,    'prm':None,                       'menu':'Upload Pic'        },
+    'up' :{ 'fun': uploadPic,       'prm':None,                       'menu':'Upload Pic'        },
+    'rp' :{ 'fun': ms.removePic,    'prm':['None'],                   'menu':'Remove Pic'        },
     'us' :{ 'fun': su.updateSw,     'prm':None,                       'menu':'Update SW'         },
     'hlp':{ 'fun': getHelp,         'prm':None,                       'menu':'Help'              },
     'close':{'fun':disconnect,      'prm':None,                       'menu':'Disconnect'        },
@@ -155,7 +162,7 @@ def vector(inputStr,styleDic,styleLk): # called from handleClient.
         elif choice in ['sb'] and len(optArgsStr) == 1:
             params = optArgsStr
 
-        elif choice in ['mus'] and len(optArgsStr) > 0:
+        elif choice in ['mus','rp'] and len(optArgsStr) > 0:
             params = optArgsStr
 
         elif choice in ['hlp']:
