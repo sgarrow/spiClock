@@ -27,7 +27,7 @@ def makeColoredPRSLstsOfBytes(c):
     return pLst,rLst,sLst
 #############################################################################
 
-def makePilTextImage(text, textColor, backgroundColor):
+def makePilTextImage(text, textColor, backgroundColor, fontSize = 300):
 
     # Creates and returns a screens worth of LCD data.  The LCD data is
     # created by the PIL module.  The LCD image created is typically a
@@ -37,7 +37,7 @@ def makePilTextImage(text, textColor, backgroundColor):
     #
     # Also called by functions in testRoutines.py.
 
-    font = ImageFont.truetype('fonts/Font00.ttf' , 300)  # Set font size to 80
+    font = ImageFont.truetype('fonts/Font00.ttf' , fontSize)  # Set font size to 80
 
     # Create an RGB image with white background.
     image = Image.new('RGB', (240, 320), backgroundColor)

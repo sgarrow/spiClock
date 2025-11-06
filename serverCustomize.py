@@ -3,6 +3,7 @@ import time
 import multiprocessing as mp
 import cmdVectors      as cv # Contains vectors to "worker" functions.
 import spiRoutines as sr
+import makeScreen as ms
 specialCmds = ['up']
 #############################################################################
 
@@ -32,7 +33,31 @@ def hwInit():
     sr.hwReset()           # HW Reset. Common pin to all dislays.
     for theKey in kLst:
         sr.swReset(theKey) # SW Reset and display initialization.
-    print('LCD hw and sw has been reset.')
+    print(' LCD hw and sw has been reset.')
+#############################################################################
+
+def displayLanIp(inLanIp):
+    if inLanIp:
+        lanIpLst = inLanIp.split('.')
+        print(' LAN IP address is: {}'.format( inLanIp  ))
+        print(' LAN IP as list is: {}'.format( lanIpLst ))
+        white = (0,0,0)
+        black = (255,255,255)
+
+        data1  = ms.makePilTextImage('LAN',       white, black, fontSize =80)
+        data2  = ms.makePilTextImage('IP',        white, black, fontSize =80)
+        data3  = ms.makePilTextImage(lanIpLst[0], white, black, fontSize =80)
+        data4  = ms.makePilTextImage(lanIpLst[1], white, black, fontSize =80)
+        data5  = ms.makePilTextImage(lanIpLst[2], white, black, fontSize =80)
+        data6  = ms.makePilTextImage(lanIpLst[3], white, black, fontSize =80)
+        pixLst = [ data1, data2, data3, data4, data5, data6]
+        kLst = ['hrMSD','hrLSD','mnMSD','mnLSD','scMSD','scLSD']
+        displayID = kLst[-1]  # Test will be run on this display only.
+        sr.setBkLight([1])    # Turn on (all) backlights.
+        for did,pl in zip(kLst,pixLst):
+            sr.setEntireDisplay(did, pl, sr.sendDat2ToSt7789)
+    else:
+        print(' Could not determine LAN IP address.')
 #############################################################################
 
 def specialCmdHndlr(inParms, clientSocket):
