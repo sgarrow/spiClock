@@ -2,8 +2,8 @@ import socket                # For creating and managing sockets.
 import time
 import multiprocessing as mp
 import cmdVectors      as cv # Contains vectors to "worker" functions.
-import spiRoutines as sr
-import makeScreen as ms
+import spiRoutines     as sr
+import makeScreen      as ms
 specialCmds = ['up']
 #############################################################################
 
@@ -38,21 +38,26 @@ def hwInit():
 
 def displayLanIp(inLanIp):
     if inLanIp:
-        lanIpLst = inLanIp.split('.')
-        print(' LAN IP address is: {}'.format( inLanIp  ))
-        print(' LAN IP as list is: {}'.format( lanIpLst ))
+        lanIpLst   = inLanIp.split('.')
+
+        verND      = cv.getVer()
+        verNDSplit = verND[0].split('-')
+        verN       = [ x.strip() for x in verNDSplit[0].split('.') ]
+
+        print(' LAN IP  as list: {}'.format( lanIpLst ))
+        print(' SW  VER as list: {}'.format( verN     ))
+
         white = (0,0,0)
         black = (255,255,255)
 
-        data1  = ms.makePilTextImage('LAN',       white, black, fontSize =80)
-        data2  = ms.makePilTextImage('IP',        white, black, fontSize =80)
-        data3  = ms.makePilTextImage(lanIpLst[0], white, black, fontSize =80)
-        data4  = ms.makePilTextImage(lanIpLst[1], white, black, fontSize =80)
-        data5  = ms.makePilTextImage(lanIpLst[2], white, black, fontSize =80)
-        data6  = ms.makePilTextImage(lanIpLst[3], white, black, fontSize =80)
+        data1  = ms.makePilTextImage('LAN\nSW',                               white, black, fontSize =80)
+        data2  = ms.makePilTextImage('IP\nVER',                               white, black, fontSize =80)
+        data3  = ms.makePilTextImage('{}\n  {}'.format(lanIpLst[0],verN[0][0]), white, black, fontSize =80)
+        data4  = ms.makePilTextImage('{}\n  {}'.format(lanIpLst[1],verN[0][1]), white, black, fontSize =80)
+        data5  = ms.makePilTextImage('{}\n{}'.format(lanIpLst[2],verN[1]   ), white, black, fontSize =80)
+        data6  = ms.makePilTextImage('{}\n{}'.format(lanIpLst[3],verN[2]   ), white, black, fontSize =80)
         pixLst = [ data1, data2, data3, data4, data5, data6]
         kLst = ['hrMSD','hrLSD','mnMSD','mnLSD','scMSD','scLSD']
-        displayID = kLst[-1]  # Test will be run on this display only.
         sr.setBkLight([1])    # Turn on (all) backlights.
         for did,pl in zip(kLst,pixLst):
             sr.setEntireDisplay(did, pl, sr.sendDat2ToSt7789)
@@ -97,4 +102,3 @@ def specialCmdHndlr(inParms, clientSocket):
 
     return response
 #############################################################################
-

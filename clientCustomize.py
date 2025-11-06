@@ -1,6 +1,6 @@
-from PIL import Image
 import time
 import os
+from PIL import Image
 #############################################################################
 
 def readBinFileInChunks(inFile, chunkSize=4096):
@@ -19,11 +19,10 @@ def uploadPic(clientSocket,cmd,file):
         return ' \n ERROR: File {} was not found.\n'.format(file)
     except OSError as e:
         return ' \n ERROR: Could not access file {}: {}\n'.format(file,e)
-    else:
-        fSizeBytes = fStat.st_size
-        message = '{} {} {}'.format(cmd, file, fSizeBytes )
-        clientSocket.send(message.encode())
-        time.sleep(.1)
+    fSizeBytes = fStat.st_size
+    message = '{} {} {}'.format(cmd, file, fSizeBytes )
+    clientSocket.send(message.encode())
+    time.sleep(.1)
 
     img = Image.open(file)
     width, height = img.size
@@ -41,7 +40,7 @@ def uploadPic(clientSocket,cmd,file):
     numPacketsSent = 0
     numBytesSent   = 0
     for chunk in readBinFileInChunks(file, chunkSize=1024):
-        serverRsp = clientSocket.send(chunk)
+        clientSocket.send(chunk)
         numPacketsSent += 1
         numBytesSent += len(chunk)
     rspStr = ' Client sent file {} in {:,d} packets ({:,d} bytes).\n'.\
@@ -71,7 +70,7 @@ def processSpecialCmd(funcName, clientSocket, inMsgLst):
         except FileNotFoundError:
             return ' ERROR: Directory {} was not found.'.format(filePath)
         except OSError as e:
-            return ' ERROR: Could not access directory {}: {}'.format(file,e)
+            return ' ERROR: Could not access directory {}: {}'.format(filePath,e)
         fileLst = [ '{}/{}'.format(filePath, x) for x in picLst if x.endswith('.jpg')]
     else:
         fileLst = [fileSpec]
@@ -81,4 +80,3 @@ def processSpecialCmd(funcName, clientSocket, inMsgLst):
         time.sleep(.2)
     return rspStr
 #############################################################################
-

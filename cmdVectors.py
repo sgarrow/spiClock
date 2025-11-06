@@ -43,13 +43,13 @@ def disconnect():  # Handled directly in the handleClient func so it
                    # is done a func needs to exist. Func never called/runs.
 #############################################################################
 
-def uploadPic():   # Handled directly in the handleClient func so it        
-    return         # doesn't need a wrk funct, but because of way vectoring 
-                   # is done a func needs to exist. Func never called/runs. 
+def uploadPic():   # Handled directly in the handleClient func so it
+    return         # doesn't need a wrk funct, but because of way vectoring
+                   # is done a func needs to exist. Func never called/runs.
 #############################################################################
 
 def getVer():
-    VER = ' v1.5.92 - 05-Nov-2025'
+    VER = ' v1.6.0 - 06-Nov-2025'
     return [VER]
 #############################################################################
 

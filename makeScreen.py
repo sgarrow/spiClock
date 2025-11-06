@@ -286,12 +286,12 @@ def removePic(parmLst):
         nonDigitDetected = True
 
     try:
-        picDic= {idx:nme for idx,nme in enumerate(sorted(os.listdir(dPath)))}
+        picDic= dict(enumerate(sorted(os.listdir(dPath))))
     except FileNotFoundError:
         rspStr += ' Directory {} not found.\n'.format(dPath)
     else:
         if len(picDic) == 0:
-            rspStr += ' No pictures to remove.\n'.format(dPath)
+            rspStr += ' No pictures to remove.\n'
         else:
             for k,v in picDic.items():
                 picDicStr += '\n {:2} - {}'.format(k,v)
@@ -420,4 +420,3 @@ if __name__ == '__main__':
     except Exception as e: # pylint: disable=W0718
         print(f"An error occurred: {e}")
 #############################################################################
-
