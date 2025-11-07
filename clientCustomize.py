@@ -16,9 +16,12 @@ def uploadPic(clientSocket,cmd,file):
     try:
         fStat = os.stat(file)
     except FileNotFoundError:
-        return ' \n ERROR: File {} was not found.\n'.format(file)
+        print(' \n ERROR: File {} was not found.\n'.format(file))
+        return
     except OSError as e:
-        return ' \n ERROR: Could not access file {}: {}\n'.format(file,e)
+        print(' \n ERROR: Could not access file {}: {}\n'.format(file,e))
+        return
+
     fSizeBytes = fStat.st_size
     message = '{} {} {}'.format(cmd, file, fSizeBytes )
     clientSocket.send(message.encode())
@@ -28,14 +31,12 @@ def uploadPic(clientSocket,cmd,file):
     width, height = img.size
     img.close()
 
-    rspStr = '\n File {} is {}x{} pixels, {} bytes.\n'.\
-        format(file, width, height, fSizeBytes)
+    print('\n File {} is {}x{} pixels, {} bytes.'.\
+        format(file, width, height, fSizeBytes))
 
     if (width,height) != (240,320):
-        rspStr += ' ERROR.  Image must be 240x320 pixels.\n'
-
-    if 'ERROR' in rspStr:
-        return rspStr
+        print(' ERROR.  Image must be 240x320 pixels.\n')
+        return
 
     numPacketsSent = 0
     numBytesSent   = 0
@@ -43,20 +44,21 @@ def uploadPic(clientSocket,cmd,file):
         clientSocket.send(chunk)
         numPacketsSent += 1
         numBytesSent += len(chunk)
-    rspStr = ' Client sent file {} in {:,d} packets ({:,d} bytes).\n'.\
-        format(file, numPacketsSent, numBytesSent)
+    print(' Client sent file {} in {:,d} packets ({:,d} bytes).'.\
+        format(file, numPacketsSent, numBytesSent))
 
-    return rspStr
+    return
 #############################################################################
 
 def processSpecialCmd(funcName, clientSocket, inMsgLst):
-    rspStr = ''
 
     if funcName != 'uploadPic':
-        return ' Invalid funcName {}'.format(funcName)
+        print(' Invalid funcName {}'.format(funcName))
+        return
 
     if len(inMsgLst) < 2:
-        return ' ERROR: Too few command line parms.'
+        print(' ERROR: Too few command line parms.')
+        return
 
     cmd       = inMsgLst[0].strip() # up
     fileSpec  = inMsgLst[1].replace('\\','/')
@@ -64,19 +66,24 @@ def processSpecialCmd(funcName, clientSocket, inMsgLst):
     fileParts = fileSpec.split('/')
     filePath  = '/'.join(fileParts[:-1])
 
+    try:
+        picLst = sorted(os.listdir(filePath))
+    except FileNotFoundError:
+        print(' ERROR: Directory {} was not found.'.format(filePath))
+        return
+    except OSError as e:
+        print(' ERROR: Could not access directory {}:\n {}'.format(filePath,e))
+        return
+
     if hasStar:
-        try:
-            picLst = sorted(os.listdir(filePath))
-        except FileNotFoundError:
-            return ' ERROR: Directory {} was not found.'.format(filePath)
-        except OSError as e:
-            return ' ERROR: Could not access directory {}: {}'.format(filePath,e)
         fileLst = [ '{}/{}'.format(filePath, x) for x in picLst if x.endswith('.jpg')]
     else:
         fileLst = [fileSpec]
 
+    #print(' processSpecialCmd fileLst = {}'.format(fileLst))
+
     for f in fileLst:
-        rspStr += uploadPic(clientSocket,cmd,f)
+        uploadPic(clientSocket,cmd,f)
         time.sleep(.2)
-    return rspStr
+    return
 #############################################################################
