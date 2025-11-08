@@ -22,12 +22,9 @@ def uploadPic(clientSocket,cmd,file):
         print(' \n ERROR: Could not access file {}: {}\n'.format(file,e))
         return
 
-    fSizeBytes = fStat.st_size
-    message = '{} {} {}'.format(cmd, file, fSizeBytes )
-    clientSocket.send(message.encode())
-    time.sleep(.1)
+    fSizeBytes    = fStat.st_size
 
-    img = Image.open(file)
+    img           = Image.open(file)
     width, height = img.size
     img.close()
 
@@ -37,6 +34,10 @@ def uploadPic(clientSocket,cmd,file):
     if (width,height) != (240,320):
         print(' ERROR.  Image must be 240x320 pixels.\n')
         return
+
+    message = '{} {} {}'.format(cmd, file, fSizeBytes )
+    clientSocket.send(message.encode())
+    time.sleep(.1)
 
     numPacketsSent = 0
     numBytesSent   = 0

@@ -10,9 +10,9 @@ specialCmds = ['up']
 def getMultiProcSharedDict():
     manager = mp.Manager()
     styleDict = manager.dict({
-        'activeDigitStyle': 'whiteOnBlack',
-        'dayDigitStyle'   : 'orangeOnTurquoise',
-        'nightDigitStyle' : 'ltRedOnBlack',
+        'activeDigitStyle': 'greyOnBlack', # This style cannot be deleted.
+        'dayDigitStyle'   : 'greyOnBlack',
+        'nightDigitStyle' : 'greyOnBlack',
         'nightTime'       : [ 2, 1, 0, 0, 0, 0 ],
         'dayTime'         : [ 0, 7, 0, 0, 0, 0 ],
         'alarmTime'       : [ 0, 0, 0, 0, 0, 0 ], 
