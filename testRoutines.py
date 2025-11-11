@@ -76,8 +76,8 @@ def runTest1():
 
     rspStr += '\nBegin test 1.4 - Fill entire screen w/ constructed PIL images in one shot.\n'
     #                                textColor backgroundColor
-    data1  = ms.makePilTextImage('1', (0,0,0), (255,255,255) )
-    data2  = ms.makePilTextImage('2', (0,0,0), (255,255,255) )
+    data1  = ms.mkPilTxtImg('1', (0,0,0), (255,255,255) )
+    data2  = ms.mkPilTxtImg('2', (0,0,0), (255,255,255) )
     pixLst = [ data1, data2 ]
     for sf,pl in zip( sendFuncs, pixLst ):
         kStart = time.time()

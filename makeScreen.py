@@ -27,7 +27,7 @@ def makeColoredPRSLstsOfBytes(c):
     return pLst,rLst,sLst
 #############################################################################
 
-def makePilTextImage(text, textColor, backgroundColor, fontSize = 300):
+def mkPilTxtImg(text, textColor, backgroundColor, fontSize = 300):
 
     # Creates and returns a screens worth of LCD data.  The LCD data is
     # created by the PIL module.  The LCD image created is typically a
@@ -162,7 +162,7 @@ def mkDigPikFile( styleName, textLst, textColor, backgroundColor ):
 
     digitScreenDict2 = {}
     for t in textLst:
-        tData = makePilTextImage( t, textColor, backgroundColor )
+        tData = mkPilTxtImg( t, textColor, backgroundColor )
         digitScreenDict2[t] = tData
 
     fName = 'digitScreenStyles/{}.pickle'.format(styleName)

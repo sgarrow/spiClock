@@ -50,13 +50,13 @@ def displayLanIp(inLanIp):
         white = (0,0,0)
         black = (255,255,255)
 
-        data1  = ms.makePilTextImage('LAN\nSW',                               white, black, fontSize =80)
-        data2  = ms.makePilTextImage('IP\nVER',                               white, black, fontSize =80)
-        data3  = ms.makePilTextImage('{}\n  {}'.format(lanIpLst[0],verN[0][0]), white, black, fontSize =80)
-        data4  = ms.makePilTextImage('{}\n  {}'.format(lanIpLst[1],verN[0][1]), white, black, fontSize =80)
-        data5  = ms.makePilTextImage('{}\n{}'.format(lanIpLst[2],verN[1]   ), white, black, fontSize =80)
-        data6  = ms.makePilTextImage('{}\n{}'.format(lanIpLst[3],verN[2]   ), white, black, fontSize =80)
-        pixLst = [ data1, data2, data3, data4, data5, data6]
+        data1 = ms.mkPilTxtImg('LAN\nSW',                                white,black,fontSize =80)
+        data2 = ms.mkPilTxtImg('IP\nVER',                                white,black,fontSize =80)
+        data3 = ms.mkPilTxtImg('{}\n  {}'.format(lanIpLst[0],verN[0][0]),white,black,fontSize =80)
+        data4 = ms.mkPilTxtImg('{}\n  {}'.format(lanIpLst[1],verN[0][1]),white,black,fontSize =80)
+        data5 = ms.mkPilTxtImg('{}\n{}'.format(lanIpLst[2],verN[1]   ),  white,black,fontSize =80)
+        data6 = ms.mkPilTxtImg('{}\n{}'.format(lanIpLst[3],verN[2]   ),  white,black,fontSize =80)
+        pixLst= [ data1, data2, data3, data4, data5, data6]
         kLst = ['hrMSD','hrLSD','mnMSD','mnLSD','scMSD','scLSD']
         sr.setBkLight([1])    # Turn on (all) backlights.
         for did,pl in zip(kLst,pixLst):
@@ -94,10 +94,10 @@ def specialCmdHndlr(inParms, clientSocket):
                 totRcvTime    += elapsedTime
                 #print('Time to rcv/save data pkt {:4} = {:08.6f}'.\
                 #    format(packetNum, elapsedTime))
-                #print('     {} of {} bytes\n'.\
+                #print('     {:6} of {:6} bytes'.\
                 #    format(totBytesRecvd, inNumBytes))
     if response == '':
-        response = ' Server received file {} in {:,d} packets ({:,d} bytes) in {:6.3f} sec.\n'.\
+        response = ' Srvr rcvd file {:>20}. {:4,d} pkts. {:7,d} bytes. {:5.3f} sec.\n'.\
             format(outFile, packetNum, totBytesRecvd, totRcvTime)
 
     return response

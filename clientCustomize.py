@@ -85,6 +85,6 @@ def processSpecialCmd(funcName, clientSocket, inMsgLst):
 
     for f in fileLst:
         uploadPic(clientSocket,cmd,f)
-        time.sleep(.2)
+        time.sleep(.4)
     return
 #############################################################################
