@@ -68,9 +68,12 @@ def setBkLight(parmLst):
     if int(dsrdState) == 0:
         BL_PIN.off()
         return ['Backlight Off']
-    elif int(dsrdState) == 1:
+    if int(dsrdState) == 1:
         BL_PIN.on()
         return ['Backlight On']
+
+    # fallback (should never be hit)
+    return ['Unknown state']
 #############################################################################
 
 def hwReset():
