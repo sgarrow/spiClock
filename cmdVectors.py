@@ -49,7 +49,7 @@ def uploadPic():   # Handled directly in the handleClient func so it
 #############################################################################
 
 def getVer():
-    VER = ' v1.6.10 - 21-Nov-2025'
+    VER = ' v1.6.11 - 24-Nov-2025'
     return [VER]
 #############################################################################
 
@@ -130,7 +130,7 @@ def vector(inputStr,styleDic,styleLk): # called from handleClient.
 
     'rh' :{ 'fun': sr.hwReset,      'prm':None,                       'menu':'Reset LCD HW Test' },
     'rs' :{ 'fun': sr.swReset,      'prm':'scLSD',                    'menu':'Reset LCD SW Test' },
-    'sb' :{ 'fun': sr.setBkLight,   'prm':[0],                        'menu':'LCD Backlight Test'},
+    'sb' :{ 'fun': sr.setBkLight,   'prm':['1'],                      'menu':'LCD Backlight Test'},
     'lc' :{ 'fun': cm.cmds,         'prm':None,                       'menu':'List Commands Test'},
     #####################################################
     }
@@ -150,20 +150,17 @@ def vector(inputStr,styleDic,styleLk): # called from handleClient.
         func   = vectorDict[choice]['fun']
         params = vectorDict[choice]['prm']
 
-        if choice in ['sc', 'sdt','snt', 'dus'] and len(optArgsStr) > 0:
+        if  choice in ['sc','sdt','snt','dus','sas','sds','sns','sb'] \
+            and len(optArgsStr) > 0:
             params[0] = optArgsStr
 
-        elif choice in ['sas','sds','sns'] and len(optArgsStr) == 1:
-            params[0] = optArgsStr[0]
-
-        elif choice in ['ral','rsl','rse'] and len(optArgsStr) > 0:
+        elif choice in ['ral','rsl','rse'] \
+            and len(optArgsStr) > 0:
             params[1] = optArgsStr
 
-        elif choice in ['sb'] and len(optArgsStr) == 1:
-            params = optArgsStr
-
-        elif choice in ['mus','rp'] and len(optArgsStr) > 0:
-            params = optArgsStr
+        elif choice in ['mus','rp'] \
+            and len(optArgsStr) > 0:
+            params    = optArgsStr
 
         elif choice in ['hlp']:
             params = [optArgsStr,vectorDict]

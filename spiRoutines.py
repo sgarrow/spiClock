@@ -57,12 +57,20 @@ spi.max_speed_hz = 20000000       # max = 20000000
 
 def setBkLight(parmLst):
     # Turn the backlight of the LCD on/off.
-    dsrdState = int(parmLst[0])
-    if dsrdState == 0:
+
+    dsrdState = parmLst[0]
+    if isinstance(dsrdState, list):
+        dsrdState = dsrdState[0]
+
+    if dsrdState not in [0,1,'0','1']:
+        return ['Backlight must be 0 or 1']
+
+    if int(dsrdState) == 0:
         BL_PIN.off()
-    elif dsrdState == 1:
+        return ['Backlight Off']
+    elif int(dsrdState) == 1:
         BL_PIN.on()
-    return ['Backlight Set']
+        return ['Backlight On']
 #############################################################################
 
 def hwReset():

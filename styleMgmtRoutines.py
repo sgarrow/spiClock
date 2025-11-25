@@ -148,7 +148,12 @@ def getActStyle(prmLst):
 
 def setStyleDriver(prmLst):
 
-    dsrdStyleIdx, styleDict, styleDictLock = prmLst[0], prmLst[1], prmLst[2]
+    dsrdStyleIdx = prmLst[0]
+    if dsrdStyleIdx != 'None':
+        dsrdStyleIdx = dsrdStyleIdx[0]
+
+    styleDict, styleDictLock = prmLst[1], prmLst[2]
+    #print('dsrdStyleIdx = {}'.format(dsrdStyleIdx))
     # Returns a rps str and a digitStyleStr, like 'blackOnWhite'.
     # Just sets the name doesn't activate it, that's done by loadActiveStyle.
     whoCalledMe = inspect.stack()[1][3]

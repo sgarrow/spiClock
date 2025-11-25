@@ -39,30 +39,30 @@ def hwInit():
 def displayLanIp(inLanIp):
     if inLanIp:
         lanIpLst   = inLanIp.split('.')
-
-        verND      = cv.getVer()
-        verNDSplit = verND[0].split('-')
-        verN       = [ x.strip() for x in verNDSplit[0].split('.') ]
-
-        print(' LAN IP  as list: {}'.format( lanIpLst ))
-        print(' SW  VER as list: {}'.format( verN     ))
-
-        white = (0,0,0)
-        black = (255,255,255)
-
-        data1 = ms.mkPilTxtImg('LAN\nSW',                                white,black,fontSize =80)
-        data2 = ms.mkPilTxtImg('IP\nVER',                                white,black,fontSize =80)
-        data3 = ms.mkPilTxtImg('{}\n  {}'.format(lanIpLst[0],verN[0][0]),white,black,fontSize =80)
-        data4 = ms.mkPilTxtImg('{}\n  {}'.format(lanIpLst[1],verN[0][1]),white,black,fontSize =80)
-        data5 = ms.mkPilTxtImg('{}\n{}'.format(lanIpLst[2],verN[1]   ),  white,black,fontSize =80)
-        data6 = ms.mkPilTxtImg('{}\n{}'.format(lanIpLst[3],verN[2]   ),  white,black,fontSize =80)
-        pixLst= [ data1, data2, data3, data4, data5, data6]
-        kLst = ['hrMSD','hrLSD','mnMSD','mnLSD','scMSD','scLSD']
-        sr.setBkLight([1])    # Turn on (all) backlights.
-        for did,pl in zip(kLst,pixLst):
-            sr.setEntireDisplay(did, pl, sr.sendDat2ToSt7789)
     else:
-        print(' Could not determine LAN IP address.')
+        lanIpLst   = [ '?', '?', '?', '?' ]
+
+    verND      = cv.getVer()
+    verNDSplit = verND[0].split('-')
+    verN       = [ x.strip() for x in verNDSplit[0].split('.') ]
+
+    print(' LAN IP  as list: {}'.format( lanIpLst ))
+    print(' SW  VER as list: {}'.format( verN     ))
+
+    white = (0,0,0)
+    black = (255,255,255)
+
+    data1 = ms.mkPilTxtImg('LAN\nSW',                                white,black,fontSize =80)
+    data2 = ms.mkPilTxtImg('IP\nVER',                                white,black,fontSize =80)
+    data3 = ms.mkPilTxtImg('{}\n  {}'.format(lanIpLst[0],verN[0][0]),white,black,fontSize =80)
+    data4 = ms.mkPilTxtImg('{}\n  {}'.format(lanIpLst[1],verN[0][1]),white,black,fontSize =80)
+    data5 = ms.mkPilTxtImg('{}\n{}'.format(lanIpLst[2],  verN[1]   ),white,black,fontSize =80)
+    data6 = ms.mkPilTxtImg('{}\n{}'.format(lanIpLst[3],  verN[2]   ),white,black,fontSize =80)
+    pixLst= [ data1, data2, data3, data4, data5, data6]
+    kLst = ['hrMSD','hrLSD','mnMSD','mnLSD','scMSD','scLSD']
+    sr.setBkLight([1])    # Turn on (all) backlights.
+    for did,pl in zip(kLst,pixLst):
+        sr.setEntireDisplay(did, pl, sr.sendDat2ToSt7789)
 #############################################################################
 
 def specialCmdHndlr(inParms, clientSocket):
