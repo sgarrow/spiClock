@@ -2,7 +2,13 @@ import platform
 import zipfile
 import os
 import requests
-import cfg
+
+# Need try/except for case where testing on windows where the chain of import
+# ends at import spidev, which isn't installed on windows, only on RPi.
+try:
+    import cmdVectors as cv # Vector to "worker" function getVer().
+except ModuleNotFoundError:
+    print('Could not import cmdVectors.')
 #############################################################################
 #############################################################################
 
@@ -14,6 +20,7 @@ def getLatestReleaseInfo(repoOwner, repoName):
     response = requests.get( url, timeout = 5 )
     if response.status_code == 200:
         latestRelease = response.json()
+        #return None, None # For test.
         return latestRelease['tag_name'], latestRelease['html_url']
     return None, None
 #############################################################################
@@ -22,6 +29,7 @@ def parseReleaseInfo(releaseInfo):
     latestTag  = releaseInfo[0]
     releaseUrl = releaseInfo[1]
     if latestTag:
+        #zipUrl = None # For test.
         zipUrl = releaseUrl.replace('releases/tag','archive/refs/tags')+'.zip'
     else:
         zipUrl = None
@@ -39,6 +47,7 @@ def getPaths():
     else:
         dwnldToPath  = None
         unzipToPath  = None
+    #return None, None # For test.
     return dwnldToPath, unzipToPath
 #############################################################################
 
@@ -51,6 +60,7 @@ def downloadZip( dnldToPath, zipFileUrl ):
         with open(fullyQualifiedFname,'wb') as outFile:
             outFile.write(response.content)
         status = 'SUCCESS'
+    #return 'FAIL', fullyQualifiedFname # For test.
     return status, fullyQualifiedFname
 #############################################################################
 
@@ -92,79 +102,100 @@ def compareVerNums( swVerLst, repoVerLst ):
     if swVerLst[0] > repoVerLst[0]: return 1
     if swVerLst[0] < repoVerLst[0]: return 2
 
-    # swVerLst[0] == repoVerLst[0]: 
+    # swVerLst[0] == repoVerLst[0]:
     if swVerLst[1] > repoVerLst[1]: return 1
     if swVerLst[1] < repoVerLst[1]: return 2
 
-    # swVerLst[1] == repoVerLst[1]: 
+    # swVerLst[1] == repoVerLst[1]:
     if swVerLst[2] > repoVerLst[2]: return 1
     if swVerLst[2] < repoVerLst[2]: return 2
 
     return 3 # Should never get here,
 #############################################################################
 
-if __name__ == '__main__':
+def getVer():
+    VER = ' v1.6.11 - 24-Nov-2025'
+    return [VER]
+#############################################################################
 
-    def getVer():
-        VER = ' v1.6.12 - 24-Nov-2025'
-        return [VER]
+def updateSw():
+    rspStr = ''
+    try:
+        verND = cv.getVer()
+    except NameError:
+        verND = getVer()  # Dummy routine (above) for testing on windows.
 
-    #verND        = cv.getVer()
-    verND         = getVer()
     verNDSplit    = verND[0].split('-')
     swVerAsLst    = [ x.strip() for x in verNDSplit[0].split('.') ]
     swVerAsLst[0] = swVerAsLst[0][1:]
     swVerAsIntLst = [int(x) for x in swVerAsLst]
-    print('\n          SW  VER as list = {}'.format( swVerAsIntLst ))
 
     dwnldToPath,unzipToPath = getPaths()
-    #print(' dwnldToPath, unzipToPath = {}, {}\n'.\
-    #    format( dwnldToPath,unzipToPath ))
+    if dwnldToPath is None or unzipToPath is None:
+        return ['\n FATAL ERROR. dwnld2Path,unzip2Path={},{}\n'.\
+                format(dwnldToPath,unzipToPath)]
+
+    rspStr += '\n dwnld2Path,unzip2Path={},{}\n'.format(dwnldToPath,unzipToPath)
 
     mnRepoOwner = 'sgarrow'
     mnRepoNames = ['spiClock', 'sharedClientServerCode']
-    mnRepoNames = ['spiClock']
 
     for ii, mnRepoName in enumerate(mnRepoNames):
 
         releaseInfo = getLatestReleaseInfo(mnRepoOwner,mnRepoName)
-        #print(' Release Info {}  = {}'.format(ii,releaseInfo))
+        rspStr += '\n Release Info {}  = {}\n'.format(ii,releaseInfo)
 
         tag,url,zipUrl = parseReleaseInfo(releaseInfo)
 
-        if tag == None or url == None:
-            print( '   Failed to get the latest release information from {}.\n'.\
-                 format( 'github.com/' + mnRepoOwner + '/' + mnRepoName ))
+        if tag is None or url is None:
+            rspStr +=  '   Failed to get the latest release information from {}.\n'.\
+                 format( 'github.com/' + mnRepoOwner + '/' + mnRepoName )
+            continue
+        if zipUrl is None:
+            rspStr +=  '   Failed to get url of zip file ({}).\n'.format( zipUrl )
             continue
 
-        #print('   Parsed Release Info:')
-        #print('     tag    = {}'.format( tag    ))
-        #print('     url    = {}'.format( url    ))
-        #print('     zipUrl = {}'.format( zipUrl ))
-        #print()
         repoVerAsLst    = [ x.strip() for x in tag.split('.') ]
         repoVerAsLst[0] = repoVerAsLst[0][1:]
         repoVerAsIntLst = [int(x) for x in repoVerAsLst]
-        print('\n        REPO  VER as list = {}'.format( repoVerAsIntLst ))
 
-        # 0: equal. 1: SW Bigger. 2: Repo Bigger 
+        rspStr += '   Parsed Release Info:'
+        rspStr += '     tag    = {}\n'.format( tag    )
+        rspStr += '     url    = {}\n'.format( url    )
+        rspStr += '     zipUrl = {}\n'.format( zipUrl )
+        rspStr += '     repo  SW Ver = {}\n'.format( repoVerAsIntLst )
+        rspStr += '     local SW Ver = {}\n'.format( swVerAsIntLst )
+
+        # 0: equal. 1: SW Bigger. 2: Repo Bigger
         rsp = compareVerNums( swVerAsLst, repoVerAsLst )
         myStrLst = [ 'same  as', 'older than', 'newer than', '??? than' ]
-        print('Repo ver is {} running ver. '.format(myStrLst[rsp]))
-        continue
+        rspStr += '   Repo ver is {} running ver.'.format(myStrLst[rsp])
+        if rsp == 2:
+            rspStr += ' Beginning update.\n'
+        else:
+            rspStr += ' No update available.\n'
+            continue
 
         sts, fullQualifiedFname = downloadZip(dwnldToPath,zipUrl)
         if sts == 'FAIL':
-            print('   Failed to download {} to {}\n'.\
-                format(zipUrl.split('/')[-1],dwnldToPath))
+            rspStr += '   Failed to download {} to {}\n'.\
+                format(zipUrl.split('/')[-1],dwnldToPath)
             continue
-        print('   Successfully downloaded {} to {}\n'.\
-            format(zipUrl.split('/')[-1],dwnldToPath))
+        rspStr += '   Successfully downloaded {} to {}\n'.\
+            format(zipUrl.split('/')[-1],dwnldToPath)
 
         if sts == 'SUCCESS':
-            rspStr = unzipFileTo( unzipToPath, fullQualifiedFname )
-            print(rspStr)
-            print(' Successfully extracted {} into {}'.
-                     format(fullQualifiedFname,unzipToPath))
+            rspStr += unzipFileTo( unzipToPath, fullQualifiedFname )
+            rspStr += '   Successfully extracted {} into {}\n'.\
+                format(fullQualifiedFname,unzipToPath)
 
-    print()
+    return [rspStr]
+#############################################################################
+
+if __name__ == '__main__':
+
+    # Can be run stand-alone on command-line on either Windows or Linux,
+    # or called my cmdVectors via client on Linux.
+
+    mnRspStr = updateSw()
+    print(mnRspStr[0])
