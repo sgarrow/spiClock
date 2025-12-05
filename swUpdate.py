@@ -2,13 +2,6 @@ import platform
 import zipfile
 import os
 import requests
-
-# Need try/except for case where testing on windows where the chain of import
-# ends at import spidev, which isn't installed on windows, only on RPi.
-try:
-    import cmdVectors as cv # Vector to "worker" function getVer().
-except ModuleNotFoundError:
-    print('Could not import cmdVectors.')
 #############################################################################
 #############################################################################
 
@@ -113,17 +106,8 @@ def compareVerNums( swVerLst, repoVerLst ):
     return 3 # Should never get here,
 #############################################################################
 
-def getVer():
-    VER = ' v1.6.11 - 24-Nov-2025'
-    return [VER]
-#############################################################################
-
-def updateSw():
+def updateSw(verND): # verND = version Number and Date.
     rspStr = ''
-    try:
-        verND = cv.getVer()
-    except NameError:
-        verND = getVer()  # Dummy routine (above) for testing on windows.
 
     verNDSplit    = verND[0].split('-')
     swVerAsLst    = [ x.strip() for x in verNDSplit[0].split('.') ]
@@ -197,5 +181,6 @@ if __name__ == '__main__':
     # Can be run stand-alone on command-line on either Windows or Linux,
     # or called my cmdVectors via client on Linux.
 
-    mnRspStr = updateSw()
+    VER = [' v1.6.15 - 24-Nov-2025']
+    mnRspStr = updateSw(VER)
     print(mnRspStr[0])

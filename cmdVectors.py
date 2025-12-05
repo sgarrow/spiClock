@@ -48,8 +48,8 @@ def uploadPic():   # Handled directly in the handleClient func so it
                    # is done a func needs to exist. Func never called/runs.
 #############################################################################
 
+VER = ' v1.6.15 - 05-Dec-2025'
 def getVer():
-    VER = ' v1.6.14 - 27-Nov-2025'
     return [VER]
 #############################################################################
 
@@ -118,7 +118,7 @@ def vector(inputStr,styleDic,styleLk): # called from handleClient.
     'dp' :{ 'fun': ms.displayPics,  'prm':[[],qs,styleDic,styleLk],   'menu':'Display Pics'     },
     'up' :{ 'fun': uploadPic,       'prm':None,                       'menu':'Upload Pic'        },
     'rp' :{ 'fun': ms.removePic,    'prm':['None'],                   'menu':'Remove Pic'        },
-    'us' :{ 'fun': su.updateSw,     'prm':None,                       'menu':'Update SW'         },
+    'us' :{ 'fun': su.updateSw,     'prm':[VER],                      'menu':'Update SW'         },
     'hlp':{ 'fun': getHelp,         'prm':None,                       'menu':'Help'              },
     'close':{'fun':disconnect,      'prm':None,                       'menu':'Disconnect'        },
     'ks' :{ 'fun': killSrvr,        'prm':None,                       'menu':'Kill Server'       },
