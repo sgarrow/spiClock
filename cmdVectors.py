@@ -9,7 +9,7 @@ import multiprocessing   as mp
 import styleMgmtRoutines as sm
 import startStopClock    as cr
 import testRoutines      as tr
-import rpiShellCmds      as sc
+import rpiShellCmds      as shc
 import spiRoutines       as sr
 import makeScreen        as ms
 import swUpdate          as su
@@ -48,7 +48,7 @@ def uploadPic():   # Handled directly in the handleClient func so it
                    # is done a func needs to exist. Func never called/runs.
 #############################################################################
 
-VER = ' v1.6.15 - 05-Dec-2025'
+VER = ' v1.6.16 - 06-Dec-2025'
 def getVer():
     return [VER]
 #############################################################################
@@ -122,7 +122,7 @@ def vector(inputStr,styleDic,styleLk): # called from handleClient.
     'hlp':{ 'fun': getHelp,         'prm':None,                       'menu':'Help'              },
     'close':{'fun':disconnect,      'prm':None,                       'menu':'Disconnect'        },
     'ks' :{ 'fun': killSrvr,        'prm':None,                       'menu':'Kill Server'       },
-    'rb' :{ 'fun': sc.rebootRpi,    'prm':None,                       'menu':'Reboor RPi'        },
+    'rbt':{ 'fun': shc.rebootRpi,   'prm':None,                       'menu':'Reboot RPi'        },
 
     # TEST COMMANDS
     'rt1':{ 'fun': tr.runTest1,     'prm':None,                       'menu':'Run Test 1'        },

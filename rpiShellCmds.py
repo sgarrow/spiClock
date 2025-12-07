@@ -1,4 +1,6 @@
 import subprocess
+import threading
+import time
 #############################################################################
 
 def killSrvr():
@@ -34,13 +36,16 @@ def killSrvr():
                                )
 ############################################################################
 
+def reboot_worker(delay_seconds=3):
+    time.sleep(delay_seconds)
+    subprocess.Popen(["sudo", "reboot"], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+    subprocess.Popen(["nohup", "sudo", "reboot"], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+
+
 def rebootRpi():
-    return subprocess.run( [ 'sudo', 'sh', '-c', 'sleep 3 && reboot' ],
-                              stdout = subprocess.PIPE,
-                              text   = True,
-                              check  = False
-                           )
-    #return [' Rebooting in 3 seconds ...']
+    # Launch reboot logic in background and return immediately
+    #threading.Thread(target=reboot_worker, daemon=True).start()
+    return ['Rebooting in 3 seconds... (RE: rbt)']
 ############################################################################
 
 if __name__ == '__main__':
