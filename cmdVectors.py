@@ -23,32 +23,16 @@ lcdRq = mp.Queue() # LCD Rsp Q. mp queue must be used here.
 clkCq = mp.Queue() # CLK Cmd Q. mp queue must be used here.
 clkRq = mp.Queue() # CLK Rsp Q. mp queue must be used here.
 qs    = [ lcdCq, lcdRq, clkCq, clkRq ]
-
-ESC = '\x1b'
-RED = '[31m'
-TERMINATE = '[0m'
-
-REDON  = ESC + RED
-REDOFF = ESC + TERMINATE
-#############################################################################
 #############################################################################
 
-def killSrvr():    # The ks handled directly in the handleClient func so it
-    return         # doesn't need a wrk funct, but because of way vectoring
-                   # is done a func needs to exist. Func never called/runs.
+# Cmds close,ks,up,rbt are handled directly in the handleClient func so they
+# don't need a wrk funct, but because of way vectoring is done a func needs
+# to exist. This function is never called/runs.
+def dummy():
+    return
 #############################################################################
 
-def disconnect():  # Handled directly in the handleClient func so it
-    return         # doesn't need a wrk funct, but because of way vectoring
-                   # is done a func needs to exist. Func never called/runs.
-#############################################################################
-
-def uploadPic():   # Handled directly in the handleClient func so it
-    return         # doesn't need a wrk funct, but because of way vectoring
-                   # is done a func needs to exist. Func never called/runs.
-#############################################################################
-
-VER = ' v1.6.16 - 06-Dec-2025'
+VER = ' v1.6.17 - 07-Dec-2025'
 def getVer():
     return [VER]
 #############################################################################
@@ -116,13 +100,13 @@ def vector(inputStr,styleDic,styleLk): # called from handleClient.
     'mus':{ 'fun': ms.mkUsrDigPikF, 'prm':[],                         'menu':'Make User Style'   },
     'dus':{ 'fun': ms.delUsrDigPikF,'prm':dfltSASParm,                'menu':'Delete User Style' },
     'dp' :{ 'fun': ms.displayPics,  'prm':[[],qs,styleDic,styleLk],   'menu':'Display Pics'     },
-    'up' :{ 'fun': uploadPic,       'prm':None,                       'menu':'Upload Pic'        },
+    'up' :{ 'fun': dummy,           'prm':None,                       'menu':'Upload Pic'        },
     'rp' :{ 'fun': ms.removePic,    'prm':['None'],                   'menu':'Remove Pic'        },
     'us' :{ 'fun': su.updateSw,     'prm':[VER],                      'menu':'Update SW'         },
     'hlp':{ 'fun': getHelp,         'prm':None,                       'menu':'Help'              },
-    'close':{'fun':disconnect,      'prm':None,                       'menu':'Disconnect'        },
-    'ks' :{ 'fun': killSrvr,        'prm':None,                       'menu':'Kill Server'       },
-    'rbt':{ 'fun': shc.rebootRpi,   'prm':None,                       'menu':'Reboot RPi'        },
+    'close':{'fun':dummy,           'prm':None,                       'menu':'Disconnect'        },
+    'ks' :{ 'fun': dummy,           'prm':None,                       'menu':'Kill Server'       },
+    'rbt':{ 'fun': dummy,           'prm':None,                       'menu':'Reboot RPi'        },
 
     # TEST COMMANDS
     'rt1':{ 'fun': tr.runTest1,     'prm':None,                       'menu':'Run Test 1'        },

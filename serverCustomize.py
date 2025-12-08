@@ -49,15 +49,15 @@ def displayLanIp(inLanIp):
     print(' LAN IP  as list: {}'.format( lanIpLst ))
     print(' SW  VER as list: {}'.format( verN     ))
 
-    white = (0,0,0)
+    grey  = (128,128,128)
     black = (255,255,255)
 
-    data1 = ms.mkPilTxtImg('LAN\nSW',                                white,black,fontSize =80)
-    data2 = ms.mkPilTxtImg('IP\nVER',                                white,black,fontSize =80)
-    data3 = ms.mkPilTxtImg('{}\n  {}'.format(lanIpLst[0],verN[0][0]),white,black,fontSize =80)
-    data4 = ms.mkPilTxtImg('{}\n  {}'.format(lanIpLst[1],verN[0][1]),white,black,fontSize =80)
-    data5 = ms.mkPilTxtImg('{}\n{}'.format(lanIpLst[2],  verN[1]   ),white,black,fontSize =80)
-    data6 = ms.mkPilTxtImg('{}\n{}'.format(lanIpLst[3],  verN[2]   ),white,black,fontSize =80)
+    data1 = ms.mkPilTxtImg('LAN\nSW',                                black,grey,fontSize =80)
+    data2 = ms.mkPilTxtImg('IP\nVER',                                black,grey,fontSize =80)
+    data3 = ms.mkPilTxtImg('{}\n  {}'.format(lanIpLst[0],verN[0][0]),black,grey,fontSize =80)
+    data4 = ms.mkPilTxtImg('{}\n  {}'.format(lanIpLst[1],verN[0][1]),black,grey,fontSize =80)
+    data5 = ms.mkPilTxtImg('{}\n{}'.format(  lanIpLst[2],verN[1]   ),black,grey,fontSize =80)
+    data6 = ms.mkPilTxtImg('{}\n{}'.format(  lanIpLst[3],verN[2]   ),black,grey,fontSize =80)
     pixLst= [ data1, data2, data3, data4, data5, data6]
     kLst = ['hrMSD','hrLSD','mnMSD','mnLSD','scMSD','scLSD']
     sr.setBkLight([1])    # Turn on (all) backlights.
