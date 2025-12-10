@@ -9,7 +9,6 @@ import multiprocessing   as mp
 import styleMgmtRoutines as sm
 import startStopClock    as cr
 import testRoutines      as tr
-import rpiShellCmds      as shc
 import spiRoutines       as sr
 import makeScreen        as ms
 import swUpdate          as su
@@ -32,7 +31,7 @@ def dummy():
     return
 #############################################################################
 
-VER = ' v1.6.17 - 07-Dec-2025'
+VER = ' v1.6.18 - 09-Dec-2025'
 def getVer():
     return [VER]
 #############################################################################
