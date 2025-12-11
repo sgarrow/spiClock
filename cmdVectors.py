@@ -31,9 +31,14 @@ def dummy():
     return
 #############################################################################
 
-VER = ' v1.6.19 - 09-Dec-2025'
+# Version number of the "app".
+# As opposed to the version number of the "server" which is in fileIO.py
+VER = ' v1.6.20 - 10-Dec-2025'
 def getVer():
-    return [VER]
+    appVer = VER
+    srvVer = fio.VER
+    rspStr = ' appVer = {} \n serVer = {}'.format(appVer, srvVer)
+    return [rspStr]
 #############################################################################
 
 def getHelp(prmLst):

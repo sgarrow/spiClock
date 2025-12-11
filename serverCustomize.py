@@ -38,27 +38,53 @@ def hwInit():
 
 def displayLanIp(inLanIp):
     if inLanIp:
-        lanIpLst   = inLanIp.split('.')
+        lanIp   = inLanIp.split('.')
     else:
-        lanIpLst   = [ '?', '?', '?', '?' ]
+        lanIp   = [ '?', '?', '?', '?' ]
 
-    verND      = cv.getVer()
-    verNDSplit = verND[0].split('-')
-    verN       = [ x.strip() for x in verNDSplit[0].split('.') ]
+    verStrLst = cv.getVer()
+    verStr    = verStrLst[0]
+    verLines  = verStr.split('\n')
+    appVerStr = verLines[0]
+    srvVerStr = verLines[1]
 
-    print(' LAN IP  as list: {}'.format( lanIpLst ))
-    print(' SW  VER as list: {}'.format( verN     ))
+    appVerSplit = appVerStr.split('=')
+    appVerName  = appVerSplit[0]
+    appVerNum   = appVerSplit[1].split(' - ')[0]
+    appVerDt    = appVerSplit[1].split(' - ')[1]
 
+    srvVerSplit = srvVerStr.split('=')
+    srvVerName  = srvVerSplit[0]
+    srvVerNum   = srvVerSplit[1].split(' - ')[0]
+    srvVerDt    = srvVerSplit[1].split(' - ')[1]
+
+    appV = [ x.strip() for x in appVerNum.split('.') ]
+    srvV = [ x.strip() for x in srvVerNum.split('.') ]
+    print()
+
+    print(' LAN IP  as list: {}'.format( lanIp  ))
+    print(' APP VER as list: {}'.format( appV ))
+    print(' SRV VER as list: {}'.format( srvV ))
+    
     grey  = (128,128,128)
-    black = (255,255,255)
+    blk   = (255,255,255)
+    
+    d1= ms.mkPilTxtImg('\nLAN\nApp\nSrv', blk,grey,fontSize =50)
+    d2= ms.mkPilTxtImg('\nIP\nVer\nVer',  blk,grey,fontSize =50)
 
-    data1 = ms.mkPilTxtImg('LAN\nSW',                                black,grey,fontSize =80)
-    data2 = ms.mkPilTxtImg('IP\nVER',                                black,grey,fontSize =80)
-    data3 = ms.mkPilTxtImg('{}\n  {}'.format(lanIpLst[0],verN[0][0]),black,grey,fontSize =80)
-    data4 = ms.mkPilTxtImg('{}\n  {}'.format(lanIpLst[1],verN[0][1]),black,grey,fontSize =80)
-    data5 = ms.mkPilTxtImg('{}\n{}'.format(  lanIpLst[2],verN[1]   ),black,grey,fontSize =80)
-    data6 = ms.mkPilTxtImg('{}\n{}'.format(  lanIpLst[3],verN[2]   ),black,grey,fontSize =80)
-    pixLst= [ data1, data2, data3, data4, data5, data6]
+    d3= ms.mkPilTxtImg('\n{}\n  {}\n  {}'.format( lanIp[0], appV[0][0],
+                                          srvV[0][0]), blk,grey,fontSize=50)
+
+    d4= ms.mkPilTxtImg('\n{}\n  {}\n  {}'.format( lanIp[1], appV[0][1],
+                                          srvV[0][1]), blk,grey,fontSize=50)
+
+    d5= ms.mkPilTxtImg('\n{}\n{}\n{}'.format( lanIp[2],appV[1],srvV[1]),
+                                              blk,grey,fontSize =50)
+
+    d6= ms.mkPilTxtImg('\n{}\n{}\n{}'.format( lanIp[3],appV[2],srvV[2]),
+                                              blk,grey,fontSize =50)
+
+    pixLst= [ d1, d2, d3, d4, d5, d6]
     kLst = ['hrMSD','hrLSD','mnMSD','mnLSD','scMSD','scLSD']
     sr.setBkLight([1])    # Turn on (all) backlights.
     for did,pl in zip(kLst,pixLst):
