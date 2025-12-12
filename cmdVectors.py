@@ -33,7 +33,7 @@ def dummy():
 
 # Version number of the "app".
 # As opposed to the version number of the "server" which is in fileIO.py
-VER = ' v1.6.20 - 10-Dec-2025'
+VER = ' v1.6.21 - 11-Dec-2025'
 def getVer():
     appVer = VER
     srvVer = fio.VER
@@ -106,7 +106,7 @@ def vector(inputStr,styleDic,styleLk): # called from handleClient.
     'dp' :{ 'fun': ms.displayPics,  'prm':[[],qs,styleDic,styleLk],   'menu':'Display Pics'     },
     'up' :{ 'fun': dummy,           'prm':None,                       'menu':'Upload Pic'        },
     'rp' :{ 'fun': ms.removePic,    'prm':['None'],                   'menu':'Remove Pic'        },
-    'us' :{ 'fun': su.updateSw,     'prm':[VER],                      'menu':'Update SW'         },
+    'us' :{ 'fun': su.updateSw,     'prm':getVer(),                   'menu':'Update SW'         },
     'hlp':{ 'fun': getHelp,         'prm':None,                       'menu':'Help'              },
     'close':{'fun':dummy,           'prm':None,                       'menu':'Disconnect'        },
     'ks' :{ 'fun': dummy,           'prm':None,                       'menu':'Kill Server'       },
@@ -137,6 +137,8 @@ def vector(inputStr,styleDic,styleLk): # called from handleClient.
     if choice in vectorDict and vectorDict[choice]['fun'] is not None:
         func   = vectorDict[choice]['fun']
         params = vectorDict[choice]['prm']
+        if callable(params):
+            params = params()
 
         if  choice in ['sc','sdt','snt','dus','sas','sds','sns','sb'] \
             and len(optArgsStr) > 0:

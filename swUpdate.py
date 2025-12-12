@@ -86,7 +86,8 @@ def unzipFileTo(unzipToPath, fullyQualifiedFname):
 #############################################################################
 
 def compareVerNums( swVerLst, repoVerLst ):
-    # 0: equal. 1: SW Bigger. 2: Repo Bigger
+
+    # 0: equal. 1: SW Bigger. 2: Repo Bigger. 3: ERROR.
 
     if len(swVerLst) != 3 or len(repoVerLst) != 3: return 3
 
@@ -106,13 +107,39 @@ def compareVerNums( swVerLst, repoVerLst ):
     return 3 # Should never get here,
 #############################################################################
 
-def updateSw(verND): # verND = version Number and Date.
+def parseVersionNumbers(inVerStrLst):
+
+    verStr    = inVerStrLst[0]
+    verLines  = verStr.split('\n')
+    appVerStr = verLines[0]
+    srvVerStr = verLines[1]
+
+    appVerSplit    = appVerStr.split('=')
+    appVerName     = appVerSplit[0]
+    appVerNum      = appVerSplit[1].split(' - ')[0]
+    appVerDt       = appVerSplit[1].split(' - ')[1]
+    appV           = [ x.strip() for x in appVerNum.split('.') ]
+    appV[0]        = appV[0][1:]
+    outAppVerAsIntLst = [int(x) for x in appV]
+
+    srvVerSplit    = srvVerStr.split('=')
+    srvVerName     = srvVerSplit[0]
+    srvVerNum      = srvVerSplit[1].split(' - ')[0]
+    srvVerDt       = srvVerSplit[1].split(' - ')[1]
+    srvV           = [ x.strip() for x in srvVerNum.split('.') ]
+    srvV[0]        = srvV[0][1:]
+    outSrvVerAsIntLst = [int(x) for x in srvV]
+
+    #print(' Input Ver String {}'.format( inVerStrLst       ))
+    #print(' App Ver as list: {}'.format( outAppVerAsIntLst ))
+    #print(' Srv Ver as list: {}'.format( outSrvVerAsIntLst ))
+    return outAppVerAsIntLst,outSrvVerAsIntLst
+#############################################################################
+
+def updateSw(verStrLst):
     rspStr = ''
 
-    verNDSplit    = verND[0].split('-')
-    swVerAsLst    = [ x.strip() for x in verNDSplit[0].split('.') ]
-    swVerAsLst[0] = swVerAsLst[0][1:]
-    swVerAsIntLst = [int(x) for x in swVerAsLst]
+    appVerAsIntLst,srvVerAsIntLst = parseVersionNumbers(verStrLst)
 
     dwnldToPath,unzipToPath = getPaths()
     if dwnldToPath is None or unzipToPath is None:
@@ -122,9 +149,12 @@ def updateSw(verND): # verND = version Number and Date.
     rspStr += '\n dwnld2Path,unzip2Path={},{}\n'.format(dwnldToPath,unzipToPath)
 
     mnRepoOwner = 'sgarrow'
-    mnRepoNames = ['spiClock', 'sharedClientServerCode']
+    mnRepoNames = [ 'spiClock',     'sharedClientServerCode']
+    localVers   = [  appVerAsIntLst, srvVerAsIntLst]
 
     for ii, mnRepoName in enumerate(mnRepoNames):
+
+        localVer = localVers[ii]
 
         releaseInfo = getLatestReleaseInfo(mnRepoOwner,mnRepoName)
         rspStr += '\n Release Info {}  = {}\n'.format(ii,releaseInfo)
@@ -148,10 +178,10 @@ def updateSw(verND): # verND = version Number and Date.
         rspStr += '     url    = {}\n'.format( url    )
         rspStr += '     zipUrl = {}\n'.format( zipUrl )
         rspStr += '     repo  SW Ver = {}\n'.format( repoVerAsIntLst )
-        rspStr += '     local SW Ver = {}\n'.format( swVerAsIntLst )
+        rspStr += '     local SW Ver = {}\n'.format( localVer        )
 
         # 0: equal. 1: SW Bigger. 2: Repo Bigger
-        rsp = compareVerNums( swVerAsLst, repoVerAsLst )
+        rsp = compareVerNums( localVer, repoVerAsIntLst )
         myStrLst = [ 'same  as', 'older than', 'newer than', '??? than' ]
         rspStr += '   Repo ver is {} running ver.'.format(myStrLst[rsp])
         if rsp == 2:
@@ -159,7 +189,7 @@ def updateSw(verND): # verND = version Number and Date.
         else:
             rspStr += ' No update available.\n'
             continue
-
+        
         sts, fullQualifiedFname = downloadZip(dwnldToPath,zipUrl)
         if sts == 'FAIL':
             rspStr += '   Failed to download {} to {}\n'.\
@@ -167,7 +197,7 @@ def updateSw(verND): # verND = version Number and Date.
             continue
         rspStr += '   Successfully downloaded {} to {}\n'.\
             format(zipUrl.split('/')[-1],dwnldToPath)
-
+        
         if sts == 'SUCCESS':
             rspStr += unzipFileTo( unzipToPath, fullQualifiedFname )
             rspStr += '   Successfully extracted {} into {}\n'.\
@@ -181,6 +211,6 @@ if __name__ == '__main__':
     # Can be run stand-alone on command-line on either Windows or Linux,
     # or called my cmdVectors via client on Linux.
 
-    VER = [' v1.6.15 - 24-Nov-2025']
+    VER = [' appVer =  v1.6.20 - 10-Dec-2025 \n serVer =  v1.7.0 - 10-Dec-2025']
     mnRspStr = updateSw(VER)
     print(mnRspStr[0])
