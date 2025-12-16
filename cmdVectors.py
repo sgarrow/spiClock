@@ -33,7 +33,7 @@ def dummy():
 
 # Version number of the "app".
 # As opposed to the version number of the "server" which is in fileIO.py
-VER = ' v1.6.22 - 14-Dec-2025'
+VER = ' v1.6.23 - 15-Dec-2025'
 def getVer():
     appVer = VER
     srvVer = fio.VER
@@ -114,7 +114,12 @@ def vector(inputStr,styleDic,styleLk): # called from handleClient.
 
     # TEST COMMANDS
     'rt1':{ 'fun': tr.runTest1,     'prm':None,                       'menu':'Run Test 1'        },
-    'rt2':{ 'fun': tr.runTest2,     'prm':[lcdCq,styleDic,styleLk],   'menu':'Run Test 2'        },
+    'rt2':{ 'fun': tr.runTest2,     'prm':None,                       'menu':'Run Test 2'        },
+    'rt3':{ 'fun': tr.runTest3,     'prm':None,                       'menu':'Run Test 3'        },
+    'rt4':{ 'fun': tr.runTest4,     'prm':None,                       'menu':'Run Test 4'        },
+    'rt5':{ 'fun': tr.runTest5,     'prm':None,                       'menu':'Run Test 5'        },
+    'rt6':{ 'fun': tr.runTest6,     'prm':None,                       'menu':'Run Test 6'        },
+    'rt7':{ 'fun': tr.runTest7,     'prm':[lcdCq,styleDic,styleLk],   'menu':'Run Test 7'        },
 
     'rh' :{ 'fun': sr.hwReset,      'prm':None,                       'menu':'Reset LCD HW Test' },
     'rs' :{ 'fun': sr.swReset,      'prm':'scLSD',                    'menu':'Reset LCD SW Test' },

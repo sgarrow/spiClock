@@ -3,47 +3,38 @@ import utils             as ut
 import makeScreen        as ms
 import spiRoutines       as sr
 import styleMgmtRoutines as sm
+
+kLst      = ['hrMSD','hrLSD','mnMSD','mnLSD','scMSD','scLSD']
+displayID = kLst[-1]  # Test will be run on this display only.
+sendFuncs = [ sr.sendDatToSt7789, sr.sendDat2ToSt7789 ]
 #############################################################################
+#############################################################################
+
+def clkRunning():
+    rspStr = ut.getActThrds()
+    running = 'clockCntrProc' in rspStr[0] or 'lcdUpdateProc' in rspStr[0]
+    return
+#############################################################################
+
+def initHw(displayIDs = [kLst[-1]]):
+    # Set the desired display to scLSD and initialize that display.
+    sr.hwReset()              # HW Reset on all displays.
+    for did in displayIDs:
+        print(' SW Resetting display {}'.format(did))
+        sr.swReset(did) # SW Reset and the display init on 1 display.
+    sr.setBkLight([1])        # Turn on (all) backlights.
+    return 
 #############################################################################
 
 def runTest1():
-    # Performs 6 different tests a single LCD - the scLSD display.
-    # Test 1 - Fill  1% of screen w/ solid colors one at a time.
-    # Test 2 - Fill entire screen w/ solid colors one row at a time.
-    # Test 3 - Fill entire screen w/ solid colors in one shot.
-    # Test 4 - Fill entire screen w/ mixed colors in one shot.
-    # Test 5 - Fill entire screen w/ constructed PIL test images in one shot.
-    # Test 6 - Fill entire screen w/ constructed PIL RGB/JPG images in one shot.
-
-    # This test only works correctly if the clock is not running.
-    rspStr = ut.getActThrds()
-    if 'clockCntrProc' in rspStr[0] or 'lcdUpdateProc' in rspStr[0]:
-        rspStr = ' Can\'t run rt1 while clock is running.'
-        return[rspStr]
-
-    # Set the desired display to scLSD and initialize that display.
-    kLst = ['hrMSD','hrLSD','mnMSD','mnLSD','scMSD','scLSD']
-    displayID = kLst[-1]  # Test will be run on this display only.
-    sr.hwReset()          # HW Reset on all displays.
-    sr.swReset(displayID) # SW Reset and the display init on 1 display.
-    sr.setBkLight([1])    # Turn on (all) backlights.
-    ###########################################
+    if clkRunning(): 
+        return [' Can\'t run a test while the clock is running.']
+    initHw()
 
     rPixLst,rRowLst,rScrLst = ms.makeColoredPRSLstsOfBytes(0xFF0000) # pylint: disable=W0612
     gPixLst,gRowLst,gScrLst = ms.makeColoredPRSLstsOfBytes(0x00FF00) # pylint: disable=W0612
-    bPixLst,bRowLst,bScrLst = ms.makeColoredPRSLstsOfBytes(0x0000FF) # pylint: disable=W0612
-    wPixLst,wRowLst,wScrLst = ms.makeColoredPRSLstsOfBytes(0xFFFFFF) # pylint: disable=W0612
-    kPixLst,kRowLst,kScrLst = ms.makeColoredPRSLstsOfBytes(0x000000) # pylint: disable=W0612
 
-    barLst = []
-    for _ in range(8):
-        for coloredBar in [rRowLst,gRowLst,bRowLst,wRowLst]:
-            for _ in range(10):
-                barLst.extend(coloredBar)
-
-    sendFuncs = [ sr.sendDatToSt7789, sr.sendDat2ToSt7789 ]
-
-    rspStr = 'Begin test 1.1 - Fill 1% of screen w/ solid colors one at a time.\n'
+    rspStr = 'Begin test 1 - Fill 1% of screen w/ solid colors one pixel at a time.\n'
     pixLst    = [ rPixLst, gPixLst ]
     for sf,pl in zip( sendFuncs, pixLst ):
         kStart = time.time()
@@ -51,9 +42,19 @@ def runTest1():
               for row in range(32) for col in range(24)] # pylint: disable=W0612
         rspStr += ' Fill 1% Screen via ( {:16} using {:16}) took {:7.3f} sec\n'.\
             format( 'setOnePixel', sf.__name__, time.time() - kStart )
-    ##################################################
+        time.sleep(1)
+    return [rspStr]
+#############################################################################
 
-    rspStr += '\nBegin test 1.2 - Fill entire screen w/ solid colors one row at a time.\n'
+def runTest2():
+    if clkRunning(): 
+        return [' Can\'t run a test while the clock is running.']
+    initHw()
+
+    bPixLst,bRowLst,bScrLst = ms.makeColoredPRSLstsOfBytes(0x0000FF) # pylint: disable=W0612
+    wPixLst,wRowLst,wScrLst = ms.makeColoredPRSLstsOfBytes(0xFFFFFF) # pylint: disable=W0612
+
+    rspStr = '\nBegin test 2 - Fill entire screen w/ solid colors one row at a time.\n'
     pixLst    = [ bRowLst, wRowLst ]
     for sf,pl in zip( sendFuncs, pixLst ):
         kStart = time.time()
@@ -61,10 +62,27 @@ def runTest1():
             sr.setOneRow(displayID, row, pl, sf)
         rspStr += ' Filling Screen via ( {:16} using {:16}) took {:7.3f} sec\n'.\
             format( 'setOneRow', sf.__name__, time.time() - kStart )
-        time.sleep(.5)
-    ###################################################
+        time.sleep(1)
+    return [rspStr]
+#############################################################################
 
-    rspStr += '\nBegin test 1.3 - Fill entire screen w/ solid colors in one shot.\n'
+def runTest3():
+    if clkRunning(): 
+        return [' Can\'t run a test while the clock is running.']
+    initHw()
+
+    rPixLst,rRowLst,rScrLst = ms.makeColoredPRSLstsOfBytes(0xFF0000) # pylint: disable=W0612
+    gPixLst,gRowLst,gScrLst = ms.makeColoredPRSLstsOfBytes(0x00FF00) # pylint: disable=W0612
+    bPixLst,bRowLst,bScrLst = ms.makeColoredPRSLstsOfBytes(0x0000FF) # pylint: disable=W0612
+    wPixLst,wRowLst,wScrLst = ms.makeColoredPRSLstsOfBytes(0xFFFFFF) # pylint: disable=W0612
+
+    barLst = []
+    for _ in range(8):
+        for coloredBar in [rRowLst,gRowLst,bRowLst,wRowLst]:
+            for _ in range(10):
+                barLst.extend(coloredBar)
+
+    rspStr = '\nBegin test 3 - Fill entire screen w/ solid colors in one shot.\n'
     pixLst    = [ rScrLst, gScrLst, barLst, barLst[::-1] ]
     for sf,pl in zip( sendFuncs*2, pixLst ):
         kStart = time.time()
@@ -72,12 +90,17 @@ def runTest1():
         rspStr += ' Filling Screen via ( {:16} using {:16}) took {:7.3f} sec\n'.\
             format( 'setEntireDisplay', sf.__name__, time.time() - kStart )
         time.sleep(1)
-    ####################################################
+    return [rspStr]
+#############################################################################
 
-    rspStr += '\nBegin test 1.4 - Fill entire screen w/ constructed PIL images in one shot.\n'
-    #                                textColor backgroundColor
-    data1  = ms.mkPilTxtImg('1', (0,0,0), (255,255,255) )
-    data2  = ms.mkPilTxtImg('2', (0,0,0), (255,255,255) )
+def runTest4():
+    if clkRunning(): 
+        return [' Can\'t run a test while the clock is running.']
+    initHw()
+
+    rspStr = '\nBegin test 4 - Fill entire screen w/ constructed PIL images in one shot.\n'
+    data1  = ms.mkPilTxtImg('1A', (0,0,0), (255,255,255) )
+    data2  = ms.mkPilTxtImg('2B', (0,0,0), (255,255,255) )
     pixLst = [ data1, data2 ]
     for sf,pl in zip( sendFuncs, pixLst ):
         kStart = time.time()
@@ -85,9 +108,15 @@ def runTest1():
         rspStr += ' Filling Screen via ( {:16} using {:16}) took {:7.3f} sec\n'.\
             format( 'setEntireDisplay', sf.__name__, time.time() - kStart )
         time.sleep(1)
-    ####################################################
+    return [rspStr]
+#############################################################################
 
-    rspStr += '\nBegin test 1.5 - Fill entire screen w/ constructed RGB/JPG images in one shot.\n'
+def runTest5():
+    if clkRunning(): 
+        return [' Can\'t run a test while the clock is running.']
+    initHw()
+
+    rspStr = '\nBegin test 5 - Fill entire screen w/ constructed JPG images in one shot.\n'
     data1  = ms.makePilJpgPicImage('pics/240x320a.jpg')
     data2  = ms.makePilJpgPicImage('pics/240x320b.jpg')
     pixLst = [ data1, data2 ]
@@ -97,23 +126,28 @@ def runTest1():
         rspStr += ' Filling Screen via ( {:16} using {:16}) took {:7.3f} sec\n'.\
             format( 'setEntireDisplay', sf.__name__, time.time() - kStart )
         time.sleep(1)
-    ####################################################
-
-    sr.setEntireDisplay(displayID, wScrLst, sr.sendDat2ToSt7789)
-    time.sleep(1)
-
-    # Re-init all displays so the clock will be able to run after this test.
-    # Note ALL displays are initialized at boot time by main in server.py.
-    kLst = ['hrMSD','hrLSD','mnMSD','mnLSD','scMSD','scLSD']
-    sr.hwReset()          # HW Reset
-    for dId in kLst:
-        sr.swReset(dId)   # SW Reset and the display initialization.
-    sr.setBkLight([0])    # Turn off backlight.
-    ###########################################
-
     return [rspStr]
 #############################################################################
-def runTest2(prmLst):
+
+def runTest6():
+    if clkRunning(): 
+        return [' Can\'t run a test while the clock is running.']
+
+    rspStr = '\nBegin test 6 - Reset all displays and fill with white and turn off backlight.\n'
+
+    initHw(displayIDs = kLst)
+    wPixLst,wRowLst,wScrLst = ms.makeColoredPRSLstsOfBytes(0xFF0000) # pylint: disable=W0612
+
+    for dId in kLst:
+        print(' Filling display {}'.format(dId))
+        sr.setEntireDisplay(dId, wScrLst, sr.sendDat2ToSt7789)
+    time.sleep(2)
+
+    sr.setBkLight([0])    # Turn off backlight.
+    rspStr = ' Reset all hardware, filled with white, turned off backlight.'
+    return [rspStr]
+#############################################################################
+def runTest7(prmLst):
 
     lcdCq    = prmLst[0]
     styleDic = prmLst[1]
@@ -177,11 +211,11 @@ if __name__ == '__main__':
     mnClkCq = mp.Queue() # CLK Cmd Q. mp queue must be used here.
     mnClkRq = mp.Queue() # CLK Rsp Q. mp queue must be used here.
 
-    #resp = runTest1()
-    #print(resp[0])
-    print('T2')
-    resp = runTest2(mnLcdCq)
+    resp = runTest1()
     print(resp[0])
+    #print('T2')
+    #resp = runTest7(mnLcdCq)
+    #print(resp[0])
 
     #time.sleep(2)
 
