@@ -13,21 +13,20 @@ sendFuncs = [ sr.sendDatToSt7789, sr.sendDat2ToSt7789 ]
 def clkRunning():
     rspStr = ut.getActThrds()
     running = 'clockCntrProc' in rspStr[0] or 'lcdUpdateProc' in rspStr[0]
+    return running
+#############################################################################
+
+def initHw():
+    # Set the desired display to scLSD and initialize that display.
+    sr.hwReset()        # HW Reset on all displays.
+    for did in kLst:
+        sr.swReset(did) # SW Reset and the display init on 1 display.
+    sr.setBkLight([1])  # Turn on (all) backlights.
     return
 #############################################################################
 
-def initHw(displayIDs = [kLst[-1]]):
-    # Set the desired display to scLSD and initialize that display.
-    sr.hwReset()              # HW Reset on all displays.
-    for did in displayIDs:
-        print(' SW Resetting display {}'.format(did))
-        sr.swReset(did) # SW Reset and the display init on 1 display.
-    sr.setBkLight([1])        # Turn on (all) backlights.
-    return 
-#############################################################################
-
 def runTest1():
-    if clkRunning(): 
+    if clkRunning():
         return [' Can\'t run a test while the clock is running.']
     initHw()
 
@@ -47,7 +46,7 @@ def runTest1():
 #############################################################################
 
 def runTest2():
-    if clkRunning(): 
+    if clkRunning():
         return [' Can\'t run a test while the clock is running.']
     initHw()
 
@@ -67,7 +66,7 @@ def runTest2():
 #############################################################################
 
 def runTest3():
-    if clkRunning(): 
+    if clkRunning():
         return [' Can\'t run a test while the clock is running.']
     initHw()
 
@@ -94,13 +93,13 @@ def runTest3():
 #############################################################################
 
 def runTest4():
-    if clkRunning(): 
+    if clkRunning():
         return [' Can\'t run a test while the clock is running.']
     initHw()
 
     rspStr = '\nBegin test 4 - Fill entire screen w/ constructed PIL images in one shot.\n'
-    data1  = ms.mkPilTxtImg('1A', (0,0,0), (255,255,255) )
-    data2  = ms.mkPilTxtImg('2B', (0,0,0), (255,255,255) )
+    data1  = ms.mkPilTxtImg('A', (0,0,0), (255,255,255) )
+    data2  = ms.mkPilTxtImg('B', (0,0,0), (255,255,255) )
     pixLst = [ data1, data2 ]
     for sf,pl in zip( sendFuncs, pixLst ):
         kStart = time.time()
@@ -112,7 +111,7 @@ def runTest4():
 #############################################################################
 
 def runTest5():
-    if clkRunning(): 
+    if clkRunning():
         return [' Can\'t run a test while the clock is running.']
     initHw()
 
@@ -130,16 +129,15 @@ def runTest5():
 #############################################################################
 
 def runTest6():
-    if clkRunning(): 
+    if clkRunning():
         return [' Can\'t run a test while the clock is running.']
+    initHw()
 
     rspStr = '\nBegin test 6 - Reset all displays and fill with white and turn off backlight.\n'
 
-    initHw(displayIDs = kLst)
-    wPixLst,wRowLst,wScrLst = ms.makeColoredPRSLstsOfBytes(0xFF0000) # pylint: disable=W0612
+    wPixLst,wRowLst,wScrLst = ms.makeColoredPRSLstsOfBytes(0xFFFFFF) # pylint: disable=W0612
 
     for dId in kLst:
-        print(' Filling display {}'.format(dId))
         sr.setEntireDisplay(dId, wScrLst, sr.sendDat2ToSt7789)
     time.sleep(2)
 
@@ -148,15 +146,13 @@ def runTest6():
     return [rspStr]
 #############################################################################
 def runTest7(prmLst):
+    if clkRunning():
+        return [' Can\'t run a test while the clock is running.']
+    initHw()
 
     lcdCq    = prmLst[0]
     styleDic = prmLst[1]
     styleLk  = prmLst[2]
-
-    rspStr = ut.getActThrds()
-    if 'clockCntrProc' in rspStr[0] or 'lcdUpdateProc' in rspStr[0]:
-        rspStr = ' Can\'t run rt2 while clock is running.'
-        return[rspStr]
 
     # Performs 1 test on ALL displays.
     # Displays all characters stored in the digitScreenDict on all displays.

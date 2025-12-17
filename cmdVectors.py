@@ -33,7 +33,7 @@ def dummy():
 
 # Version number of the "app".
 # As opposed to the version number of the "server" which is in fileIO.py
-VER = ' v1.6.23 - 15-Dec-2025'
+VER = ' v1.6.24 - 16-Dec-2025'
 def getVer():
     appVer = VER
     srvVer = fio.VER
@@ -103,7 +103,7 @@ def vector(inputStr,styleDic,styleLk): # called from handleClient.
     'pc' :{ 'fun': cr.stopClk,      'prm':qs,                         'menu':'Stop Clock'        },
     'mus':{ 'fun': ms.mkUsrDigPikF, 'prm':[],                         'menu':'Make User Style'   },
     'dus':{ 'fun': ms.delUsrDigPikF,'prm':dfltSASParm,                'menu':'Delete User Style' },
-    'dp' :{ 'fun': ms.displayPics,  'prm':[[],qs,styleDic,styleLk],   'menu':'Display Pics'     },
+    'dp' :{ 'fun': ms.displayPics,  'prm':[[],qs,styleDic,styleLk],   'menu':'Display Pics'      },
     'up' :{ 'fun': dummy,           'prm':None,                       'menu':'Upload Pic'        },
     'rp' :{ 'fun': ms.removePic,    'prm':['None'],                   'menu':'Remove Pic'        },
     'us' :{ 'fun': su.updateSw,     'prm':getVer(),                   'menu':'Update SW'         },
@@ -113,13 +113,13 @@ def vector(inputStr,styleDic,styleLk): # called from handleClient.
     'rbt':{ 'fun': dummy,           'prm':None,                       'menu':'Reboot RPi'        },
 
     # TEST COMMANDS
-    'rt1':{ 'fun': tr.runTest1,     'prm':None,                       'menu':'Run Test 1'        },
-    'rt2':{ 'fun': tr.runTest2,     'prm':None,                       'menu':'Run Test 2'        },
-    'rt3':{ 'fun': tr.runTest3,     'prm':None,                       'menu':'Run Test 3'        },
-    'rt4':{ 'fun': tr.runTest4,     'prm':None,                       'menu':'Run Test 4'        },
-    'rt5':{ 'fun': tr.runTest5,     'prm':None,                       'menu':'Run Test 5'        },
-    'rt6':{ 'fun': tr.runTest6,     'prm':None,                       'menu':'Run Test 6'        },
-    'rt7':{ 'fun': tr.runTest7,     'prm':[lcdCq,styleDic,styleLk],   'menu':'Run Test 7'        },
+    't1' :{ 'fun': tr.runTest1,     'prm':None,                       'menu':'Test 1 - Fill Color  by Pixels  ' },
+    't2' :{ 'fun': tr.runTest2,     'prm':None,                       'menu':'Test 2 - Fill Color  by Rows    ' },
+    't3' :{ 'fun': tr.runTest3,     'prm':None,                       'menu':'Test 3 - Fill Color  by Screen  ' },
+    't4' :{ 'fun': tr.runTest4,     'prm':None,                       'menu':'Test 4 - Fill  Text  by Screen  ' },
+    't5' :{ 'fun': tr.runTest5,     'prm':None,                       'menu':'Test 5 - Fill  JPG   by Screen  ' },
+    't6' :{ 'fun': tr.runTest6,     'prm':None,                       'menu':'Test 6 - Fill White  All Screens' },
+    't7' :{ 'fun': tr.runTest7,     'prm':[lcdCq,styleDic,styleLk],   'menu':'Test 7 - All Styles, All Screens' },
 
     'rh' :{ 'fun': sr.hwReset,      'prm':None,                       'menu':'Reset LCD HW Test' },
     'rs' :{ 'fun': sr.swReset,      'prm':'scLSD',                    'menu':'Reset LCD SW Test' },
@@ -177,7 +177,7 @@ def vector(inputStr,styleDic,styleLk): # called from handleClient.
         'sas' : '{}'.format( '\n === SET   COMMANDS === \n' ),
         'ral' : '{}'.format( '\n === FILE  COMMANDS === \n' ),
         'sc'  : '{}'.format( '\n === OTHER COMMANDS === \n' ),
-        'rt1' : '{}'.format( '\n === TEST  COMMANDS === \n' ) }
+        't1'  : '{}'.format( '\n === TEST  COMMANDS === \n' ) }
         for k,v in vectorDict.items():
 
             if k in tmpDic:
