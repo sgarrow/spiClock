@@ -49,14 +49,14 @@ def displayLanIp(inLanIp):
     srvVerStr = verLines[1]
 
     appVerSplit = appVerStr.split('=')
-    appVerName  = appVerSplit[0]
+    #appVerName  = appVerSplit[0]
     appVerNum   = appVerSplit[1].split(' - ')[0]
-    appVerDt    = appVerSplit[1].split(' - ')[1]
+    #appVerDt    = appVerSplit[1].split(' - ')[1]
 
     srvVerSplit = srvVerStr.split('=')
-    srvVerName  = srvVerSplit[0]
+    #srvVerName  = srvVerSplit[0]
     srvVerNum   = srvVerSplit[1].split(' - ')[0]
-    srvVerDt    = srvVerSplit[1].split(' - ')[1]
+    #srvVerDt    = srvVerSplit[1].split(' - ')[1]
 
     appV = [ x.strip() for x in appVerNum.split('.') ]
     srvV = [ x.strip() for x in srvVerNum.split('.') ]
@@ -65,10 +65,10 @@ def displayLanIp(inLanIp):
     print(' LAN IP  as list: {}'.format( lanIp  ))
     print(' APP VER as list: {}'.format( appV ))
     print(' SRV VER as list: {}'.format( srvV ))
-    
+
     grey  = (128,128,128)
     blk   = (255,255,255)
-    
+
     d1= ms.mkPilTxtImg('\nLAN\nApp\nSrv', blk,grey,fontSize =50)
     d2= ms.mkPilTxtImg('\nIP\nVer\nVer',  blk,grey,fontSize =50)
 

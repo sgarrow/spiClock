@@ -115,17 +115,17 @@ def parseVersionNumbers(inVerStrLst):
     srvVerStr = verLines[1]
 
     appVerSplit    = appVerStr.split('=')
-    appVerName     = appVerSplit[0]
+    #appVerName     = appVerSplit[0]
     appVerNum      = appVerSplit[1].split(' - ')[0]
-    appVerDt       = appVerSplit[1].split(' - ')[1]
+    #appVerDt       = appVerSplit[1].split(' - ')[1]
     appV           = [ x.strip() for x in appVerNum.split('.') ]
     appV[0]        = appV[0][1:]
     outAppVerAsIntLst = [int(x) for x in appV]
 
     srvVerSplit    = srvVerStr.split('=')
-    srvVerName     = srvVerSplit[0]
+    #srvVerName     = srvVerSplit[0]
     srvVerNum      = srvVerSplit[1].split(' - ')[0]
-    srvVerDt       = srvVerSplit[1].split(' - ')[1]
+    #srvVerDt       = srvVerSplit[1].split(' - ')[1]
     srvV           = [ x.strip() for x in srvVerNum.split('.') ]
     srvV[0]        = srvV[0][1:]
     outSrvVerAsIntLst = [int(x) for x in srvV]
@@ -189,7 +189,7 @@ def updateSw(verStrLst):
         else:
             rspStr += ' No update available.\n'
             continue
-        
+
         sts, fullQualifiedFname = downloadZip(dwnldToPath,zipUrl)
         if sts == 'FAIL':
             rspStr += '   Failed to download {} to {}\n'.\
@@ -197,7 +197,7 @@ def updateSw(verStrLst):
             continue
         rspStr += '   Successfully downloaded {} to {}\n'.\
             format(zipUrl.split('/')[-1],dwnldToPath)
-        
+
         if sts == 'SUCCESS':
             rspStr += unzipFileTo( unzipToPath, fullQualifiedFname )
             rspStr += '   Successfully extracted {} into {}\n'.\
