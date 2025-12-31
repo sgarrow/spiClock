@@ -95,15 +95,20 @@ def runTest4():
     initHw()
 
     rspStr = ' Test 4: Fill entire screen w/ constructed PIL images in one shot.\n'
-    data1  = ms.mkPilTxtImg('A', (0,0,0), (255,255,255) )
-    data2  = ms.mkPilTxtImg('B', (0,0,0), (255,255,255) )
+
+    txtColor = (0,0,0)
+    bckColor = (255,255,255)
+
+    data1  = ms.mkPilTxtImg( 'A', txtColor, bckColor )
+    data2  = ms.mkPilTxtImg( 'B', txtColor, bckColor )
+
     pixLst = [ data1, data2 ]
     for sf,pl in zip( sendFuncs, pixLst ):
         kStart = time.time()
         sr.setEntireDisplay(kLst[-1], pl, sf)
         rspStr += '  Fill Screen via {:16} using {:16} took {:6.3f} sec\n'.\
             format( 'setEntireDisplay', sf.__name__, time.time() - kStart )
-        time.sleep(1)
+        time.sleep(3)
     return [rspStr]
 #############################################################################
 
@@ -155,6 +160,32 @@ def runTest6(prmLst):
                 if delta > .008:
                     rspStr += ' LCD update time {:.6f} sec. {} {} {}.\n'.\
                         format(delta, allStyleDic[styleIdx], txt, did)
+    return [rspStr]
+#############################################################################
+
+def runTest7():
+    if clkRunning():
+        return [' Can\'t run a test while the clock is running.']
+    initHw()
+
+    rspStr = ' Test 6 - Fill all screens with chinese characters.\n'
+
+    txtColor = (0,0,0)
+    bckColor = (255,255,255)
+    textLst  = ['\u58de', '\u52d2', '\u5ff5' , '\u64e6', '\u6b3e', '\u79aa']
+
+    rspStr = ''
+    for did,txt in zip(kLst,textLst):
+        data = ms.mkPilTxtImg( txt, txtColor, bckColor, 
+                               fontName = 'fonts/NotoSerifTC-Black.ttf', 
+                               fontSize = 150 )
+
+        kStart = time.perf_counter()
+        sr.setEntireDisplay(did, data, sr.sendDat2ToSt7789)
+        delta = time.perf_counter()-kStart
+        if delta > .008:
+            rspStr += ' LCD update time {:.6f} sec. {} {}.\n'.\
+                format(delta, txt, did)
     return [rspStr]
 #############################################################################
 

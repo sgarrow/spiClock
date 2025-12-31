@@ -33,7 +33,7 @@ def dummy():
 
 # Version number of the "app".
 # As opposed to the version number of the "server" which is in fileIO.py
-VER = ' v1.6.25 - 17-Dec-2025'
+VER = ' v1.6.26 - 30-Dec-2025'
 def getVer():
     appVer = VER
     srvVer = fio.VER
@@ -119,6 +119,7 @@ def vector(inputStr,styleDic,styleLk): # called from handleClient.
     't4' :{ 'fun': tr.runTest4,     'prm':None,                       'menu':'Test 4 - Fill  Text  by Screen  ' },
     't5' :{ 'fun': tr.runTest5,     'prm':None,                       'menu':'Test 5 - Fill  JPG   by Screen  ' },
     't6' :{ 'fun': tr.runTest6,     'prm':[lcdCq,styleDic,styleLk],   'menu':'Test 6 - All Styles, All Screens' },
+    't7' :{ 'fun': tr.runTest7,     'prm':None,                       'menu':'Test 7 - Chinese,    All Screens' },
 
     'rh' :{ 'fun': sr.hwReset,      'prm':None,                       'menu':'Reset LCD HW Test' },
     'rs' :{ 'fun': sr.swReset,      'prm':'scLSD',                    'menu':'Reset LCD SW Test' },
