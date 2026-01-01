@@ -162,7 +162,7 @@ def runTest6(prmLst):
                         format(delta, allStyleDic[styleIdx], txt, did)
     return [rspStr]
 #############################################################################
-
+#NotoSerifTC-Light.ttf
 def runTest7():
     if clkRunning():
         return [' Can\'t run a test while the clock is running.']
@@ -172,13 +172,18 @@ def runTest7():
 
     txtColor = (0,0,0)
     bckColor = (255,255,255)
+    f1       = 'fonts/NotoSerifTC-Black.ttf'
+    f2       = 'fonts/NotoSerifTC-Medium.ttf'
+    f3       = 'fonts/NotoSerifTC-Light.ttf'
+    textLst  = ['\u58de', '\u58de', '\u5ff5' , '\u5ff5', '\u6b3e', '\u6b3e']
+    textLst  = ['\u58de','\u6b3e'] * 3
     textLst  = ['\u58de', '\u52d2', '\u5ff5' , '\u64e6', '\u6b3e', '\u79aa']
-
+    fontLst  = [ f3,f3,f3,f3,f3,f3 ]
     rspStr = ''
-    for did,txt in zip(kLst,textLst):
+    for did,txt,f in zip(kLst,textLst,fontLst):
         data = ms.mkPilTxtImg( txt, txtColor, bckColor, 
-                               fontName = 'fonts/NotoSerifTC-Black.ttf', 
-                               fontSize = 150 )
+                               fontName = f,
+                               fontSize = 200, yOffset = 75 )
 
         kStart = time.perf_counter()
         sr.setEntireDisplay(did, data, sr.sendDat2ToSt7789)

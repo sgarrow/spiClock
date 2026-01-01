@@ -27,9 +27,8 @@ def makeColoredPRSLstsOfBytes(c):
     return pLst,rLst,sLst
 #############################################################################
 
-# 'fonts/NotoSerifTC-Black.ttf'
 def mkPilTxtImg( text, textColor, backgroundColor,
-                 fontSize = 300, fontName = 'fonts/Font00.ttf'):
+                 yOffset= 100, fontSize= 300, fontName= 'fonts/Font00.ttf'):
 
     # Creates and returns a screens worth of LCD data.  The LCD data is
     # created by the PIL module.  The LCD image created is typically a
@@ -40,7 +39,7 @@ def mkPilTxtImg( text, textColor, backgroundColor,
     # Also called by functions in testRoutines.py.
 
     font = ImageFont.truetype( fontName , fontSize )
-    # Create an RGB image with white background.
+    # Create an RGB image with specified background color.
     image = Image.new('RGB', (240, 320), backgroundColor)
     draw  = ImageDraw.Draw(image)
 
@@ -61,8 +60,6 @@ def mkPilTxtImg( text, textColor, backgroundColor,
     textHeight = bbox[3] - bbox[1]  # Calculate height from bbox.
 
     # Calculate position to center the text on the screen.
-    #xPos = ( 320 - textWidth  ) // 2 orig
-    #yPos = ( 240 - textHeight ) // 2 orig
     xPos = ( 240 - textWidth  ) // 2    # Move left/right
     yPos = ( 320 - textHeight ) // 2    # Move up/down
 
@@ -74,13 +71,20 @@ def mkPilTxtImg( text, textColor, backgroundColor,
     #print('xPos       = {}'.format( xPos       ))
     #print('yPos       = {}'.format( yPos       ))
 
-    draw.text((xPos, yPos-100), text, font = font, fill = textColor )
+    draw.text((xPos, yPos-yOffset), text, font = font, fill = textColor )
 
 
     #draw.rectangle( ( bbox[0] + xPos,
     #                  bbox[1] + yPos-100,
     #                  bbox[2] + xPos,
     #                  bbox[3] + yPos-100 ),
+    #
+    #                  outline='red' )
+    #
+    #draw.rectangle( ( bbox[0] + xPos,
+    #                  bbox[1] + yPos-50,
+    #                  bbox[2] + xPos,
+    #                  bbox[3] + yPos-50 ),
     #
     #                  outline='red' )
 
@@ -162,9 +166,15 @@ def mkDigPikFile( styleName, textLst, textColor, backgroundColor ):
     #print('making',styleName)
 
     digitScreenDict2 = {}
-    for t in textLst:
-        tData = mkPilTxtImg( t, textColor, backgroundColor )
-        digitScreenDict2[t] = tData
+    for ii,t in enumerate(textLst):
+        if t in ['0','1','2','3','4','5','6','7','8','9']:
+            tData = mkPilTxtImg( t, textColor, backgroundColor )
+        else:
+            tData = mkPilTxtImg( t, textColor, backgroundColor,
+                                 fontName = 'fonts/NotoSerifTC-Light.ttf',
+                                 fontSize = 200, yOffset = 75 )
+
+        digitScreenDict2[str(ii)] = tData
 
     fName = 'digitScreenStyles/{}.pickle'.format(styleName)
     with open(fName, 'wb') as handle:
@@ -395,6 +405,9 @@ if __name__ == '__main__':
     turquoise = (  18, 151, 128 )
     lightRed  = (  96,   0,   0 )
     txtLst   = ['0','1','2','3','4','5','6','7','8','9']
+    chineseTxtLst = [ '\u58de', '\u52d2', '\u5ff5', '\u64e6', '\u6b3e',
+                      '\u79aa', '\u4f7f', '\u63e1', '\u6a5f', '\u760b']
+
 
     # greyOnBlack is default style and can not be deleted.
     styleNames = [ 'whiteOnBlack',      'blackOnWhite',
@@ -406,6 +419,10 @@ if __name__ == '__main__':
     for style,tColor,bColor in zip(styleNames, txtColors, backColors):
         resp = mkDigPikFile(style, txtLst, tColor, bColor)
         print(resp)
+
+    resp = mkDigPikFile('chinese', chineseTxtLst, black, white)
+
+    print(resp)
 
     mnDirPath = 'digitScreenStyles' # pylint: disable=C0103
     try:
