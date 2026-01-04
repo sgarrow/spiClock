@@ -53,7 +53,7 @@ def uploadPic(clientSocket,cmd,file):
 
 def processSpecialCmd(funcName, clientSocket, inMsgLst):
 
-    if funcName != 'uploadPic':
+    if funcName != 'up':
         print(' Invalid funcName {}'.format(funcName))
         return
 
