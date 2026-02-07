@@ -14,3 +14,5 @@ https://github.com/sgarrow/sharedClientServerCode
 
 Details can be found in the docs folder.
 
+![Project Logo](pics/readmePic.png "My Project Logo")
+
