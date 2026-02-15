@@ -65,7 +65,7 @@ def getStartTime( parmLst ): # ['12', '34', '56', 'x']
 # Clock looses 1 second every 619,488 seconds.
 # Every 619,488 seconds schedule adding an extra second.
 
-def updateCntr(timeDict,styleDic,styleLk):
+def updateCntr(timeDict,mpSharedDict,mpSharedDictLock):
     # Update timeDict which was previoulsy initialized via getStartTime.
     kStart = time.perf_counter()
     prevDict = timeDict.copy()
@@ -91,15 +91,15 @@ def updateCntr(timeDict,styleDic,styleLk):
     scMSD = seconds // 10
     scLSD = seconds  % 10
 
-    rspLst = sm.getDayTime([styleDic,styleLk])
+    rspLst = sm.getDayTime([mpSharedDict,mpSharedDictLock])
     dTime = rspLst[1]
-    rspLst = sm.getNightTime([styleDic,styleLk])
+    rspLst = sm.getNightTime([mpSharedDict,mpSharedDictLock])
     nTime = rspLst[1]
 
     if   [ hrMSD, hrLSD, mnMSD, mnLSD, scMSD, scLSD ] == dTime:
-        style = sm.getDayStyle([styleDic,styleLk])[0]
+        style = sm.getDayStyle([mpSharedDict,mpSharedDictLock])[0]
     elif [ hrMSD, hrLSD, mnMSD, mnLSD, scMSD, scLSD ] == nTime:
-        style = sm.getNightStyle([styleDic,styleLk])[0]
+        style = sm.getNightStyle([mpSharedDict,mpSharedDictLock])[0]
     else:
         style = None
 
@@ -118,7 +118,7 @@ def updateCntr(timeDict,styleDic,styleLk):
 #############################################################################
 #############################################################################
 
-def clockCntrProc( procName, qLst, startTime, styleDict, styleDictLock ):
+def clockCntrProc( procName, qLst, startTime, mpSharedDict, mpSharedDictLock ):
 
     lcdCq, lcdRq, clkCq, clkRq = qLst[0], qLst[1], qLst[2], qLst[3]
     calTime          =  1
@@ -134,13 +134,13 @@ def clockCntrProc( procName, qLst, startTime, styleDict, styleDictLock ):
         kStart = time.perf_counter()
         time.sleep( calTime )         # Nominally 1 sec.
 
-        timeDict, style = updateCntr(timeDict,styleDict,styleDictLock)
+        timeDict, style = updateCntr(timeDict,mpSharedDict,mpSharedDictLock)
         if style is not None:
             rspLst   = sm.getAllStyles()
             #fRspStr  = rspLst[0]
-            styleDic = rspLst[1]
-            theKey   = [ k for k,v in styleDic.items() if v == style ]
-            rspLst   = sm.setActStyle([str(theKey[0]),styleDict,styleDictLock,lcdCq])
+            mpSharedDict = rspLst[1]
+            theKey   = [ k for k,v in mpSharedDict.items() if v == style ]
+            rspLst   = sm.setActStyle([str(theKey[0]),mpSharedDict,mpSharedDictLock,lcdCq])
 
         lcdCq.put(timeDict)           # Send cmd to lcdUpdateProc.
 

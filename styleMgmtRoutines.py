@@ -23,9 +23,9 @@ def fixDocString2(func):
 #############################################################################
 
 def getDayTime(prmLst):
-    styleDict, styleDictLock = prmLst[0], prmLst[1]
-    with styleDictLock:
-        dayTime = styleDict['dayTime']
+    mpSharedDict, mpSharedDictLock = prmLst[0], prmLst[1]
+    with mpSharedDictLock:
+        dayTime = mpSharedDict['dayTime']
 
     logStr = ' Day Time is {}{}:{}{}:{}{}.'.\
     format( dayTime[0], dayTime[1], dayTime[2],
@@ -35,9 +35,9 @@ def getDayTime(prmLst):
 #############################################################################
 
 def getNightTime(prmLst):
-    styleDict, styleDictLock = prmLst[0], prmLst[1]
-    with styleDictLock:
-        nightTime = styleDict['nightTime']
+    mpSharedDict, mpSharedDictLock = prmLst[0], prmLst[1]
+    with mpSharedDictLock:
+        nightTime = mpSharedDict['nightTime']
 
     logStr = ' Night Time is {}{}:{}{}:{}{}.'.\
     format( nightTime[0], nightTime[1], nightTime[2],
@@ -67,12 +67,12 @@ def checkTime(timeStrLst):
 #############################################################################
 
 def setDayTime(prmLst):
-    timeLst, styleDict, styleDictLock = prmLst[0], prmLst[1], prmLst[2]
+    timeLst, mpSharedDict, mpSharedDictLock = prmLst[0], prmLst[1], prmLst[2]
     logStr, sixNums = checkTime( timeLst )
 
     if 'ERROR' not in logStr:
-        with styleDictLock:
-            styleDict['dayTime'] = sixNums
+        with mpSharedDictLock:
+            mpSharedDict['dayTime'] = sixNums
 
         logStr += ' Day Time set to {}{}:{}{}:{}{}.'.\
         format( sixNums[0], sixNums[1], sixNums[2],
@@ -84,12 +84,12 @@ def setDayTime(prmLst):
 #############################################################################
 
 def setNightTime(prmLst):
-    timeLst, styleDict, styleDictLock = prmLst[0], prmLst[1], prmLst[2]
+    timeLst, mpSharedDict, mpSharedDictLock = prmLst[0], prmLst[1], prmLst[2]
     logStr, sixNums = checkTime( timeLst )
 
     if 'ERROR' not in logStr:
-        with styleDictLock:
-            styleDict['nightTime'] = sixNums
+        with mpSharedDictLock:
+            mpSharedDict['nightTime'] = sixNums
 
         logStr += ' Night Time set to {}{}:{}{}:{}{}.'.\
         format( sixNums[0], sixNums[1], sixNums[2],
@@ -109,9 +109,9 @@ def getDayStyle(prmLst):
  Usage: gds
 <boiler>
 '''
-    styleDict, styleDictLock = prmLst[0], prmLst[1]
-    with styleDictLock:
-        dayDigitStyle = styleDict['dayDigitStyle']
+    mpSharedDict, mpSharedDictLock = prmLst[0], prmLst[1]
+    with mpSharedDictLock:
+        dayDigitStyle = mpSharedDict['dayDigitStyle']
     return [dayDigitStyle]
 #############################################################################
 
@@ -125,9 +125,9 @@ def getNightStyle(prmLst):
  Usage: gns
 <boiler>
 '''
-    styleDict, styleDictLock = prmLst[0], prmLst[1]
-    with styleDictLock:
-        nightDigitStyle = styleDict['nightDigitStyle']
+    mpSharedDict, mpSharedDictLock = prmLst[0], prmLst[1]
+    with mpSharedDictLock:
+        nightDigitStyle = mpSharedDict['nightDigitStyle']
     return [nightDigitStyle]
 #############################################################################
 
@@ -140,9 +140,9 @@ def getActStyle(prmLst):
  Usage: gas
 <boiler>
 '''
-    styleDict, styleDictLock = prmLst[0], prmLst[1]
-    with styleDictLock:
-        activeDigitStyle = styleDict['activeDigitStyle']
+    mpSharedDict, mpSharedDictLock = prmLst[0], prmLst[1]
+    with mpSharedDictLock:
+        activeDigitStyle = mpSharedDict['activeDigitStyle']
     return [activeDigitStyle]
 #############################################################################
 
@@ -152,15 +152,15 @@ def setStyleDriver(prmLst):
     if dsrdStyleIdx != 'None':
         dsrdStyleIdx = dsrdStyleIdx[0]
 
-    styleDict, styleDictLock = prmLst[1], prmLst[2]
+    mpSharedDict, mpSharedDictLock = prmLst[1], prmLst[2]
     #print('dsrdStyleIdx = {}'.format(dsrdStyleIdx))
     # Returns a rps str and a digitStyleStr, like 'blackOnWhite'.
     # Just sets the name doesn't activate it, that's done by loadActiveStyle.
     whoCalledMe = inspect.stack()[1][3]
-    with styleDictLock:
-        if    whoCalledMe == 'setDayStyle':    digitStyleStr = styleDict['dayDigitStyle']
-        elif  whoCalledMe == 'setNightStyle':  digitStyleStr = styleDict['nightDigitStyle']
-        elif  whoCalledMe == 'setActStyle': digitStyleStr = styleDict['activeDigitStyle']
+    with mpSharedDictLock:
+        if    whoCalledMe == 'setDayStyle':    digitStyleStr = mpSharedDict['dayDigitStyle']
+        elif  whoCalledMe == 'setNightStyle':  digitStyleStr = mpSharedDict['nightDigitStyle']
+        elif  whoCalledMe == 'setActStyle': digitStyleStr = mpSharedDict['activeDigitStyle']
         else: digitStyleStr = 'ERROR' # Should never get here.
 
     rspLst      = getAllStyles()
@@ -179,13 +179,13 @@ def setStyleDriver(prmLst):
             # if 'Style set' in rspStr: check is performed in setActStyle.
             rspStr  = ' Style set to {}.'.format(allStyleDic[int(dsrdStyleIdx)])
             digitStyleStr = allStyleDic[int(dsrdStyleIdx)] # eg: 'whiteOnBlack'.
-            with styleDictLock:
+            with mpSharedDictLock:
                 if whoCalledMe   == 'setDayStyle':
-                    styleDict['dayDigitStyle']    = allStyleDic[int(dsrdStyleIdx)]
+                    mpSharedDict['dayDigitStyle']    = allStyleDic[int(dsrdStyleIdx)]
                 elif whoCalledMe == 'setNightStyle':
-                    styleDict['nightDigitStyle']  = allStyleDic[int(dsrdStyleIdx)]
+                    mpSharedDict['nightDigitStyle']  = allStyleDic[int(dsrdStyleIdx)]
                 elif whoCalledMe == 'setActStyle':
-                    styleDict['activeDigitStyle'] = allStyleDic[int(dsrdStyleIdx)]
+                    mpSharedDict['activeDigitStyle'] = allStyleDic[int(dsrdStyleIdx)]
         else:
             rspStr  = ' Style not set.\n'
             rspStr += ' Invalid style number ({}), try on of these (enter number):\n\n{}'.\
@@ -209,7 +209,7 @@ def setDayStyle(prmLst):
 <boiler2>
 <boiler>
 '''
-    #dsrdStyleIdx, styleDict, styleDictLock = prmLst[0], prmLst[1], prmLst[2]
+    #dsrdStyleIdx, mpSharedDict, mpSharedDictLock = prmLst[0], prmLst[1], prmLst[2]
     rspStr, dayDigitStyle = setStyleDriver(prmLst)
     return [rspStr, dayDigitStyle]
 #############################################################################
@@ -226,7 +226,7 @@ def setNightStyle(prmLst):
 <boiler2>
 <boiler>
 '''
-    #dsrdStyleIdx, styleDict, styleDictLock = prmLst[0], prmLst[1], prmLst[2]
+    #dsrdStyleIdx, mpSharedDict, mpSharedDictLock = prmLst[0], prmLst[1], prmLst[2]
     rspStr, nightDigitStyle = setStyleDriver(prmLst)
     return [rspStr, nightDigitStyle]
 #############################################################################
@@ -242,7 +242,7 @@ def setActStyle(prmLst):
 <boiler2>
 <boiler>
 '''
-    #dsrdStyleIdx,styleDict,styleDictLock,lcdCq=prmLst[0],prmLst[1],prmLst[2],prmLst[3]
+    #dsrdStyleIdx,mpSharedDict,mpSharedDictLock,lcdCq=prmLst[0],prmLst[1],prmLst[2],prmLst[3]
     lcdCq = prmLst[3]
     rspStr, activeDigitStyle = setStyleDriver(prmLst)
     if 'Style set' in rspStr:
@@ -295,11 +295,11 @@ def getAllStyles():
     return [rspStr,pikFileNameDicNoExt]
 #############################################################################
 
-def loadActiveStyle(styleDict, styleDictLock):
+def loadActiveStyle(mpSharedDict, mpSharedDictLock):
     # Loads the dictionary (of digits/data) from the assocoated pickle file.
     # Called at clock startup (lcdUpdateProc start).  Also called when the
     # clock is alreadt running but the user changes the active style.
-    activeStyle = getActStyle([styleDict, styleDictLock])
+    activeStyle = getActStyle([mpSharedDict, mpSharedDictLock])
     dirPath = 'digitScreenStyles'
     fullFileName = os.path.join(dirPath, activeStyle[0]+'.pickle')
     #print(fullFileName)

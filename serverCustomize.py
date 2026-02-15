@@ -7,24 +7,29 @@ import makeScreen      as ms
 specialCmds = ['up']
 #############################################################################
 
-def getMultiProcSharedDict():
+def getMultiProcSharedDictAndLock():
     manager = mp.Manager()
-    styleDict = manager.dict({
+    #styleDict = manager.dict({
+    mpSharedDict = manager.dict({
         'activeDigitStyle': 'greyOnBlack', # This style cannot be deleted.
         'dayDigitStyle'   : 'greyOnBlack',
         'nightDigitStyle' : 'greyOnBlack',
         'nightTime'       : [ 2, 1, 0, 0, 0, 0 ],
         'dayTime'         : [ 0, 7, 0, 0, 0, 0 ],
-        'alarmTime'       : [ 0, 0, 0, 0, 0, 0 ], 
+        'alarmTime'       : [ 0, 0, 0, 0, 0, 0 ],
+        'displayingPics'  : False
     })
-    styleDictLock = mp.Lock()
-    return styleDict, styleDictLock
+    #styleDictLock = mp.Lock()
+    mpSharedDictLock = mp.Lock()
+
+    #return styleDict, styleDictLock
+    return mpSharedDict, mpSharedDictLock
 #############################################################################
 
-def ksCleanup(styleDict, styleDictLock):
+def ksCleanup(mpSharedDict, mpSharedDictLock):
     rspStr  = ''
-    rspStr += cv.vector('pc',  styleDict, styleDictLock) + '\n'
-    rspStr += '\n\n' + cv.vector('sb 0', styleDict, styleDictLock) + '\n'
+    rspStr += cv.vector('pc',  mpSharedDict, mpSharedDictLock) + '\n'
+    rspStr += '\n\n' + cv.vector('sb 0', mpSharedDict, mpSharedDictLock) + '\n'
     return rspStr
 #############################################################################
 

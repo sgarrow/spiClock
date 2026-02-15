@@ -4,14 +4,14 @@ import styleMgmtRoutines as sm
 #############################################################################
 #############################################################################
 
-def lcdUpdateProc(procName,qLst,styleDict,styleDictLock): # pylint: disable=R0912, disable=R0915
+def lcdUpdateProc(procName,qLst,mpSharedDict,mpSharedDictLock): # pylint: disable=R0912, disable=R0915
     debug = True
     debug = False
     if debug: print(' {} {}'.format(procName, 'starting'))
 
     lcdCq, lcdRq = qLst[0], qLst[1]  # clkCq, clkRq = qLst[2], qLst[3]
 
-    rspLst    = sm.loadActiveStyle(styleDict, styleDictLock)
+    rspLst    = sm.loadActiveStyle(mpSharedDict, mpSharedDictLock)
     rspStr    = rspLst[0]
     digitDict = rspLst[1]
     if 'ERROR' in rspStr:
@@ -24,8 +24,35 @@ def lcdUpdateProc(procName,qLst,styleDict,styleDictLock): # pylint: disable=R091
     # spiRoutines.py module to determine the CS pin to use.
     kLst = ['hrMSD','hrLSD','mnMSD','mnLSD','scMSD','scLSD']
     refreshAllScreens = None
+    with mpSharedDictLock:
+        prevDisplayingPicsState = mpSharedDict['displayingPics']
 
     while True:
+
+        #prev  cur 
+        #F     F   no state change (displaying time)     update LCD wrt time     (normal)
+        #F     T   not display pics ->     display pics, not update LCD wrt time (continue)
+        #T     F   display pics     -> not display pics, not update LCD wrt time (force refresh) 
+        #T     T   no state change (displaying pics)     not update LCD wrt time (continue) 
+
+        with mpSharedDictLock:
+            currDisplayingPicsState = mpSharedDict['displayingPics']
+
+        if   (prevDisplayingPicsState,currDisplayingPicsState) == (False,False):
+            prevDisplayingPicsState = currDisplayingPicsState
+
+        elif (prevDisplayingPicsState,currDisplayingPicsState) == (False,True ):
+            prevDisplayingPicsState = currDisplayingPicsState
+            continue
+
+        elif (prevDisplayingPicsState,currDisplayingPicsState) == (True ,False):
+            refreshAllScreens = True
+            prevDisplayingPicsState = currDisplayingPicsState
+
+        elif (prevDisplayingPicsState,currDisplayingPicsState) == (True ,True ):
+            prevDisplayingPicsState = currDisplayingPicsState
+            continue
+
 
         if debug: print('lcdCq.qsize =', lcdCq.qsize())
         data = lcdCq.get()   # Block here. Get digit/stop from clk/user.
@@ -37,7 +64,7 @@ def lcdUpdateProc(procName,qLst,styleDict,styleDictLock): # pylint: disable=R091
             if data == 'stop':
                 gotStop = True
             elif data == 'loadActiveStyle':
-                rspLst = sm.loadActiveStyle(styleDict, styleDictLock)
+                rspLst = sm.loadActiveStyle(mpSharedDict, mpSharedDictLock)
                 rspStr    = rspLst[0]
                 digitDict = rspLst[1]
                 refreshAllScreens = True

@@ -33,7 +33,7 @@ def dummy():
 
 # Version number of the "app".
 # As opposed to the version number of the "server" which is in fileIO.py
-VER = ' v1.6.39 - 08-Feb-2026'
+VER = ' v1.6.40 - 14-Feb-2026'
 def getVer():
     appVer = VER
     srvVer = fio.VER
@@ -66,29 +66,29 @@ def getHelp(prmLst):
     return [hlpStr]
 #############################################################################
 
-def vector(inputStr,styleDic,styleLk): # called from handleClient.
+def vector(inputStr,mpSharedDict,mpSharedDictLock): # called from handleClient.
 
-    dfltSCPrm   = [ [], qs, styleDic, styleLk ]
-    dfltSASParm = [ 'None', styleDic, styleLk, lcdCq ]
+    dfltSCPrm   = [ [], qs, mpSharedDict, mpSharedDictLock ]
+    dfltSASParm = [ 'None', mpSharedDict, mpSharedDictLock, lcdCq ]
 
     # This dictionary embodies the worker function vector (and menu) info.
     vectorDict = {
     # GET COMMANDS
-    'gas':{ 'fun': sm.getActStyle,  'prm':[styleDic,styleLk],         'menu':'Get Active Style'  },
-    'gds':{ 'fun': sm.getDayStyle,  'prm':[styleDic,styleLk],         'menu':'Get Day Style'     },
-    'gns':{ 'fun': sm.getNightStyle,'prm':[styleDic,styleLk],         'menu':'Get Night Style'   },
+    'gas':{ 'fun': sm.getActStyle,  'prm':[mpSharedDict,mpSharedDictLock],         'menu':'Get Active Style'  },
+    'gds':{ 'fun': sm.getDayStyle,  'prm':[mpSharedDict,mpSharedDictLock],         'menu':'Get Day Style'     },
+    'gns':{ 'fun': sm.getNightStyle,'prm':[mpSharedDict,mpSharedDictLock],         'menu':'Get Night Style'   },
     'gAs':{ 'fun': sm.getAllStyles, 'prm':None,                       'menu':'Get ALL Styles'    },
-    'gdt':{ 'fun': sm.getDayTime,   'prm':[styleDic,styleLk],         'menu':'Get Day Time'      },
-    'gnt':{ 'fun': sm.getNightTime, 'prm':[styleDic,styleLk],         'menu':'Get Night Time'    },
+    'gdt':{ 'fun': sm.getDayTime,   'prm':[mpSharedDict,mpSharedDictLock],         'menu':'Get Day Time'      },
+    'gnt':{ 'fun': sm.getNightTime, 'prm':[mpSharedDict,mpSharedDictLock],         'menu':'Get Night Time'    },
     'gat':{ 'fun': ut.getActThrds,  'prm':None,                       'menu':'Get Active Threads'},
     'gvn':{ 'fun': getVer,          'prm':None,                       'menu':'Get Version Number'},
 
     # SET COMMANDS
     'sas':{ 'fun': sm.setActStyle,  'prm':dfltSASParm,                'menu':'Set Active Style'  },
-    'sds':{ 'fun': sm.setDayStyle,  'prm':['None',styleDic,styleLk],  'menu':'Set Day Style'     },
-    'sns':{ 'fun': sm.setNightStyle,'prm':['None',styleDic,styleLk],  'menu':'Set Night Style'   },
-    'sdt':{ 'fun': sm.setDayTime,   'prm':['None',styleDic,styleLk],  'menu':'Set Day Time'      },
-    'snt':{ 'fun': sm.setNightTime, 'prm':['None',styleDic,styleLk],  'menu':'Set Night Time'    },
+    'sds':{ 'fun': sm.setDayStyle,  'prm':['None',mpSharedDict,mpSharedDictLock],  'menu':'Set Day Style'     },
+    'sns':{ 'fun': sm.setNightStyle,'prm':['None',mpSharedDict,mpSharedDictLock],  'menu':'Set Night Style'   },
+    'sdt':{ 'fun': sm.setDayTime,   'prm':['None',mpSharedDict,mpSharedDictLock],  'menu':'Set Day Time'      },
+    'snt':{ 'fun': sm.setNightTime, 'prm':['None',mpSharedDict,mpSharedDictLock],  'menu':'Set Night Time'    },
 
     # FILE COMMANDS
     'ral':{ 'fun': fio.readFile,    'prm':['appLog.txt',[5]],         'menu':'Read App Log File' },
@@ -103,7 +103,7 @@ def vector(inputStr,styleDic,styleLk): # called from handleClient.
     'pc' :{ 'fun': cr.stopClk,      'prm':qs,                         'menu':'Stop Clock'        },
     'mus':{ 'fun': ms.mkUsrDigPikF, 'prm':[],                         'menu':'Make User Style'   },
     'dus':{ 'fun': ms.delUsrDigPikF,'prm':dfltSASParm,                'menu':'Delete User Style' },
-    'dp' :{ 'fun': ms.displayPics,  'prm':[[],qs,styleDic,styleLk],   'menu':'Display Pics'      },
+    'dp' :{ 'fun': ms.displayPics,  'prm':[[],qs,mpSharedDict,mpSharedDictLock],   'menu':'Display Pics'      },
     'up' :{ 'fun': dummy,           'prm':None,                       'menu':'Upload Pic'        },
     'rp' :{ 'fun': ms.removePic,    'prm':['None'],                   'menu':'Remove Pic'        },
     'us' :{ 'fun': su.updateSw,     'prm':getVer(),                   'menu':'Update SW'         },
@@ -118,7 +118,7 @@ def vector(inputStr,styleDic,styleLk): # called from handleClient.
     't3' :{ 'fun': tr.runTest3,     'prm':None,                       'menu':'Test 3 - Fill Color  by Screen  ' },
     't4' :{ 'fun': tr.runTest4,     'prm':None,                       'menu':'Test 4 - Fill  Text  by Screen  ' },
     't5' :{ 'fun': tr.runTest5,     'prm':None,                       'menu':'Test 5 - Fill  JPG   by Screen  ' },
-    't6' :{ 'fun': tr.runTest6,     'prm':[lcdCq,styleDic,styleLk],   'menu':'Test 6 - All Styles, All Screens' },
+    't6' :{ 'fun': tr.runTest6,     'prm':[lcdCq,mpSharedDict,mpSharedDictLock],   'menu':'Test 6 - All Styles, All Screens' },
     't7' :{ 'fun': tr.runTest7,     'prm':None,                       'menu':'Test 7 - Chinese,    All Screens' },
 
     'rh' :{ 'fun': sr.hwReset,      'prm':None,                       'menu':'Reset LCD HW Test' },

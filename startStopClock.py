@@ -8,28 +8,28 @@ procPidDict = {'clockCntrProc': None, 'lcdUpdateProc': None}
 ######################################################################
 ######################################################################
 
-def startLcdUpdateProc( qLst, styleDict, styleDictLock ):
+def startLcdUpdateProc( qLst, mpSharedDict, mpSharedDictLock ):
     # Cannot access return value from proc directly.
     lcdProc = mp.Process(
            target = lp.lcdUpdateProc,
            args   = ( 'lcdUpdateProc', # Process Name.
                       qLst,            # [lcdCq,lcdRq,clkCq,clkRq]
-                      styleDict,
-                      styleDictLock))
+                      mpSharedDict,
+                      mpSharedDictLock))
     lcdProc.daemon = True
     lcdProc.start()
     return lcdProc.pid
 ######################################################################
 
-def startClockCntrProc( qLst, startTime, styleDict, styleDictLock):
+def startClockCntrProc( qLst, startTime, mpSharedDict, mpSharedDictLock):
     # Cannot access return value from proc directly.
     clkProc = mp.Process(
            target = cp.clockCntrProc,
            args   = ( 'clockCntrProc', # Process Name.
                       qLst,            # [lcdCq,lcdRq,clkCq,clkRq]
                       startTime,       # start time.
-                      styleDict,
-                      styleDictLock))
+                      mpSharedDict,
+                      mpSharedDictLock))
     clkProc.daemon = True
     clkProc.start()
     return clkProc.pid
@@ -115,7 +115,7 @@ def startClk(prmLst):
  '''
     startTime = prmLst[0]
     qLst      = prmLst[1] # [ lcdCq, lcdRq, clkCq, clkRq ]
-    styleDict, styleDictLock = prmLst[2], prmLst[3]
+    mpSharedDict, mpSharedDictLock = prmLst[2], prmLst[3]
     rspStr    = ''
 
     lcdRq = prmLst[1][1]
@@ -131,7 +131,7 @@ def startClk(prmLst):
     ########################
     if procPidDict['lcdUpdateProc'] is None:
         sr.setBkLight([1])     # Turn on backlight.
-        pid = startLcdUpdateProc( qLst, styleDict, styleDictLock )
+        pid = startLcdUpdateProc( qLst, mpSharedDict, mpSharedDictLock )
         rspStr = lcdRq.get() + '\n'
         if 'ERROR' not in rspStr:
             procPidDict['lcdUpdateProc'] = pid
@@ -140,7 +140,7 @@ def startClk(prmLst):
     ########################
     if procPidDict['clockCntrProc'] is None:
         if procPidDict['lcdUpdateProc'] is not None:
-            pid = startClockCntrProc( qLst, startTime, styleDict, styleDictLock )
+            pid = startClockCntrProc( qLst, startTime, mpSharedDict, mpSharedDictLock )
             rspStr += ' clockCntrProc started.'
             procPidDict['clockCntrProc'] = pid
         else:

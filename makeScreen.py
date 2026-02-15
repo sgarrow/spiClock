@@ -244,7 +244,7 @@ def delUsrDigPikF( parmLst ):
     if not all( s.isdigit() for s in parmLst[0] ):
         return [usage.format(' Non-digit detected in parameter.',funcRspStr)]
 
-    dsrdStyleIdx,styleDict,styleDictLock,lcdCq = \
+    dsrdStyleIdx,mpSharedDict,mpSharedDictLock,lcdCq = \
     int(parmLst[0][0]),parmLst[1],parmLst[2],parmLst[3]
 
     if dsrdStyleIdx not in allStyleDic:
@@ -255,18 +255,18 @@ def delUsrDigPikF( parmLst ):
 
 
     rspStr = ''
-    ads = sm.getActStyle( [styleDict, styleDictLock] )[0]
-    dds = sm.getDayStyle(    [styleDict, styleDictLock] )[0]
-    nds = sm.getNightStyle(  [styleDict, styleDictLock] )[0]
+    ads = sm.getActStyle( [mpSharedDict, mpSharedDictLock] )[0]
+    dds = sm.getDayStyle(    [mpSharedDict, mpSharedDictLock] )[0]
+    nds = sm.getNightStyle(  [mpSharedDict, mpSharedDictLock] )[0]
 
     if ads == allStyleDic[dsrdStyleIdx]:
-        sm.setActStyle( [str(greyOnBlackKey), styleDict, styleDictLock,lcdCq] )
+        sm.setActStyle( [str(greyOnBlackKey), mpSharedDict, mpSharedDictLock,lcdCq] )
         rspStr += ' Active Style changed from {} to greyOnBlack.\n'.format(ads)
     if dds == allStyleDic[dsrdStyleIdx]:
-        sm.setDayStyle( [str(greyOnBlackKey), styleDict, styleDictLock] )
+        sm.setDayStyle( [str(greyOnBlackKey), mpSharedDict, mpSharedDictLock] )
         rspStr += ' Day Style changed from {} to greyOnBlack.\n'.format(dds)
     if nds == allStyleDic[dsrdStyleIdx]:
-        sm.setNightStyle( [str(greyOnBlackKey), styleDict, styleDictLock] )
+        sm.setNightStyle( [str(greyOnBlackKey), mpSharedDict, mpSharedDictLock] )
         rspStr += ' Night Style changed from {} to greyOnBlack.\n'.format(nds)
 
     fName = 'digitScreenStyles/{}.RGB.txt'.format(allStyleDic[dsrdStyleIdx] )
@@ -348,16 +348,15 @@ def displayPics(prmLst):
     if len(picLst) == 0:
         return [' No pics found.']
 
-    startTimeLst,qs,styleDic,styleLk = prmLst[0], prmLst[1], prmLst[2], prmLst[3]
+    startTimeLst,qs,mpSharedDict,mpSharedDictLock = prmLst[0], prmLst[1], prmLst[2], prmLst[3]
     rspStr = ut.getActThrds()
     dspIdLst = [ 'hrMSD','hrLSD','mnMSD','mnLSD','scMSD','scLSD' ]
     lenDspIdLst = len(dspIdLst)
-    stoppedClock = False
-    if 'clockCntrProc' in rspStr[0] or 'lcdUpdateProc' in rspStr[0]:
-        #print('stopping clock')
-        cr.stopClk(qs)
-        stoppedClock = True
 
+    with mpSharedDictLock:
+        mpSharedDict['displayingPics'] = True
+        #print('displayPicsT  mpSharedDict[displayingPics] = ', mpSharedDict['displayingPics'])
+        time.sleep(1.5)
     ##################################
     rspStr = ut.getActThrds()
     if 'MainThread' not in rspStr[0]:
@@ -381,17 +380,20 @@ def displayPics(prmLst):
         slept = False
         data = makePilJpgPicImage('{}{}{}'.format(dPath,'/',p))
         sr.setEntireDisplay( d, data, sr.sendDat2ToSt7789 )
+        time.sleep(.25)
         #print(d,p)
         if  (ii+1) % lenDspIdLst == 0:
-            time.sleep(3)
+            #print('sleep 4-1')
+            time.sleep(4)
             slept = True
     if not slept:
-        time.sleep(3)
+        #print('sleep 4-2')
+        time.sleep(4)
     ##################################
 
-    if stoppedClock:
-        #print('starting clock')
-        cr.startClk([startTimeLst,qs,styleDic,styleLk])
+    with mpSharedDictLock:
+        mpSharedDict['displayingPics'] = False
+        #print('displayPicsF  mpSharedDict[displayingPics] = ', mpSharedDict['displayingPics'])
 
     return ['done']
 #############################################################################

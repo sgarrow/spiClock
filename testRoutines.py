@@ -138,8 +138,8 @@ def runTest6(prmLst):
     rspStr = ' Test 6 - Fill all screens with all digit styles.\n'
 
     lcdCq    = prmLst[0]
-    styleDic = prmLst[1]
-    styleLk  = prmLst[2]
+    mpSharedDict = prmLst[1]
+    mpSharedDictLock  = prmLst[2]
 
     textLst         = ['0','1','2']
     rspLst     = sm.getAllStyles()
@@ -148,8 +148,8 @@ def runTest6(prmLst):
 
     rspStr = ''
     for styleIdx in allStyleDic:
-        rspLst = sm.setActStyle([str(styleIdx),styleDic,styleLk,lcdCq])
-        rspLst = sm.loadActiveStyle(styleDic, styleLk)
+        rspLst = sm.setActStyle([str(styleIdx),mpSharedDict,mpSharedDictLock,lcdCq])
+        rspLst = sm.loadActiveStyle(mpSharedDict, mpSharedDictLock)
         digitScreenDict = rspLst[1]
         for txt in textLst:
             for did in kLst:
