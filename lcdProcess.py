@@ -29,11 +29,11 @@ def lcdUpdateProc(procName,qLst,mpSharedDict,mpSharedDictLock): # pylint: disabl
 
     while True:
 
-        #prev  cur 
+        #prev  cur
         #F     F   no state change (displaying time)     update LCD wrt time     (normal)
         #F     T   not display pics ->     display pics, not update LCD wrt time (continue)
-        #T     F   display pics     -> not display pics, not update LCD wrt time (force refresh) 
-        #T     T   no state change (displaying pics)     not update LCD wrt time (continue) 
+        #T     F   display pics     -> not display pics, not update LCD wrt time (force refresh)
+        #T     T   no state change (displaying pics)     not update LCD wrt time (continue)
 
         with mpSharedDictLock:
             currDisplayingPicsState = mpSharedDict['displayingPics']

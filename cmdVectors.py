@@ -33,7 +33,7 @@ def dummy():
 
 # Version number of the "app".
 # As opposed to the version number of the "server" which is in fileIO.py
-VER = ' v1.6.40 - 14-Feb-2026'
+VER = ' v1.6.41 - 15-Feb-2026'
 def getVer():
     appVer = VER
     srvVer = fio.VER
@@ -74,57 +74,177 @@ def vector(inputStr,mpSharedDict,mpSharedDictLock): # called from handleClient.
     # This dictionary embodies the worker function vector (and menu) info.
     vectorDict = {
     # GET COMMANDS
-    'gas':{ 'fun': sm.getActStyle,  'prm':[mpSharedDict,mpSharedDictLock],         'menu':'Get Active Style'  },
-    'gds':{ 'fun': sm.getDayStyle,  'prm':[mpSharedDict,mpSharedDictLock],         'menu':'Get Day Style'     },
-    'gns':{ 'fun': sm.getNightStyle,'prm':[mpSharedDict,mpSharedDictLock],         'menu':'Get Night Style'   },
-    'gAs':{ 'fun': sm.getAllStyles, 'prm':None,                       'menu':'Get ALL Styles'    },
-    'gdt':{ 'fun': sm.getDayTime,   'prm':[mpSharedDict,mpSharedDictLock],         'menu':'Get Day Time'      },
-    'gnt':{ 'fun': sm.getNightTime, 'prm':[mpSharedDict,mpSharedDictLock],         'menu':'Get Night Time'    },
-    'gat':{ 'fun': ut.getActThrds,  'prm':None,                       'menu':'Get Active Threads'},
-    'gvn':{ 'fun': getVer,          'prm':None,                       'menu':'Get Version Number'},
+    'gas'   : { 'fun'  : sm.getActStyle,        
+                'prm'  : [mpSharedDict, mpSharedDictLock],
+                'menu' : 'Get Active Style'                      },
+
+    'gds'   : { 'fun'  : sm.getDayStyle,        
+                'prm'  : [mpSharedDict, mpSharedDictLock],
+                'menu' : 'Get Day Style'                         },
+
+    'gns'   : { 'fun'  : sm.getNightStyle,      
+                'prm'  : [mpSharedDict, mpSharedDictLock],
+                'menu' : 'Get Night Style'                       },
+
+    'gAs'   : { 'fun'  : sm.getAllStyles,       
+                'prm'  : None,                           
+                'menu' : 'Get ALL Styles'                        },
+
+    'gdt'   : { 'fun'  : sm.getDayTime,         
+                'prm'  : [mpSharedDict, mpSharedDictLock],
+                'menu' : 'Get Day Time'                          },
+
+    'gnt'   : { 'fun'  : sm.getNightTime,       
+                'prm'  : [mpSharedDict, mpSharedDictLock],
+                'menu' : 'Get Night Time'                        },
+
+    'gat'   : { 'fun'  : ut.getActThrds,        
+                'prm'  : None,                           
+                'menu' : 'Get Active Threads'                    },
+
+    'gvn'   : { 'fun'  : getVer,                
+                'prm'  : None,                           
+                'menu' : 'Get Version Number'                    },
 
     # SET COMMANDS
-    'sas':{ 'fun': sm.setActStyle,  'prm':dfltSASParm,                'menu':'Set Active Style'  },
-    'sds':{ 'fun': sm.setDayStyle,  'prm':['None',mpSharedDict,mpSharedDictLock],  'menu':'Set Day Style'     },
-    'sns':{ 'fun': sm.setNightStyle,'prm':['None',mpSharedDict,mpSharedDictLock],  'menu':'Set Night Style'   },
-    'sdt':{ 'fun': sm.setDayTime,   'prm':['None',mpSharedDict,mpSharedDictLock],  'menu':'Set Day Time'      },
-    'snt':{ 'fun': sm.setNightTime, 'prm':['None',mpSharedDict,mpSharedDictLock],  'menu':'Set Night Time'    },
+    'sas'   : { 'fun'  : sm.setActStyle,        
+                'prm'  : dfltSASParm,                           
+                'menu' : 'Set Active Style'},
+
+    'sds'   : { 'fun'  : sm.setDayStyle,        
+                'prm'  : ['None',mpSharedDict, mpSharedDictLock],
+                'menu' : 'Set Day Style'                         },
+
+    'sns'   : { 'fun'  : sm.setNightStyle,      
+                'prm'  : ['None',mpSharedDict, mpSharedDictLock],
+                'menu' : 'Set Night Style'                       },
+
+    'sdt'   : { 'fun'  : sm.setDayTime,         
+                'prm'  : ['None',mpSharedDict, mpSharedDictLock],
+                'menu' : 'Set Day Time'                          },
+
+    'snt'   : { 'fun'  : sm.setNightTime,       
+                'prm'  : ['None',mpSharedDict, mpSharedDictLock],
+                'menu' : 'Set Night Time'                        },
 
     # FILE COMMANDS
-    'ral':{ 'fun': fio.readFile,    'prm':['appLog.txt',[5]],         'menu':'Read App Log File' },
-    'rsl':{ 'fun': fio.readFile,    'prm':['serverLog.txt',[5]],      'menu':'Read Srvr Log File'},
-    'rse':{ 'fun': fio.readFile,    'prm':['serverException.txt',[5]],'menu':'Read Srvr Exc File'},
-    'cal':{ 'fun': fio.clearFile,   'prm':['appLog.txt'],             'menu':'Clr App Log File'  },
-    'csl':{ 'fun': fio.clearFile,   'prm':['serverLog.txt'],          'menu':'Clr Srvr Log File' },
-    'cse':{ 'fun': fio.clearFile,   'prm':['serverException.txt'],  'menu':'Clr Srvr Except File'},
+    'ral'   : { 'fun'  : fio.readFile,          
+                'prm'  : ['appLog.txt',[5]],         
+                'menu' : 'Read App Log File'                     },
+
+    'rsl'   : { 'fun'  : fio.readFile,          
+                'prm'  : ['serverLog.txt',[5]],      
+                'menu' : 'Read Srvr Log File'                    },
+
+    'rse'   : { 'fun'  : fio.readFile,          
+                'prm'  : ['serverException.txt',[5]],
+                'menu' : 'Read Srvr Exc File'                    },
+
+    'cal'   : { 'fun'  : fio.clearFile,         
+                'prm'  : ['appLog.txt'],             
+                'menu' : 'Clr App Log File'                      },
+
+    'csl'   : { 'fun'  : fio.clearFile,         
+                'prm'  : ['serverLog.txt'],          
+                'menu' : 'Clr Srvr Log File'                     },
+
+    'cse'   : { 'fun'  : fio.clearFile,         
+                'prm'  : ['serverException.txt'],    
+                'menu' : 'Clr Srvr Except File'},
 
     # OTHER COMMANDS
-    'sc' :{ 'fun': cr.startClk,     'prm':dfltSCPrm,                  'menu':'Start Clock'       },
-    'pc' :{ 'fun': cr.stopClk,      'prm':qs,                         'menu':'Stop Clock'        },
-    'mus':{ 'fun': ms.mkUsrDigPikF, 'prm':[],                         'menu':'Make User Style'   },
-    'dus':{ 'fun': ms.delUsrDigPikF,'prm':dfltSASParm,                'menu':'Delete User Style' },
-    'dp' :{ 'fun': ms.displayPics,  'prm':[[],qs,mpSharedDict,mpSharedDictLock],   'menu':'Display Pics'      },
-    'up' :{ 'fun': dummy,           'prm':None,                       'menu':'Upload Pic'        },
-    'rp' :{ 'fun': ms.removePic,    'prm':['None'],                   'menu':'Remove Pic'        },
-    'us' :{ 'fun': su.updateSw,     'prm':getVer(),                   'menu':'Update SW'         },
-    'hlp':{ 'fun': getHelp,         'prm':None,                       'menu':'Help'              },
-    'close':{'fun':dummy,           'prm':None,                       'menu':'Disconnect'        },
-    'ks' :{ 'fun': dummy,           'prm':None,                       'menu':'Kill Server'       },
-    'rbt':{ 'fun': dummy,           'prm':None,                       'menu':'Reboot RPi'        },
+    'sc'    : { 'fun'  : cr.startClk,           
+                'prm'  : dfltSCPrm,                         
+                'menu' : 'Start Clock'                           },
+
+    'pc'    : { 'fun'  : cr.stopClk,            
+                'prm'  : qs,                                
+                'menu' : 'Stop Clock'                            },
+
+    'mus'   : { 'fun'  : ms.mkUsrDigPikF,       
+                'prm'  : [],                                
+                'menu' : 'Make User Style'                       },
+
+    'dus'   : { 'fun'  : ms.delUsrDigPikF,      
+                'prm'  : dfltSASParm,                       
+                'menu' : 'Delete User Style'                     },
+
+    'dp'    : { 'fun'  : ms.displayPics,        
+                'prm'  : [mpSharedDict, mpSharedDictLock],
+                'menu' : 'Display Pics'                          },
+
+    'up'    : { 'fun'  : dummy,                 
+                'prm'  : None,                              
+                'menu' : 'Upload Pic'                            },
+
+    'rp'    : { 'fun'  : ms.removePic,          
+                'prm'  : ['None'],                          
+                'menu' : 'Remove Pic'                            },
+
+    'us'    : { 'fun'  : su.updateSw,           
+                'prm'  : getVer(),                          
+                'menu' : 'Update SW'                             },
+
+    'hlp'   : { 'fun'  : getHelp,               
+                'prm'  : None,                              
+                'menu' : 'Help'                                  },
+
+    'close' : { 'fun'  : dummy,                 
+                'prm'  : None,                             
+                'menu' :'Disconnect'                             },
+
+    'ks'    : { 'fun'  : dummy,                 
+                'prm'  : None,                              
+                'menu' : 'Kill Server'                           },
+
+    'rbt'   : { 'fun'  : dummy,                 
+                'prm'  : None,                              
+                'menu' : 'Reboot RPi'                            },
 
     # TEST COMMANDS
-    't1' :{ 'fun': tr.runTest1,     'prm':None,                       'menu':'Test 1 - Fill Color  by Pixels  ' },
-    't2' :{ 'fun': tr.runTest2,     'prm':None,                       'menu':'Test 2 - Fill Color  by Rows    ' },
-    't3' :{ 'fun': tr.runTest3,     'prm':None,                       'menu':'Test 3 - Fill Color  by Screen  ' },
-    't4' :{ 'fun': tr.runTest4,     'prm':None,                       'menu':'Test 4 - Fill  Text  by Screen  ' },
-    't5' :{ 'fun': tr.runTest5,     'prm':None,                       'menu':'Test 5 - Fill  JPG   by Screen  ' },
-    't6' :{ 'fun': tr.runTest6,     'prm':[lcdCq,mpSharedDict,mpSharedDictLock],   'menu':'Test 6 - All Styles, All Screens' },
-    't7' :{ 'fun': tr.runTest7,     'prm':None,                       'menu':'Test 7 - Chinese,    All Screens' },
+    't1'    : { 'fun'  : tr.runTest1,             
+                'prm'  : None,                       
+                'menu' : 'Test 1 - Fill Color  by Pixels '       },
 
-    'rh' :{ 'fun': sr.hwReset,      'prm':None,                       'menu':'Reset LCD HW Test' },
-    'rs' :{ 'fun': sr.swReset,      'prm':'scLSD',                    'menu':'Reset LCD SW Test' },
-    'sb' :{ 'fun': sr.setBkLight,   'prm':['1'],                      'menu':'LCD Backlight Test'},
-    'lc' :{ 'fun': cm.cmds,         'prm':None,                       'menu':'List Commands Test'},
+    't2'    : { 'fun'  : tr.runTest2,             
+                'prm'  : None,                       
+                'menu' : 'Test 2 - Fill Color  by Rows   '       },
+
+    't3'    : { 'fun'  : tr.runTest3,             
+                'prm'  : None,                       
+                'menu' : 'Test 3 - Fill Color  by Screen '       },
+
+    't4'    : { 'fun'  : tr.runTest4,             
+                'prm'  : None,                       
+                'menu' : 'Test 4 - Fill  Text  by Screen '       },
+
+    't5'    : { 'fun'  : tr.runTest5,             
+                'prm'  : None,                       
+                'menu' : 'Test 5 - Fill  JPG   by Screen '       },
+
+    't6'    : { 'fun'  : tr.runTest6,             
+                'prm'  : [lcdCq,mpSharedDict, mpSharedDictLock],   
+                'menu' : 'Test 6 - All Styles, All Screens'      },
+
+    't7'    : { 'fun'  : tr.runTest7,             
+                'prm'  : None,                       
+                'menu' : 'Test 7 - Chinese,    All Screens'      },
+
+    'rh'    : { 'fun'  : sr.hwReset,              
+                'prm'  : None,                       
+                'menu' : 'Reset LCD HW Test'                     },
+
+    'rs'    : { 'fun'  : sr.swReset,              
+                'prm'  : 'scLSD',                    
+                'menu' : 'Reset LCD SW Test'                     },
+
+    'sb'    : { 'fun'  : sr.setBkLight,           
+                'prm'  : ['1'],                      
+                'menu' : 'LCD Backlight Test'                    },
+
+    'lc'    : { 'fun'  : cm.cmds,                 
+                'prm'  : None,                       
+                'menu' : 'List Commands Test'                    },
     #####################################################
     }
 

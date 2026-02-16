@@ -172,8 +172,8 @@ def runTest7():
 
     txtColor = (0,0,0)
     bckColor = (255,255,255)
-    f1       = 'fonts/NotoSerifTC-Black.ttf'
-    f2       = 'fonts/NotoSerifTC-Medium.ttf'
+    #f1       = 'fonts/NotoSerifTC-Black.ttf'
+    #f2       = 'fonts/NotoSerifTC-Medium.ttf'
     f3       = 'fonts/NotoSerifTC-Light.ttf'
     textLst  = ['\u58de', '\u58de', '\u5ff5' , '\u5ff5', '\u6b3e', '\u6b3e']
     textLst  = ['\u58de','\u6b3e'] * 3
@@ -181,7 +181,7 @@ def runTest7():
     fontLst  = [ f3,f3,f3,f3,f3,f3 ]
     rspStr = ''
     for did,txt,f in zip(kLst,textLst,fontLst):
-        data = ms.mkPilTxtImg( txt, txtColor, bckColor, 
+        data = ms.mkPilTxtImg( txt, txtColor, bckColor,
                                fontName = f,
                                fontSize = 200, yOffset = 75 )
 

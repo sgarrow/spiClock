@@ -89,22 +89,25 @@ def compareVerNums( swVerLst, repoVerLst ):
 
     # 0: equal. 1: SW Bigger. 2: Repo Bigger. 3: ERROR.
 
-    if len(swVerLst) != 3 or len(repoVerLst) != 3: return 3
+    if len(swVerLst) != 3 or len(repoVerLst) != 3:
+        rtnVal = 3
 
-    if swVerLst == repoVerLst:      return 0
+    elif swVerLst == repoVerLst:      rtnVal = 0
 
-    if swVerLst[0] > repoVerLst[0]: return 1
-    if swVerLst[0] < repoVerLst[0]: return 2
+    elif swVerLst[0] > repoVerLst[0]: rtnVal = 1
+    elif swVerLst[0] < repoVerLst[0]: rtnVal = 2
 
     # swVerLst[0] == repoVerLst[0]:
-    if swVerLst[1] > repoVerLst[1]: return 1
-    if swVerLst[1] < repoVerLst[1]: return 2
+    elif swVerLst[1] > repoVerLst[1]: rtnVal = 1
+    elif swVerLst[1] < repoVerLst[1]: rtnVal = 2
 
     # swVerLst[1] == repoVerLst[1]:
-    if swVerLst[2] > repoVerLst[2]: return 1
-    if swVerLst[2] < repoVerLst[2]: return 2
+    elif swVerLst[2] > repoVerLst[2]: rtnVal = 1
+    elif swVerLst[2] < repoVerLst[2]: rtnVal = 2
 
-    return 3 # Should never get here,
+    else:                             rtnVal = 3
+
+    return rtnVal # Should never get here,
 #############################################################################
 
 def parseVersionNumbers(inVerStrLst):

@@ -3,7 +3,6 @@ import time
 import pickle
 from PIL import Image, ImageDraw, ImageFont # pylint: disable=E0401
 import styleMgmtRoutines as sm
-import startStopClock    as cr
 import spiRoutines       as sr
 import utils             as ut
 #############################################################################
@@ -348,7 +347,7 @@ def displayPics(prmLst):
     if len(picLst) == 0:
         return [' No pics found.']
 
-    startTimeLst,qs,mpSharedDict,mpSharedDictLock = prmLst[0], prmLst[1], prmLst[2], prmLst[3]
+    mpSharedDict, mpSharedDictLock = prmLst[0], prmLst[1]
     rspStr = ut.getActThrds()
     dspIdLst = [ 'hrMSD','hrLSD','mnMSD','mnLSD','scMSD','scLSD' ]
     lenDspIdLst = len(dspIdLst)
