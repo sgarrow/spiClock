@@ -33,7 +33,7 @@ def dummy():
 
 # Version number of the "app".
 # As opposed to the version number of the "server" which is in fileIO.py
-VER = ' v1.6.41 - 15-Feb-2026'
+VER = ' v1.6.43 - 15-Feb-2026'
 def getVer():
     appVer = VER
     srvVer = fio.VER
@@ -181,8 +181,8 @@ def vector(inputStr,mpSharedDict,mpSharedDictLock): # called from handleClient.
                 'prm'  : ['None'],                          
                 'menu' : 'Remove Pic'                            },
 
-    'us'    : { 'fun'  : su.updateSw,           
-                'prm'  : getVer(),                          
+    'us'    : { 'fun'  : su.updateSw,
+                'prm'  : [getVer(),'spiClock'],
                 'menu' : 'Update SW'                             },
 
     'hlp'   : { 'fun'  : getHelp,               
