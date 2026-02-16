@@ -3,8 +3,7 @@ import multiprocessing as mp
 import lcdProcess      as lp
 import spiRoutines     as sr
 import clockProcess    as cp
-
-procPidDict = {'clockCntrProc': None, 'lcdUpdateProc': None}
+from   utils import procPidDict
 ######################################################################
 ######################################################################
 
