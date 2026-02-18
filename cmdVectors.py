@@ -1,8 +1,9 @@
+#  C:\Users\stang\AppData\Roaming\Python\Python312\Scripts\pylint .\*.py
 '''
-When a client enters a command those commands are received by function
+When a client enters a command those commands are received by function 
 handleClient in file server.py.  The command (string) is forwarded to
 function "vector" (in this file) and the appropriate "worker" function
-is then vectored to in file cmdWorkers.py.
+is then vectored to.
 '''
 
 import multiprocessing   as mp
@@ -33,7 +34,7 @@ def dummy():
 
 # Version number of the "app".
 # As opposed to the version number of the "server" which is in fileIO.py
-VER = ' v1.6.44 - 15-Feb-2026'
+VER = ' v1.6.45 - 17-Feb-2026'
 def getVer():
     appVer = VER
     srvVer = fio.VER
@@ -74,179 +75,179 @@ def vector(inputStr,mpSharedDict,mpSharedDictLock): # called from handleClient.
     # This dictionary embodies the worker function vector (and menu) info.
     vectorDict = {
     # GET COMMANDS
-    'gas'   : { 'fun'  : sm.getActStyle,        
-                'prm'  : [mpSharedDict, mpSharedDictLock],
+    'gas'   : { 'func' : sm.getActStyle,
+                'parm' : [mpSharedDict, mpSharedDictLock],
                 'menu' : 'Get Active Style'                      },
 
-    'gds'   : { 'fun'  : sm.getDayStyle,        
-                'prm'  : [mpSharedDict, mpSharedDictLock],
+    'gds'   : { 'func' : sm.getDayStyle,
+                'parm' : [mpSharedDict, mpSharedDictLock],
                 'menu' : 'Get Day Style'                         },
 
-    'gns'   : { 'fun'  : sm.getNightStyle,      
-                'prm'  : [mpSharedDict, mpSharedDictLock],
+    'gns'   : { 'func' : sm.getNightStyle,
+                'parm' : [mpSharedDict, mpSharedDictLock],
                 'menu' : 'Get Night Style'                       },
 
-    'gAs'   : { 'fun'  : sm.getAllStyles,       
-                'prm'  : None,                           
+    'gAs'   : { 'func' : sm.getAllStyles,
+                'parm' : None,
                 'menu' : 'Get ALL Styles'                        },
 
-    'gdt'   : { 'fun'  : sm.getDayTime,         
-                'prm'  : [mpSharedDict, mpSharedDictLock],
+    'gdt'   : { 'func' : sm.getDayTime,
+                'parm' : [mpSharedDict, mpSharedDictLock],
                 'menu' : 'Get Day Time'                          },
 
-    'gnt'   : { 'fun'  : sm.getNightTime,       
-                'prm'  : [mpSharedDict, mpSharedDictLock],
+    'gnt'   : { 'func' : sm.getNightTime,
+                'parm' : [mpSharedDict, mpSharedDictLock],
                 'menu' : 'Get Night Time'                        },
 
-    'gat'   : { 'fun'  : ut.getActThrds,        
-                'prm'  : None,                           
+    'gat'   : { 'func' : ut.getActThrds,
+                'parm' : None,
                 'menu' : 'Get Active Threads'                    },
 
-    'gvn'   : { 'fun'  : getVer,                
-                'prm'  : None,                           
+    'gvn'   : { 'func' : getVer,
+                'parm' : None,
                 'menu' : 'Get Version Number'                    },
 
     # SET COMMANDS
-    'sas'   : { 'fun'  : sm.setActStyle,        
-                'prm'  : dfltSASParm,                           
+    'sas'   : { 'func' : sm.setActStyle,
+                'parm' : dfltSASParm,
                 'menu' : 'Set Active Style'},
 
-    'sds'   : { 'fun'  : sm.setDayStyle,        
-                'prm'  : ['None',mpSharedDict, mpSharedDictLock],
+    'sds'   : { 'func' : sm.setDayStyle,
+                'parm' : ['None',mpSharedDict, mpSharedDictLock],
                 'menu' : 'Set Day Style'                         },
 
-    'sns'   : { 'fun'  : sm.setNightStyle,      
-                'prm'  : ['None',mpSharedDict, mpSharedDictLock],
+    'sns'   : { 'func' : sm.setNightStyle,
+                'parm' : ['None',mpSharedDict, mpSharedDictLock],
                 'menu' : 'Set Night Style'                       },
 
-    'sdt'   : { 'fun'  : sm.setDayTime,         
-                'prm'  : ['None',mpSharedDict, mpSharedDictLock],
+    'sdt'   : { 'func' : sm.setDayTime,
+                'parm' : ['None',mpSharedDict, mpSharedDictLock],
                 'menu' : 'Set Day Time'                          },
 
-    'snt'   : { 'fun'  : sm.setNightTime,       
-                'prm'  : ['None',mpSharedDict, mpSharedDictLock],
+    'snt'   : { 'func' : sm.setNightTime,
+                'parm' : ['None',mpSharedDict, mpSharedDictLock],
                 'menu' : 'Set Night Time'                        },
 
     # FILE COMMANDS
-    'ral'   : { 'fun'  : fio.readFile,          
-                'prm'  : ['appLog.txt',[5]],         
+    'ral'   : { 'func' : fio.readFile,
+                'parm' : ['appLog.txt',[5]],
                 'menu' : 'Read App Log File'                     },
 
-    'rsl'   : { 'fun'  : fio.readFile,          
-                'prm'  : ['serverLog.txt',[5]],      
+    'rsl'   : { 'func' : fio.readFile,
+                'parm' : ['serverLog.txt',[5]],
                 'menu' : 'Read Srvr Log File'                    },
 
-    'rse'   : { 'fun'  : fio.readFile,          
-                'prm'  : ['serverException.txt',[5]],
+    'rse'   : { 'func' : fio.readFile,
+                'parm' : ['serverException.txt',[5]],
                 'menu' : 'Read Srvr Exc File'                    },
 
-    'cal'   : { 'fun'  : fio.clearFile,         
-                'prm'  : ['appLog.txt'],             
+    'cal'   : { 'func' : fio.clearFile,
+                'parm' : ['appLog.txt'],
                 'menu' : 'Clr App Log File'                      },
 
-    'csl'   : { 'fun'  : fio.clearFile,         
-                'prm'  : ['serverLog.txt'],          
+    'csl'   : { 'func' : fio.clearFile,
+                'parm' : ['serverLog.txt'],
                 'menu' : 'Clr Srvr Log File'                     },
 
-    'cse'   : { 'fun'  : fio.clearFile,         
-                'prm'  : ['serverException.txt'],    
-                'menu' : 'Clr Srvr Except File'},
+    'cse'   : { 'func' : fio.clearFile,
+                'parm' : ['serverException.txt'],
+                'menu' : 'Clr Srvr Except File'                  },
 
     # OTHER COMMANDS
-    'sc'    : { 'fun'  : cr.startClk,           
-                'prm'  : dfltSCPrm,                         
+    'sc'    : { 'func' : cr.startClk,
+                'parm' : dfltSCPrm,
                 'menu' : 'Start Clock'                           },
 
-    'pc'    : { 'fun'  : cr.stopClk,            
-                'prm'  : qs,                                
+    'pc'    : { 'func' : cr.stopClk,
+                'parm' : qs,
                 'menu' : 'Stop Clock'                            },
 
-    'mus'   : { 'fun'  : ms.mkUsrDigPikF,       
-                'prm'  : [],                                
+    'mus'   : { 'func' : ms.mkUsrDigPikF,
+                'parm' : [],
                 'menu' : 'Make User Style'                       },
 
-    'dus'   : { 'fun'  : ms.delUsrDigPikF,      
-                'prm'  : dfltSASParm,                       
+    'dus'   : { 'func' : ms.delUsrDigPikF,
+                'parm' : dfltSASParm,
                 'menu' : 'Delete User Style'                     },
 
-    'dp'    : { 'fun'  : ms.displayPics,        
-                'prm'  : [mpSharedDict, mpSharedDictLock],
+    'dp'    : { 'func' : ms.displayPics,
+                'parm' : [mpSharedDict, mpSharedDictLock],
                 'menu' : 'Display Pics'                          },
 
-    'up'    : { 'fun'  : dummy,                 
-                'prm'  : None,                              
+    'up'    : { 'func' : dummy,
+                'parm' : None,
                 'menu' : 'Upload Pic'                            },
 
-    'rp'    : { 'fun'  : ms.removePic,          
-                'prm'  : ['None'],                          
+    'rp'    : { 'func' : ms.removePic,
+                'parm' : ['None'],
                 'menu' : 'Remove Pic'                            },
 
-    'us'    : { 'fun'  : su.updateSw,
-                'prm'  : [getVer(),'spiClock'],
-                'menu' : 'Update SW'                             },
-
-    'hlp'   : { 'fun'  : getHelp,               
-                'prm'  : None,                              
+    'hlp'   : { 'func' : getHelp,
+                'parm' : None,
                 'menu' : 'Help'                                  },
 
-    'close' : { 'fun'  : dummy,                 
-                'prm'  : None,                             
+    'us'    : { 'func' : su.updateSw,
+                'parm' : [getVer(),'spiClock'],
+                'menu' : 'Update SW'                             },
+
+    'close' : { 'func' : dummy,
+                'parm' : None,
                 'menu' :'Disconnect'                             },
 
-    'ks'    : { 'fun'  : dummy,                 
-                'prm'  : None,                              
+    'ks'    : { 'func' : dummy,
+                'parm' : None,
                 'menu' : 'Kill Server'                           },
 
-    'rbt'   : { 'fun'  : dummy,                 
-                'prm'  : None,                              
+    'rbt'   : { 'func' : dummy,
+                'parm' : None,
                 'menu' : 'Reboot RPi'                            },
 
     # TEST COMMANDS
-    't1'    : { 'fun'  : tr.runTest1,             
-                'prm'  : None,                       
+    't1'    : { 'func' : tr.runTest1,
+                'parm' : None,
                 'menu' : 'Test 1 - Fill Color  by Pixels '       },
 
-    't2'    : { 'fun'  : tr.runTest2,             
-                'prm'  : None,                       
+    't2'    : { 'func' : tr.runTest2,
+                'parm' : None,
                 'menu' : 'Test 2 - Fill Color  by Rows   '       },
 
-    't3'    : { 'fun'  : tr.runTest3,             
-                'prm'  : None,                       
+    't3'    : { 'func' : tr.runTest3,
+                'parm' : None,
                 'menu' : 'Test 3 - Fill Color  by Screen '       },
 
-    't4'    : { 'fun'  : tr.runTest4,             
-                'prm'  : None,                       
+    't4'    : { 'func' : tr.runTest4,
+                'parm' : None,
                 'menu' : 'Test 4 - Fill  Text  by Screen '       },
 
-    't5'    : { 'fun'  : tr.runTest5,             
-                'prm'  : None,                       
+    't5'    : { 'func' : tr.runTest5,
+                'parm' : None,
                 'menu' : 'Test 5 - Fill  JPG   by Screen '       },
 
-    't6'    : { 'fun'  : tr.runTest6,             
-                'prm'  : [lcdCq,mpSharedDict, mpSharedDictLock],   
+    't6'    : { 'func' : tr.runTest6,
+                'parm' : [lcdCq,mpSharedDict, mpSharedDictLock],
                 'menu' : 'Test 6 - All Styles, All Screens'      },
 
-    't7'    : { 'fun'  : tr.runTest7,             
-                'prm'  : None,                       
+    't7'    : { 'func' : tr.runTest7,
+                'parm' : None,
                 'menu' : 'Test 7 - Chinese,    All Screens'      },
 
-    'rh'    : { 'fun'  : sr.hwReset,              
-                'prm'  : None,                       
+    'rh'    : { 'func' : sr.hwReset,
+                'parm' : None,
                 'menu' : 'Reset LCD HW Test'                     },
 
-    'rs'    : { 'fun'  : sr.swReset,              
-                'prm'  : 'scLSD',                    
+    'rs'    : { 'func' : sr.swReset,
+                'parm' : 'scLSD',
                 'menu' : 'Reset LCD SW Test'                     },
 
-    'sb'    : { 'fun'  : sr.setBkLight,           
-                'prm'  : ['1'],                      
+    'sb'    : { 'func' : sr.setBkLight,
+                'parm' : ['1'],
                 'menu' : 'LCD Backlight Test'                    },
 
-    'lc'    : { 'fun'  : cm.cmds,                 
-                'prm'  : None,                       
+    'lc'    : { 'func' : cm.cmds,
+                'parm' : None,
                 'menu' : 'List Commands Test'                    },
-    #####################################################
     }
+    #####################################################
 
     # Process the string (command) passed to this function via the call
     # from function handleClient in file server.py.
@@ -259,11 +260,9 @@ def vector(inputStr,mpSharedDict,mpSharedDictLock): # called from handleClient.
     choice     = inputWords[0]
     optArgsStr = inputWords[1:]
 
-    if choice in vectorDict and vectorDict[choice]['fun'] is not None:
-        func   = vectorDict[choice]['fun']
-        params = vectorDict[choice]['prm']
-        if callable(params):
-            params = params()
+    if choice in vectorDict and vectorDict[choice]['func'] is not None:
+        func   = vectorDict[choice]['func']
+        params = vectorDict[choice]['parm']
 
         if  choice in ['sc','sdt','snt','dus','sas','sds','sns','sb'] \
             and len(optArgsStr) > 0:
@@ -280,30 +279,29 @@ def vector(inputStr,mpSharedDict,mpSharedDictLock): # called from handleClient.
         elif choice in ['hlp']:
             params = [optArgsStr,vectorDict]
 
-        #try:                   # Catch exceptions in command procesing.
-        if params is None:
-            rsp = func()   # rsp[0] = rspStr. Vector to worker.
-            return rsp[0]  # return to srvr for forwarding to clnt.
+        try:                   # Catch exceptions in command procesing.
+            if params is None:
+                rsp = func()   # rsp[0] = rspStr. Vector to worker.
+                return rsp[0]  # return to srvr for forwarding to clnt.
 
-        rsp = func(params) # rsp[0] = rspStr. Vector to worker.
-        return rsp[0]      # Return to srvr for forwarding to clnt.
-        #except Exception as e: # pylint: disable = W0718
-        #    return str(e)
+            rsp = func(params) # rsp[0] = rspStr. Vector to worker.
+            return rsp[0]      # Return to srvr for forwarding to clnt.
+        except Exception as e: # pylint: disable = W0718
+            return str(e)
 
     if choice == 'm':
-        rspStr = ''
         tmpDic = {
         'gas' : '{}'.format(   ' === GET   COMMANDS === \n' ),
         'sas' : '{}'.format( '\n === SET   COMMANDS === \n' ),
         'ral' : '{}'.format( '\n === FILE  COMMANDS === \n' ),
         'sc'  : '{}'.format( '\n === OTHER COMMANDS === \n' ),
         't1'  : '{}'.format( '\n === TEST  COMMANDS === \n' ) }
-        for k,v in vectorDict.items():
 
+        rspStr = ''
+        for k,v in vectorDict.items():
             if k in tmpDic:
                 rspStr += tmpDic[k]
             rspStr += ' {:3} - {}\n'.format(k, v['menu'] )
-
         return rspStr          # Return to srvr for forwarding to clnt.
 
     rspStr = 'Invalid command'
