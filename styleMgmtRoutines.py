@@ -147,25 +147,27 @@ def getActStyle(prmLst):
 #############################################################################
 
 def setStyleDriver(prmLst):
-
     dsrdStyleIdx = prmLst[0]
     if dsrdStyleIdx != 'None':
         dsrdStyleIdx = dsrdStyleIdx[0]
 
-    mpSharedDict, mpSharedDictLock = prmLst[1], prmLst[2]
-    #print('dsrdStyleIdx = {}'.format(dsrdStyleIdx))
+    # print('dsrdStyleIdx = {}'.format(dsrdStyleIdx))
     # Returns a rps str and a digitStyleStr, like 'blackOnWhite'.
     # Just sets the name doesn't activate it, that's done by loadActiveStyle.
+
+    mpSharedDict, mpSharedDictLock = prmLst[1], prmLst[2]
+
+    rspLst      = getAllStyles()
+    funcRspStr  = rspLst[0]      # Dict as a string for sending to client on error.
+    allStyleDic = rspLst[1]      # eg: {0: 'whiteOnBlack', 1: 'blackOnWhite'}.
     whoCalledMe = inspect.stack()[1][3]
+
     with mpSharedDictLock:
         if    whoCalledMe == 'setDayStyle':    digitStyleStr = mpSharedDict['dayDigitStyle']
         elif  whoCalledMe == 'setNightStyle':  digitStyleStr = mpSharedDict['nightDigitStyle']
         elif  whoCalledMe == 'setActStyle': digitStyleStr = mpSharedDict['activeDigitStyle']
         else: digitStyleStr = 'ERROR' # Should never get here.
 
-    rspLst      = getAllStyles()
-    funcRspStr  = rspLst[0]
-    allStyleDic = rspLst[1]      # eg: {0: 'whiteOnBlack', 1: 'blackOnWhite'}.
 
     if dsrdStyleIdx == 'None':
         rspStr  = ' Style not set.\n'

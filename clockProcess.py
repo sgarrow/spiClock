@@ -138,8 +138,8 @@ def clockCntrProc( procName, qLst, startTime, mpSharedDict, mpSharedDictLock ):
         if style is not None:
             rspLst   = sm.getAllStyles()
             #fRspStr  = rspLst[0]
-            mpSharedDict = rspLst[1]
-            theKey   = [ k for k,v in mpSharedDict.items() if v == style ]
+            allStyleDict = rspLst[1]
+            theKey   = [ k for k,v in allStyleDict.items() if v == style ]
             rspLst   = sm.setActStyle([str(theKey[0]),mpSharedDict,mpSharedDictLock,lcdCq])
 
         lcdCq.put(timeDict)           # Send cmd to lcdUpdateProc.
