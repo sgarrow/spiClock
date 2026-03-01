@@ -296,7 +296,8 @@ def printStdOutOrStdErr( hasError, stdOut, stdErr ):
         msgLines = stdOut.split('\n')
 
     for theLine in  msgLines:
-        print('     {}'.format(theLine))
+        if theLine != '\n':  # Don't print blank lines.
+            print('     {}'.format(theLine))
 
     if hasError:
         print( ' Exiting, RE: Error.\n' )
@@ -332,14 +333,14 @@ if __name__ == '__main__':
         print( '\n unexpected/untracked files present.')
         print( '   Continuing will not add them.')
         print( '   Add from cmd line like this <git add fName>')
-        goOn = input( ' Continue (y/n)? -> ' )
+        goOn = input( '   Continue (y/n)? -> ' )
         if goOn != 'y':
             sys.exit()
 
     if fLstDict['changedTrackedFs']['len'] == 0:
         print( ' No tracked/changed files present.' )
         print( ' Continuing will bump rev and thus cmdVectors.py will change.' )
-        goOn = input( ' Continue (y/n)? -> ' )
+        goOn = input( '   Continue (y/n)? -> ' )
         if goOn != 'y':
             sys.exit()
     #########################################
