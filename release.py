@@ -297,7 +297,6 @@ def printStdOutOrStdErr( hasError, stdOut, stdErr ):
 
     for theLine in  msgLines:
         print('     {}'.format(theLine))
-    print()
 
     if hasError:
         print( ' Exiting, RE: Error.\n' )
@@ -390,7 +389,7 @@ if __name__ == '__main__':
     #########################################
 
     commitTxt = input( '\n Enter commit message -> ' )
-    commitTxtWithQuotes = r'"{}"'.format(commitTxt)
+    commitTxtWithQuotes = r'"{}. {}"'.format( newVerStr, commitTxt )
     #########################################
 
     print( '\n Committing.' )
