@@ -4,6 +4,7 @@ import subprocess as sp
 import datetime   as dt
 import pprint     as pp # pylint: disable=W0611
 import sys
+import os
 import re
 #############################################################################
 
@@ -31,7 +32,7 @@ def moveOrCopyFiles( src, dst, fLst, moveOrCopy ):
     if moveOrCopy not in ['Mov','Copy']:
         print(' moveOrCopy has invalid value.')
         return
-    print('   {}ing from \n     {} to \n     {}.'.format( moveOrCopy, src, dst ))
+    print('   {}ing from \n     {} to \n     {}.'.format(moveOrCopy,src,dst))
 
     for file in fLst:
         s =  src / file  # A Path join. All 3 vars type Path.
@@ -92,10 +93,10 @@ def getVerNums( fName, numChanged, numTracked ):
     for line in txt:
         if 'VER =' in line:
             curVStr     = \
-            line.split('=')[1].split('-')[0].replace('\'','').strip() # v1.6.46
-            curVLstwV   = [ x.strip() for x in curVStr.split('.') ]    # ['v1','6','46']
-            curVLstwoV  = [curVLstwV[0][1:]] + curVLstwV[1:]          # ['1','6', '46']
-            curVIntLst  = [int(x) for x in curVLstwoV]                # [1,6,46]
+            line.split('=')[1].split('-')[0].replace('\'','').strip() #v1.6.4
+            curVLstwV   = [ x.strip() for x in curVStr.split('.') ]
+            curVLstwoV  = [curVLstwV[0][1:]] + curVLstwV[1:]
+            curVIntLst  = [int(x) for x in curVLstwoV]
             verFound = True
             break
 
@@ -121,11 +122,13 @@ def getVerNums( fName, numChanged, numTracked ):
 #############################################################################
 
 def runCommand( cmdLst ):
-    #print( '\n Running command: {}\n'.format(' '.join(cmdLst)))
-     # If check is true, and the process exits with a non-zero exit code,
-     # a CalledProcessError exception will be raised. Attributes of that
-     # exception hold the arguments, the exit code, and stdout and stderr
-     # if they were captured.
+
+    # If check is true, and the process exits with a non-zero exit code,
+    # a CalledProcessError exception will be raised. Attributes of that
+    # exception hold the arguments, the exit code, and stdout and stderr
+    # if they were captured.
+
+    print('   {}'.format(' '.join(cmdLst)))
     error = False
     try:
         result = sp.run(
@@ -177,11 +180,29 @@ def getUntrackedFs():
             [line.split()[1] for line in stdOutLines if line.split()[0]=='??']
     return err, stdOut, stdErr, untrackedFiles
     #################################
-def getExpectedUntrackedFs():
-    err, stdOut, stdErr = False, '', ''
-    expectedUntrackedFiles   = \
-        [ 'cfg.cfg',   'cfg.py',    'client.py',   'gui.py',
-          'fileIO.py', 'server.py', 'swUpdate.py', 'utils.py' ]
+def getExpectedUntrackedFs(projectsDict):
+    err, stdOut, stdErr = True, '', ' Active Project not Found.'
+
+    kk = ''
+    for kk,v in projectsDict.items():
+        if v['active']:
+            err = False
+            stdErr = ''
+            break
+
+    if kk == 'spiClock':
+        expectedUntrackedFiles   = \
+            [ 'cfg.cfg',   'cfg.py',    'client.py',   'gui.py',
+              'fileIO.py', 'server.py', 'swUpdate.py', 'utils.py' ]
+    elif kk == 'sprinkler2':
+        expectedUntrackedFiles   = \
+            [ 'cfg.cfg',   'cfg.py',    'client.py',   'gui.py',
+              'fileIO.py', 'server.py', 'swUpdate.py', 'utils.py' ]
+    elif kk == 'shared':
+        expectedUntrackedFiles = []
+    else:
+        expectedUntrackedFiles = []
+
     return err, stdOut, stdErr, expectedUntrackedFiles
     #################################
 def getUnexpectedUntrackedFs( untracked, expectedUntracked ):
@@ -190,60 +211,63 @@ def getUnexpectedUntrackedFs( untracked, expectedUntracked ):
     return err, stdOut, stdErr, unexpectedUntrackedFiles
 #############################################################################
 
-def getFileLstDict():
+def getFileLstDict(projectsDict):
     fDict = {
         'trackedFs'            : 
-        { 'sts':None, 'stdO':None, 'stdE':None, 'fLst':[], 'len':None,
-        'func':getAllTrackedFs         },
+        { 'sts' : None, 'stdO':None, 'stdE':None, 'fLst':[], 'len':None,
+          'func': getAllTrackedFs         },
 
         'changedTrackedFs'     :
-        { 'sts':None, 'stdO':None, 'stdE':None, 'fLst':[], 'len':None,
-        'func':getChangedTrackedFs     },
+        { 'sts' : None, 'stdO':None, 'stdE':None, 'fLst':[], 'len':None,
+          'func': getChangedTrackedFs     },
 
         'untrackedFs'          :
-        { 'sts':None, 'stdO':None, 'stdE':None, 'fLst':[], 'len':None,
-        'func':getUntrackedFs          },
+        { 'sts' : None, 'stdO':None, 'stdE':None, 'fLst':[], 'len':None,
+          'func': getUntrackedFs          },
 
         'expectedUntrackedFs'  :
-        { 'sts':None, 'stdO':None, 'stdE':None, 'fLst':[], 'len':None,
-        'func':getExpectedUntrackedFs  },
+        { 'sts' : None, 'stdO':None, 'stdE':None, 'fLst':[], 'len':None,
+          'func': getExpectedUntrackedFs  },
 
         'unexpectedUntrackedFs':
-        { 'sts':None, 'stdO':None, 'stdE':None, 'fLst':[], 'len':None,
-        'func':getUnexpectedUntrackedFs},
+        { 'sts' : None, 'stdO':None, 'stdE':None, 'fLst':[], 'len':None,
+          'func': getUnexpectedUntrackedFs},
 
         'trackedPyFs'          :
-        { 'sts':None, 'stdO':None, 'stdE':None, 'fLst':[], 'len':None,
-        'func':None                    },
+        { 'sts' : None, 'stdO':None, 'stdE':None, 'fLst':[], 'len':None,
+          'func': None                    },
 
         'changedTrackedPyFs'   :
-        { 'sts':None, 'stdO':None, 'stdE':None, 'fLst':[], 'len':None,
-        'func':None                    },
+        { 'sts' : None, 'stdO':None, 'stdE':None, 'fLst':[], 'len':None,
+          'func': None                    },
     }
 
-    for k,v in fDict.items():
-        if k in ['unexpectedUntrackedFs', 'trackedPyFs', 'changedTrackedPyFs']:
+    for kk,v in fDict.items():
+        if kk in ['unexpectedUntrackedFs','trackedPyFs','changedTrackedPyFs']:
             continue
-        s,o,e,l = v['func']()
+        if kk in [ 'expectedUntrackedFs' ]:
+            s,o,e,l = v['func'](projectsDict)
+        else:
+            s,o,e,l = v['func']()
         v['sts' ] = s
         v['stdO'] = o
         v['stdE'] = e
         v['fLst'] = l
 
-    k = 'unexpectedUntrackedFs'
-    s,o,e,l = fDict[k]['func'](fDict['untrackedFs'       ]['fLst'],
+    kk = 'unexpectedUntrackedFs'
+    s,o,e,l = fDict[kk]['func'](fDict['untrackedFs'       ]['fLst'],
                               fDict['expectedUntrackedFs']['fLst'])
-    fDict[k]['sts' ] = s
-    fDict[k]['stdO'] = o
-    fDict[k]['stdE'] = e
-    fDict[k]['fLst'] = l
+    fDict[kk]['sts' ] = s
+    fDict[kk]['stdO'] = o
+    fDict[kk]['stdE'] = e
+    fDict[kk]['fLst'] = l
 
     fDict['trackedPyFs']['fLst']        = \
         [x for x in fDict['trackedFs'][       'fLst'] if x.endswith('.py')]
     fDict['changedTrackedPyFs']['fLst'] = \
         [x for x in fDict['changedTrackedFs']['fLst'] if x.endswith('.py')]
 
-    for k,v in fDict.items():
+    for kk,v in fDict.items():
         v['len'] = len(v['fLst'])
     return fDict
 #############################################################################
@@ -259,7 +283,7 @@ def printFileLstDict(inFileListDict, pEn):
     width     = 50 if pEn else 25
 
     for el in printOrder:
-        print( '\n   {} (len  = {}) = '.format(el, inFileListDict[el]['len']))
+        print( '\n   {} (len  = {}) = '.format(el,inFileListDict[el]['len']))
         if el == 'trackedFs' and not pEn:
             print( '   Not printed.  Use /p cmd line arg.')
             continue
@@ -275,9 +299,9 @@ def printFileLstDict(inFileListDict, pEn):
 def exitOnErrorsInFileLstDict(inFileListDict):
     print()
     doExit = False
-    for k,v in inFileListDict.items():
+    for kk,v in inFileListDict.items():
         if v['sts']:
-            print( ' {:23} error = {}'.format(k, v['sts']))
+            print( ' {:23} error = {}'.format(kk, v['sts']))
             erMsgLines = v['stdE'].split('\n')
             for errLine in  erMsgLines:
                 print('     {}'.format(errLine))
@@ -315,14 +339,14 @@ def lookForDiffs( dirsToComp, fLstStr ):
 
     for comb in combSet:
 
-        combAsStr0    = str(comb[0])
-        combAsStr1    = str(comb[1])
+        combAsStr0   = str(comb[0])
+        combAsStr1   = str(comb[1])
 
-        slashIndeces0 = [idx for idx,ch in enumerate(combAsStr0) if ch == slash]
-        slashIndeces1 = [idx for idx,ch in enumerate(combAsStr1) if ch == slash] 
+        slashIndeces0= [idx for idx,ch in enumerate(combAsStr0) if ch==slash]
+        slashIndeces1= [idx for idx,ch in enumerate(combAsStr1) if ch==slash]
 
-        comb0Root     = combAsStr0[ slashIndeces0[-1]: ]
-        comb1Root     = combAsStr1[ slashIndeces1[-1]: ]
+        comb0Root    = combAsStr0[ slashIndeces0[-1]: ]
+        comb1Root    = combAsStr1[ slashIndeces1[-1]: ]
 
         for file in fLstPath:
 
@@ -333,7 +357,9 @@ def lookForDiffs( dirsToComp, fLstStr ):
             text1 = f1.read_text( encoding='utf-8' )
             equal = text0 == text1
 
-            pStr0 = '   {}\\{}{}'.format( comb0Root, file, (width-len(comb0Root)-len(str(file))) * ' ' )
+            pStr0 = '   {}\\{}{}'.format( comb0Root, file,
+                        (width-len(comb0Root)-len(str(file))) * ' ' )
+
             pStr1 = '   {}\\{}'.format(   comb1Root, file )
 
             print(pStr0, end ='')
@@ -347,7 +373,6 @@ def lookForDiffs( dirsToComp, fLstStr ):
         print('  ##########')
 #############################################################################
 
-
 if __name__ == '__main__':
 
     #runCommandTst()
@@ -359,19 +384,65 @@ if __name__ == '__main__':
     prnEn      = (len(userArgs) > 0 and '/p' in userArgs)
 
     print( '\n Building Paths' )
-    spiClockDir   = Path( r'C:\01-home\14-python\gitTrackedCode\spiClock' )
-    sprinkler2Dir = Path( r'C:\01-home\14-python\gitTrackedCode\sprinkler2' )
-    sharedDir     = Path( r'C:\01-home\14-python\gitTrackedCode\sharedClientServerCode' )
-    printPathInfo(spiClockDir,sprinkler2Dir,sharedDir)
+    spiClockDir   = \
+        Path( r'C:\01-home\14-python\gitTrackedCode\spiClock' )
+    sprinkler2Dir = \
+        Path( r'C:\01-home\14-python\gitTrackedCode\sprinkler2' )
+    sharedDir     = \
+        Path( r'C:\01-home\14-python\gitTrackedCode\sharedClientServerCode' )
+    #printPathInfo(spiClockDir,sprinkler2Dir,sharedDir)
+    #########################################
+
+    projDict = {
+    'spiClock'  :
+    {'dir': spiClockDir,  'verNumFile' : 'cmdVectors.py', 'active' : False },
+
+    'sprinkler2':
+    {'dir': sprinkler2Dir,'verNumFile' : 'cmdVectors.py', 'active' : False },
+
+    'shared'    :
+    {'dir': sharedDir,    'verNumFile' : 'fileIO.py',     'active' : False }
+
+    }
+    #pp.pprint(projDict)
+
+    print( '\n Which project do you want to release.' )
+    keyLst = list(projDict.keys())
+    for idx,k in enumerate(keyLst):
+        print( '  {} - {}'.format( idx, k ) )
+
+    while True:
+        choice = input( '  Enter project number (or q (quit)) --> ' )
+        if choice == 'q':
+            print()
+            sys.exit()
+        try:
+            choiceInt = int(choice)
+        except ValueError:
+            print( '  Must enter an integer' )
+            continue
+        else:
+            if choiceInt not in range(0,len(projDict)):
+                print( '  Invalid choice integer' )
+                continue
+        break
+
+    print( '\n Releasing {}\n'.format(projDict[keyLst[choiceInt]]['dir']) )
+    os.chdir(projDict[keyLst[choiceInt]]['dir'])
+    projDict[keyLst[choiceInt]]['active'] = True
+    fileWithVerNumInIt = projDict[keyLst[choiceInt]]['verNumFile']
+    #print( ' Current working directory: {}'.format(Path.cwd() ))
     #########################################
 
     print( '\n Getting changed and untracked files.' )
-    fLstDict = getFileLstDict()
+    fLstDict = getFileLstDict(projDict)
     printFileLstDict( fLstDict, prnEn )
     exitOnErrorsInFileLstDict( fLstDict )
 
-    lookForDiffs( [sharedDir, spiClockDir, sprinkler2Dir], fLstDict['expectedUntrackedFs']['fLst'])
-    #sys.exit()
+    lookForDiffs( [ sharedDir, spiClockDir, sprinkler2Dir],
+                    fLstDict['expectedUntrackedFs']['fLst'
+                  ]
+    )
     #########################################
 
     if fLstDict['unexpectedUntrackedFs']['len'] > 0:
@@ -384,19 +455,21 @@ if __name__ == '__main__':
 
     if fLstDict['changedTrackedFs']['len'] == 0:
         print( ' No tracked/changed files present.' )
-        print( ' Continuing will bump rev and thus cmdVectors.py will change.' )
+        print( ' Continue will bump rev and thus {} will change.'.\
+            format(fileWithVerNumInIt))
         goOn = input( '   Continue (y/n)? -> ' )
         if goOn != 'y':
             sys.exit()
     #########################################
 
     print( '\n Getting curr/new Version Number and Date' )
-    fileWithVerNumInIt = 'cmdVectors.py' # pylint: disable=C0103
 
     if fileWithVerNumInIt not in fLstDict['changedTrackedFs']['fLst']:
         print( '   Adding {} to changedTrackedFs'.format(fileWithVerNumInIt))
-        fLstDict['changedTrackedFs']['fLst'].append('cmdVectors.py')
-        fLstDict['changedTrackedFs']['len'] = fLstDict['changedTrackedFs']['len'] + 1
+        fLstDict['changedTrackedFs']['fLst'].append(fileWithVerNumInIt)
+
+        fLstDict['changedTrackedFs']['len'] = \
+            fLstDict['changedTrackedFs']['len'] + 1
 
     curVerStr, pcntChanged, newVerStr = \
     getVerNums( fileWithVerNumInIt,
@@ -418,10 +491,10 @@ if __name__ == '__main__':
         sys.exit()
     #########################################
 
-    print( '\n Updating app Version and Date in {}'.format(fileWithVerNumInIt) )
+    print( '\n Updating app Ver and Date in {}'.format(fileWithVerNumInIt) )
     fileToChangeVerNumIn = Path( fileWithVerNumInIt )
     text = fileToChangeVerNumIn.read_text(encoding='utf-8')
-    new_text = re.sub( r"VER = .*", f"VER = '{newVerStr} - {date}'", text ) # pylint: disable=W1405
+    new_text=re.sub(r"VER = .*", f"VER = '{newVerStr} - {date}'",text) # pylint: disable=W1405
     fileToChangeVerNumIn.write_text(new_text, encoding='utf-8')
     #########################################
 
@@ -429,7 +502,6 @@ if __name__ == '__main__':
     cmdBaseLst = [ 'git', 'add' ]
     for f in fLstDict['changedTrackedFs']['fLst']:
         cmd = cmdBaseLst + [f]
-        print('   {}'.format(' '.join(cmd)))
         hasErr, stdO, stdE = runCommand(cmd)
         printStdOutOrStdErr( hasErr, stdO, stdE )
     #########################################
@@ -440,7 +512,6 @@ if __name__ == '__main__':
 
     print( '\n Committing.' )
     cmd = [ 'git', 'commit', '--no-verify', '-m', commitTxtWithQuotes  ]
-    print('   {}'.format(' '.join(cmd)))
     hasErr, stdO, stdE = runCommand(cmd)
     printStdOutOrStdErr( hasErr, stdO, stdE )
     #########################################
@@ -451,15 +522,17 @@ if __name__ == '__main__':
     #########################################
 
     print( '\n Setting GitHub URL.' )
-    cmd = ['git', 'remote', 'set-url', 'origin', 'https://github.com/sgarrow/spiClock.git']
-    print('   {}'.format(' '.join(cmd)))
+
+    cmd = [ 'git', 'remote', 'set-url', 'origin',
+            'https://github.com/sgarrow/spiClock.git'
+    ]
+
     hasErr, stdO, stdE = runCommand(cmd)
     printStdOutOrStdErr( hasErr, stdO, stdE )
     #########################################
 
     print( '\n Pushing to GitHub.' )
-    cmd = ['git', 'push', '-u', 'origin', 'main'                                   ]
-    print('   {}'.format(' '.join(cmd)))
+    cmd = ['git', 'push', '-u', 'origin', 'main']
     hasErr, stdO, stdE = runCommand(cmd)
     printStdOutOrStdErr( hasErr, stdO, stdE )
 #############################################################################
