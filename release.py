@@ -14,16 +14,14 @@ def mapTo2D(  flatList, numCols ):
     return twoD
 #############################################################################
 
-def printPathInfo(spiClockD,sprinkler2D,sharedD):
+def printPathInfo(inPathInfo):
     print()
-    print( ' spiClockDir   = {}'.format(spiClockD   ))
-    print( '   spiClockDir.name   = {}'.format(spiClockD.name   ))
-    print( '   spiClockDir.stem   = {}'.format(spiClockD.stem   ))
-    print( '   spiClockDir.suffix = {}'.format(spiClockD.suffix ))
-    print( '   spiClockDir.anchor = {}'.format(spiClockD.anchor ))
-    print( '   spiClockDir.parent = {}'.format(spiClockD.parent ))
-    print( ' sprinkler2Dir = {}'.format(sprinkler2D ))
-    print( ' sharedDir     = {}'.format(sharedD     ))
+    print( ' inPathInfo   = {}'.format(inPathInfo   ))
+    print( '   inPathInfo.name   = {}'.format(inPathInfo.name   ))
+    print( '   inPathInfo.stem   = {}'.format(inPathInfo.stem   ))
+    print( '   inPathInfo.suffix = {}'.format(inPathInfo.suffix ))
+    print( '   inPathInfo.anchor = {}'.format(inPathInfo.anchor ))
+    print( '   inPathInfo.parent = {}'.format(inPathInfo.parent ))
     print()
 #############################################################################
 
@@ -375,37 +373,38 @@ def lookForDiffs( dirsToComp, fLstStr ):
 
 if __name__ == '__main__':
 
-    #runCommandTst()
-    #tstMoveOrCopyFiles()
-
+    ### Get Command Line Args.
     arguments  = sys.argv
     scriptName = arguments[0]
     userArgs   = arguments[1:]
     prnEn      = (len(userArgs) > 0 and '/p' in userArgs)
-
-    print( '\n Building Paths' )
-    spiClockDir   = \
-        Path( r'C:\01-home\14-python\gitTrackedCode\spiClock' )
-    sprinkler2Dir = \
-        Path( r'C:\01-home\14-python\gitTrackedCode\sprinkler2' )
-    sharedDir     = \
-        Path( r'C:\01-home\14-python\gitTrackedCode\sharedClientServerCode' )
-    #printPathInfo(spiClockDir,sprinkler2Dir,sharedDir)
     #########################################
 
+    ### Build Project Dictionary
     projDict = {
-    'spiClock'  :
-    {'dir': spiClockDir,  'verNumFile' : 'cmdVectors.py', 'active' : False },
-
+    'spiClock':
+        {'dir' :Path( r'C:\01-home\14-python\gitTrackedCode\spiClock'),
+         'verNumFile':'cmdVectors.py',
+         'active'    :False,
+         'url'       :'https://github.com/sgarrow/spiClock.git'
+        },
     'sprinkler2':
-    {'dir': sprinkler2Dir,'verNumFile' : 'cmdVectors.py', 'active' : False },
-
-    'shared'    :
-    {'dir': sharedDir,    'verNumFile' : 'fileIO.py',     'active' : False }
-
+        {'dir' :Path( r'C:\01-home\14-python\gitTrackedCode\sprinkler2'),
+         'verNumFile':'cmdVectors.py',
+         'active'    :False,
+         'url'       :'https://github.com/sgarrow/sprinkler2.git'
+        },
+    'shared':
+        {'dir' : Path( r'C:\01-home\14-python\gitTrackedCode\sharedClientServerCode'),
+         'verNumFile':'fileIO.py',
+         'active'    :False,
+         'url'       :'https://github.com/sgarrow/sharedClientServerCode.git'
+        },
     }
     #pp.pprint(projDict)
+    #########################################
 
+    ### Get Desired Project To Release
     print( '\n Which project do you want to release.' )
     keyLst = list(projDict.keys())
     for idx,k in enumerate(keyLst):
@@ -426,53 +425,47 @@ if __name__ == '__main__':
                 print( '  Invalid choice integer' )
                 continue
         break
-
-    print( '\n Releasing {}\n'.format(projDict[keyLst[choiceInt]]['dir']) )
-    os.chdir(projDict[keyLst[choiceInt]]['dir'])
-    projDict[keyLst[choiceInt]]['active'] = True
-    fileWithVerNumInIt = projDict[keyLst[choiceInt]]['verNumFile']
-    #print( ' Current working directory: {}'.format(Path.cwd() ))
     #########################################
 
+    ### Set "Working Variables" (from proj dict) and set cwd.
+    projDict[keyLst[choiceInt]]['active'] = True
+    projFileWithVerNumInIt = projDict[keyLst[choiceInt]]['verNumFile']
+    projGithubUrl          = projDict[keyLst[choiceInt]]['url']
+    projDir                = projDict[keyLst[choiceInt]]['dir']
+    os.chdir(projDir)
+    printPathInfo(projDir)
+    print( '\n Releasing {}\n'.format(projDir) )
+    print( ' Current working directory: {}'.format(Path.cwd() ))
+    #########################################
+
+    ### Get changed,untracked,etc files of selected project.
     print( '\n Getting changed and untracked files.' )
     fLstDict = getFileLstDict(projDict)
     printFileLstDict( fLstDict, prnEn )
     exitOnErrorsInFileLstDict( fLstDict )
 
-    lookForDiffs( [ sharedDir, spiClockDir, sprinkler2Dir],
-                    fLstDict['expectedUntrackedFs']['fLst'
-                  ]
-    )
-    #########################################
-
     if fLstDict['unexpectedUntrackedFs']['len'] > 0:
         print( '\n unexpected/untracked files present.')
         print( '   Continuing will not add them.')
         print( '   Add from cmd line like this <git add fName>')
-        goOn = input( '   Continue (y/n)? -> ' )
+        goOn = input( '   Continue (y/n)? -> ' )  # <-- EXIT ?
         if goOn != 'y':
             sys.exit()
 
     if fLstDict['changedTrackedFs']['len'] == 0:
         print( ' No tracked/changed files present.' )
         print( ' Continue will bump rev and thus {} will change.'.\
-            format(fileWithVerNumInIt))
-        goOn = input( '   Continue (y/n)? -> ' )
+            format(projFileWithVerNumInIt))
+        goOn = input( '   Continue (y/n)? -> ' )  # <-- EXIT ?
         if goOn != 'y':
             sys.exit()
     #########################################
 
+    #### Get current version num, calculate new version num.
     print( '\n Getting curr/new Version Number and Date' )
 
-    if fileWithVerNumInIt not in fLstDict['changedTrackedFs']['fLst']:
-        print( '   Adding {} to changedTrackedFs'.format(fileWithVerNumInIt))
-        fLstDict['changedTrackedFs']['fLst'].append(fileWithVerNumInIt)
-
-        fLstDict['changedTrackedFs']['len'] = \
-            fLstDict['changedTrackedFs']['len'] + 1
-
     curVerStr, pcntChanged, newVerStr = \
-    getVerNums( fileWithVerNumInIt,
+    getVerNums( projFileWithVerNumInIt,
                 fLstDict['changedTrackedPyFs']['len'],
                 fLstDict['trackedPyFs']['len']
     )
@@ -488,17 +481,25 @@ if __name__ == '__main__':
         print( '\n   Error getting ver num (search string not found).\n')
     if pcntChanged < 0:
         print( ' Exiting, RE: Error.\n' )
-        sys.exit()
+        sys.exit()  # <-- AUTO-EXIT ON ERROR !!
     #########################################
 
-    print( '\n Updating app Ver and Date in {}'.format(fileWithVerNumInIt) )
-    fileToChangeVerNumIn = Path( fileWithVerNumInIt )
+    #### Write new ver num into source, add to change fLst if appropriate.
+    print( '\n Updating app Ver and Date in {}'.format(projFileWithVerNumInIt) )
+    fileToChangeVerNumIn = Path( projFileWithVerNumInIt )
     text = fileToChangeVerNumIn.read_text(encoding='utf-8')
     new_text=re.sub(r"VER = .*", f"VER = '{newVerStr} - {date}'",text) # pylint: disable=W1405
     fileToChangeVerNumIn.write_text(new_text, encoding='utf-8')
+
+    if projFileWithVerNumInIt not in fLstDict['changedTrackedFs']['fLst']:
+        print( '   Adding {} to changedTrackedFs'.format(projFileWithVerNumInIt))
+        fLstDict['changedTrackedFs']['fLst'].append(projFileWithVerNumInIt)
+
+        fLstDict['changedTrackedFs']['len'] = \
+            fLstDict['changedTrackedFs']['len'] + 1
     #########################################
 
-    print( '\n Adding appropriate files.' )
+    print( '\n GIT Adding appropriate files.' )
     cmdBaseLst = [ 'git', 'add' ]
     for f in fLstDict['changedTrackedFs']['fLst']:
         cmd = cmdBaseLst + [f]
@@ -506,11 +507,11 @@ if __name__ == '__main__':
         printStdOutOrStdErr( hasErr, stdO, stdE )
     #########################################
 
-    commitTxt = input( '\n Enter commit message -> ' )
+    commitTxt = input( '\n Enter GIT commit message -> ' )
     commitTxtWithQuotes = r'"{}. {}"'.format( newVerStr, commitTxt )
     #########################################
 
-    print( '\n Committing.' )
+    print( '\n GIT Committing.' )
     cmd = [ 'git', 'commit', '--no-verify', '-m', commitTxtWithQuotes  ]
     hasErr, stdO, stdE = runCommand(cmd)
     printStdOutOrStdErr( hasErr, stdO, stdE )
@@ -521,20 +522,25 @@ if __name__ == '__main__':
     #@rem git remote add origin https://github.com/sgarrow/spiClock.git
     #########################################
 
-    print( '\n Setting GitHub URL.' )
+    print( '\n GIT Setting GitHub URL.' )
 
-    cmd = [ 'git', 'remote', 'set-url', 'origin',
-            'https://github.com/sgarrow/spiClock.git'
-    ]
-
+    cmd = [ 'git', 'remote', 'set-url', 'origin', projGithubUrl ]
     hasErr, stdO, stdE = runCommand(cmd)
     printStdOutOrStdErr( hasErr, stdO, stdE )
     #########################################
 
-    print( '\n Pushing to GitHub.' )
+    print( '\n GIT Pushing to GitHub.' )
     cmd = ['git', 'push', '-u', 'origin', 'main']
     hasErr, stdO, stdE = runCommand(cmd)
     printStdOutOrStdErr( hasErr, stdO, stdE )
 #############################################################################
 
     print( '\n Release Successful. \n' )
+
+    #lookForDiffs( [ sharedDir, spiClockDir, sprinkler2Dir],
+    #                fLstDict['expectedUntrackedFs']['fLst'
+    #              ]
+    #)
+
+    #runCommandTst()
+    #tstMoveOrCopyFiles()
