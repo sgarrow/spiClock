@@ -1,9 +1,11 @@
 import time
+import logging
 import multiprocessing as mp
 import lcdProcess      as lp
 import spiRoutines     as sr
 import clockProcess    as cp
 from   utils import procPidDict
+lg = logging.getLogger(__name__)
 ######################################################################
 ######################################################################
 
@@ -172,11 +174,12 @@ def stopClk(prmLst):
     if procPidDict['clockCntrProc'] is not None:
         clkCq.put('stop')                   # Queue Put.
         clkRsp = clkRq.get()                # Queue Get Block.
-        print(' stopClk: clkRq.get = {}'.format(clkRsp))
+        lg.info('stopClk: clkRq.get = %s', clkRsp)
+        #print(' stopClk: clkRq.get = {}'.format(clkRsp))
         procPidDict['clockCntrProc'] = None
         rspStr += ' clockCntrProc stopped.'
     else:
-        rspStr += ' clockCntrProc not running.'
+        rspStr += 'clockCntrProc not running.'
 
     # There may be a stale response in the lcdRq that was
     # meant for clockCntrProc which was killed above.
@@ -187,7 +190,8 @@ def stopClk(prmLst):
             try:
                 time.sleep(.1)
                 lcdRsp = lcdRq.get_nowait() # Queue Get - No Wait.
-                print(' stopClk: lcdRq.get = {}'.format(lcdRsp))
+                lg.info('stopClk: lcdRq.get = %s', lcdRsp)
+                #print(' stopClk: lcdRq.get = {}'.format(lcdRsp))
                 if matchStr in lcdRsp:
                     break
             except mp.queues.Empty:

@@ -1,13 +1,14 @@
 import time
+import logging
 import spiRoutines       as sr
 import styleMgmtRoutines as sm
+lg = logging.getLogger(__name__)
 #############################################################################
 #############################################################################
 
 def lcdUpdateProc(procName,qLst,mpSharedDict,mpSharedDictLock): # pylint: disable=R0912, disable=R0915
-    debug = True
-    debug = False
-    if debug: print(' {} {}'.format(procName, 'starting'))
+
+    lg.info('%s %s', procName, 'starting')
 
     lcdCq, lcdRq = qLst[0], qLst[1]  # clkCq, clkRq = qLst[2], qLst[3]
 
@@ -54,7 +55,7 @@ def lcdUpdateProc(procName,qLst,mpSharedDict,mpSharedDictLock): # pylint: disabl
             continue
 
 
-        if debug: print('lcdCq.qsize =', lcdCq.qsize())
+        #print('lcdCq.qsize =', lcdCq.qsize())
         data = lcdCq.get()   # Block here. Get digit/stop from clk/user.
         kStart = time.perf_counter()
 
@@ -68,11 +69,11 @@ def lcdUpdateProc(procName,qLst,mpSharedDict,mpSharedDictLock): # pylint: disabl
                 rspStr    = rspLst[0]
                 digitDict = rspLst[1]
                 refreshAllScreens = True
-            if debug: print('got str = {}'.format(data))
+            #print('got str = {}'.format(data))
 
         elif isinstance(data,dict):
             if 'hrMSD' in data:
-                if debug: print('got timeDict')
+                #print('got timeDict')
                 gotTime = True
                 timeDict = data
                 if refreshAllScreens:
@@ -80,7 +81,7 @@ def lcdUpdateProc(procName,qLst,mpSharedDict,mpSharedDictLock): # pylint: disabl
                         v['updated'] = True
                     refreshAllScreens = False
         else:
-            if debug: print('ERROR')
+            lg.exception('Data in lcdCq is not a str or dict.')
 
         if gotStop:
             break
@@ -116,6 +117,7 @@ def lcdUpdateProc(procName,qLst,mpSharedDict,mpSharedDictLock): # pylint: disabl
                         hmsChangeStr, displaysUpdatedStr ))
 
     lcdRq.put(' {} {}'.format(procName, 'exiting'))  # Put rsp back to user.
+    lg.info('%s %s', procName, 'stopping')
 #############################################################################
 
 if __name__ == '__main__':

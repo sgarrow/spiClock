@@ -151,7 +151,7 @@ def setStyleDriver(prmLst):
     if dsrdStyleIdx != 'None':
         dsrdStyleIdx = dsrdStyleIdx[0]
 
-    # print('dsrdStyleIdx = {}'.format(dsrdStyleIdx))
+    #print('dsrdStyleIdx = {}'.format(dsrdStyleIdx))
     # Returns a rps str and a digitStyleStr, like 'blackOnWhite'.
     # Just sets the name doesn't activate it, that's done by loadActiveStyle.
 

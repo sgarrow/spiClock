@@ -1,10 +1,12 @@
-import socket                # For creating and managing sockets.
 import time
+import socket                # For creating and managing sockets.
+import logging
 import multiprocessing as mp
 import cmdVectors      as cv # Contains vectors to "worker" functions.
-import spiRoutines     as sr
 import makeScreen      as ms
+import spiRoutines     as sr
 specialCmds = ['up']
+lg = logging.getLogger(__name__)
 #############################################################################
 
 def getMultiProcSharedDictAndLock():
@@ -29,7 +31,7 @@ def getMultiProcSharedDictAndLock():
 def ksCleanup(mpSharedDict, mpSharedDictLock):
     rspStr  = ''
     rspStr += cv.vector('pc',  mpSharedDict, mpSharedDictLock) + '\n'
-    rspStr += '\n\n' + cv.vector('sb 0', mpSharedDict, mpSharedDictLock) + '\n'
+    rspStr += cv.vector('sb 0', mpSharedDict, mpSharedDictLock)
     return rspStr
 #############################################################################
 
@@ -38,7 +40,7 @@ def hwInit():
     sr.hwReset()           # HW Reset. Common pin to all dislays.
     for theKey in kLst:
         sr.swReset(theKey) # SW Reset and display initialization.
-    print(' LCD hw and sw has been reset.')
+    lg.info('LCD hw and sw has been reset.')
 #############################################################################
 
 def displayLanIp(inLanIp):
@@ -65,11 +67,14 @@ def displayLanIp(inLanIp):
 
     appV = [ x.strip() for x in appVerNum.split('.') ]
     srvV = [ x.strip() for x in srvVerNum.split('.') ]
-    print()
 
-    print(' LAN IP  as list: {}'.format( lanIp  ))
-    print(' APP VER as list: {}'.format( appV ))
-    print(' SRV VER as list: {}'.format( srvV ))
+    #print(' LAN IP  as list: {}'.format( lanIp ))
+    #print(' APP VER as list: {}'.format( appV  ))
+    #print(' SRV VER as list: {}'.format( srvV  ))
+
+    lg.info('LAN IP : %s', lanIp )
+    lg.info('APP VER: %s', appV  )
+    lg.info('SRV VER: %s', srvV  )
 
     grey  = (128,128,128)
     blk   = (255,255,255)

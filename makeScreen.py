@@ -1,10 +1,12 @@
 import os
 import time
 import pickle
+import logging
 from PIL import Image, ImageDraw, ImageFont # pylint: disable=E0401
 import styleMgmtRoutines as sm
 import spiRoutines       as sr
 import utils             as ut
+lg = logging.getLogger(__name__)
 #############################################################################
 #############################################################################
 
@@ -187,6 +189,7 @@ def mkDigPikFile( styleName, textLst, textColor, backgroundColor ):
         tmpStr = ' '.join(map(str, backgroundColor))
         handle.write( tmpStr )
     #print(' {} saved.'.format(fName))
+    lg.info('%s made.', styleName)
 
     return ['{} made.'.format(styleName)]
 #############################################################################
@@ -423,7 +426,7 @@ if __name__ == '__main__':
 
     resp = mkDigPikFile('chinese', chineseTxtLst, black, white)
 
-    print(resp)
+    #lg.info('%s', resp)
 
     mnDirPath = 'digitScreenStyles' # pylint: disable=C0103
     try:
@@ -431,12 +434,12 @@ if __name__ == '__main__':
             if fileName.endswith('pickle'):
                 mnFullFileName = os.path.join(mnDirPath, fileName)
                 if os.path.isfile(mnFullFileName):
-                    print('Processing file: {}'.format(mnFullFileName))
+                    lg.info('Processing file: %s', mnFullFileName)
                     with open(mnFullFileName, 'rb') as fn:
                         mnStyleDict = pickle.load(fn)
-                        print(mnStyleDict.keys())
+                        lg.info('%s', mnStyleDict.keys())
     except FileNotFoundError:
-        print(f"Error: Directory '{mnDirPath}' not found.")
+        lg.exception('Error: Directory %s not found.', mnDirPath)
     except Exception as e: # pylint: disable=W0718
-        print(f"An error occurred: {e}")
+        lg.exception('An error occurred: %s', e)
 #############################################################################

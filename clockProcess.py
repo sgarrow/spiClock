@@ -1,6 +1,8 @@
 import time
+import logging
 import datetime          as dt
 import styleMgmtRoutines as sm
+lg = logging.getLogger(__name__)
 #############################################################################
 #############################################################################
 
@@ -120,6 +122,8 @@ def updateCntr(timeDict,mpSharedDict,mpSharedDictLock):
 
 def clockCntrProc( procName, qLst, startTime, mpSharedDict, mpSharedDictLock ):
 
+    lg.info('%s %s', procName, 'starting')
+
     lcdCq, lcdRq, clkCq, clkRq = qLst[0], qLst[1], qLst[2], qLst[3]
     calTime          =  1
     dsrNumDataPoints = 20
@@ -177,16 +181,17 @@ def clockCntrProc( procName, qLst, startTime, mpSharedDict, mpSharedDictLock ):
         #    error = 1-actTime
         #    cumSumError += error
         #
-        #    print(' {:02}:{:02}:{:02} =? {}'.\
+        #    #print(' {:02}:{:02}:{:02} =? {}'.\
         #            format( hours, minutes, seconds, currTime ))
         #
-        #    print(' time (req,act) = ({:.6f}. {:.6f}) sec. Num points = {}.'.\
+        #    #print(' time (req,act) = ({:.6f}. {:.6f}) sec. Num points = {}.'.\
         #            format( calTime, actTime, actNumDataPoints ))
         #
-        #    print(' Error = {:10.6f}. cumSumError = {:10.6f}.'.\
+        #    #print(' Error = {:10.6f}. cumSumError = {:10.6f}.'.\
         #            format( error, cumSumError ))
 
     clkRq.put(' {} {}'.format(procName, 'exiting'))  # Put rsp back to user.
+    lg.info('%s %s', procName, 'stopping')
 ##############################################################################
 
 if __name__ == '__main__':
