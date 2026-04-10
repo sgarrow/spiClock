@@ -34,7 +34,7 @@ def dummy():
 
 # Version number of the "app".
 # As opposed to the version number of the "server" which is in fileIO.py
-VER = 'v1.7.0 - 08-Apr-2026'
+VER = 'v1.7.1 - 09-Apr-2026'
 def getVer():
     appVer = VER
     srvVer = fio.VER
