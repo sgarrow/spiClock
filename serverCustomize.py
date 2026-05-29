@@ -99,6 +99,10 @@ def displayLanIp(inLanIp):
     sr.setBkLight([1])    # Turn on (all) backlights.
     for did,pl in zip(kLst,pixLst):
         sr.setEntireDisplay(did, pl, sr.sendDat2ToSt7789)
+    time.sleep(3)
+    for did in kLst:
+        print('gammaInit', did)
+        sr.waveshareMoreSwReset(did)
 #############################################################################
 
 def specialCmdHndlr(inParms, clientSocket):

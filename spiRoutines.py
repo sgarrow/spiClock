@@ -85,24 +85,95 @@ def hwReset():
     return ['hwReset done.']
 #############################################################################
 
+def waveshareMoreSwReset(displayID):
+    sendCmdToSt7789(displayID,  0xB7 ) # Gate Control
+    sendDatToSt7789(displayID, [0x35])
+
+    sendCmdToSt7789(displayID,  0xBB ) # VCOM Setting
+    sendDatToSt7789(displayID, [0x1F]) # Defaut 0x20.
+
+    sendCmdToSt7789(displayID,  0xC0 ) # LCM Control, works w/ cmd 0x3A, above.
+    sendDatToSt7789(displayID, [0x2C]) # Default Value = 2c
+
+    sendCmdToSt7789(displayID,  0xC2 ) # VDV and VRH Command Enable
+    sendDatToSt7789(displayID, [0x01])
+
+    sendCmdToSt7789(displayID,  0xC3 ) # VRH Set
+    sendDatToSt7789(displayID, [0x12])
+
+    sendCmdToSt7789(displayID,  0xC4 ) # VDV Set
+    sendDatToSt7789(displayID, [0x20])
+
+    sendCmdToSt7789(displayID,  0xB2 ) #  Porch Setting
+    sendDatToSt7789(displayID, [0x0C])
+    sendDatToSt7789(displayID, [0x0C])
+    sendDatToSt7789(displayID, [0x00])
+    sendDatToSt7789(displayID, [0x33])
+    sendDatToSt7789(displayID, [0x33])
+
+    #sendCmdToSt7789(displayID,  0xC6 ) # Frame Rate Control in Normal Mode
+    #sendDatToSt7789(displayID, [0x00]) # Waveshare had it at 0x0F.
+                                        # but didn't set the other two parms.
+
+    sendCmdToSt7789(displayID,  0xD0 ) # Power Control 1
+    sendDatToSt7789(displayID, [0xA4]) # default a4,a1
+    sendDatToSt7789(displayID, [0xA1])
+
+    sendCmdToSt7789(displayID,  0xE0 ) # Positive Voltage Gamma Control
+    sendDatToSt7789(displayID, [0xD0])
+    sendDatToSt7789(displayID, [0x08])
+    sendDatToSt7789(displayID, [0x11])
+    sendDatToSt7789(displayID, [0x08])
+    sendDatToSt7789(displayID, [0x0C])
+    sendDatToSt7789(displayID, [0x15])
+    sendDatToSt7789(displayID, [0x39])
+    sendDatToSt7789(displayID, [0x33])
+    sendDatToSt7789(displayID, [0x50])
+    sendDatToSt7789(displayID, [0x36])
+    sendDatToSt7789(displayID, [0x13])
+    sendDatToSt7789(displayID, [0x14])
+    sendDatToSt7789(displayID, [0x29])
+    sendDatToSt7789(displayID, [0x2D])
+
+    sendCmdToSt7789(displayID,  0xE1 ) # Negative Voltage Gamma Control
+    sendDatToSt7789(displayID, [0xD0])
+    sendDatToSt7789(displayID, [0x08])
+    sendDatToSt7789(displayID, [0x10])
+    sendDatToSt7789(displayID, [0x08])
+    sendDatToSt7789(displayID, [0x06])
+    sendDatToSt7789(displayID, [0x06])
+    sendDatToSt7789(displayID, [0x39])
+    sendDatToSt7789(displayID, [0x44])
+    sendDatToSt7789(displayID, [0x51])
+    sendDatToSt7789(displayID, [0x0B])
+    sendDatToSt7789(displayID, [0x16])
+    sendDatToSt7789(displayID, [0x14])
+    sendDatToSt7789(displayID, [0x2F])
+    sendDatToSt7789(displayID, [0x31])
+
 def swReset(displayID):
     # Performs a software reset on the st7789v controller.
     # It also initializes the controller to the desired configuration.
     #print(' swReset {}'.format(displayID))
-    sendCmdToSt7789( displayID, 0x01 )  # Software reset.
+    sendCmdToSt7789( displayID, 0x01 ) # Software reset.
     time.sleep(0.2)
 
-    sendCmdToSt7789(displayID,  0x11 )  # Sleep out.
+    sendCmdToSt7789(displayID,  0x11 ) # Sleep out.
     time.sleep(0.2)
 
-    sendCmdToSt7789(displayID,  0x36 )  # Memory Data Access Control.
-    sendDatToSt7789(displayID, [0xC0])  # Set orientation to portrait mode
+    sendCmdToSt7789(displayID,  0x36 ) # Memory Data Access Control.
+    sendDatToSt7789(displayID, [0xC0]) # Set orientation to portrait mode
 
-    sendCmdToSt7789(displayID,  0x3A )  # Pixel Format to RGB565 (16-bit).
-    sendDatToSt7789(displayID, [0x05])
+    sendCmdToSt7789(displayID,  0x3A ) # Pixel Format to RGB565 (16-bit).
+    sendDatToSt7789(displayID, [0x05]) #  RGB565 (16-bit)
 
-    sendCmdToSt7789(displayID,  0x21 )  # Display Inversion Off
+    sendCmdToSt7789(displayID,  0x21 ) # Display Inversion Off
 
+    ####
+    #waveshareMoreSwReset(displayID) # Called in customizeServer.py from 'main'.
+    ####
+
+    #sendCmdToSt7789(displayID,  0x28 )  # Display Off
     sendCmdToSt7789(displayID,  0x29 )  # Display on.
     return ['swReset done.']
 #############################################################################
