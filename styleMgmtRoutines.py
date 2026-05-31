@@ -276,19 +276,18 @@ def getAllStyles():
         rgbFileNameLst      = [ f for f in fileNameLst if f.endswith('txt')]
 
         pikFileNameDicNoExt = dict(enumerate(pikFileNameLstNoExt))
-        rgbFileNameDic      = dict(enumerate(rgbFileNameLst))
 
         rgbValuesDict       = {}
-        for rgbs in rgbFileNameDic.values():
-            with open(dPath+'/'+rgbs, 'r',encoding='utf-8') as f:
+        for rgbFname in rgbFileNameLst:
+            with open(dPath+'/'+rgbFname, 'r',encoding='utf-8') as f:
                 line = f.readline()
-            rgbValuesDict[rgbs] = line
+            rgbValuesDict[rgbFname.split('.')[0]] = line
 
-        for k,v in pikFileNameDicNoExt.items():
-            rspStr += ' {:2} - {:18}'.format(k,v)
-            for k1,v1 in rgbValuesDict.items():
-                if v in k1:
-                    words = v1.split()
+        for styleIdx,styleName in pikFileNameDicNoExt.items():
+            rspStr += ' {:2} - {:18}'.format(styleIdx,styleName)
+            for styleRgbFileName,rgbNums in rgbValuesDict.items():
+                if styleName == styleRgbFileName:
+                    words = rgbNums.split()
                     for w in words:
                         rspStr += '{:>4}'.format(w)
                     rspStr += '\n'
