@@ -29,12 +29,12 @@ qs    = [ lcdCq, lcdRq, clkCq, clkRq ]
 # don't need a wrk funct, but because of way vectoring is done a func needs
 # to exist. This function is never called/runs.
 def dummy():
-    return
+    return ['close, ks, up or rbt command processed']
 #############################################################################
 
 # Version number of the "app".
 # As opposed to the version number of the "server" which is in fileIO.py
-VER = 'v1.7.6 - 30-May-2026'
+VER = 'v1.7.7 - 30-May-2026'
 def getVer():
     appVer = VER
     srvVer = fio.VER
