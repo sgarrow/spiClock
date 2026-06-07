@@ -140,5 +140,8 @@ def specialCmdHndlr(inParms, clientSocket):
         response = ' Srvr rcvd file {:>20}. {:4,d} pkts. {:7,d} bytes. {:5.3f} sec.\n'.\
             format(outFile, packetNum, totBytesRecvd, totRcvTime)
 
+    # ADD: Send response back to client
+    clientSocket.send(response.encode())
+
     return response
 #############################################################################
