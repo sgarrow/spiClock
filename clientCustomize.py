@@ -17,7 +17,7 @@ def uploadPic(clientSocket,cmd,file):
         fStat = os.stat(file)
     except FileNotFoundError:
         print(' \n ERROR: File {} was not found.\n'.format(file))
-        return
+        return False
     except OSError as e:
         print(' \n ERROR: Could not access file {}: {}\n'.format(file,e))
         return
@@ -48,7 +48,7 @@ def uploadPic(clientSocket,cmd,file):
     print(' Client sent file {} in {:,d} packets ({:,d} bytes).'.\
         format(file, numPacketsSent, numBytesSent))
 
-    return
+    return True
 #############################################################################
 
 def processSpecialCmd(funcName, clientSocket, inMsgLst):
@@ -84,16 +84,17 @@ def processSpecialCmd(funcName, clientSocket, inMsgLst):
     #print(' processSpecialCmd fileLst = {}'.format(fileLst))
 
     for f in fileLst:
-        uploadPic(clientSocket,cmd,f)
-
+        fileSent = uploadPic(clientSocket,cmd,f)
+        # Only read response if file was actually sent
+        if fileSent:
         # ADD: Read the server's response before next file
-        try:
-            print('Calling clientSocket.recv(1024)')
-            rsp = clientSocket.recv(1024)
-            print('clientSocket.recv(1024) done')
-            print(rsp.decode())
-        except socket.timeout:
-            print('Timeout waiting for server response')
+            try:
+                print('Calling clientSocket.recv(1024)')
+                rsp = clientSocket.recv(1024)
+                print('clientSocket.recv(1024) done')
+                print(rsp.decode())
+            except socket.timeout:
+                print('Timeout waiting for server response')
 
         time.sleep(.4)
 
