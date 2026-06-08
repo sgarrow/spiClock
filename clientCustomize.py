@@ -88,11 +88,15 @@ def processSpecialCmd(funcName, clientSocket, inMsgLst):
 
         # ADD: Read the server's response before next file
         try:
+            print('Calling clientSocket.recv(1024)')
             rsp = clientSocket.recv(1024)
+            print('clientSocket.recv(1024) done')
             print(rsp.decode())
         except socket.timeout:
             print('Timeout waiting for server response')
 
         time.sleep(.4)
+
+    print('processSpecialCmd returning')
     return
 #############################################################################
