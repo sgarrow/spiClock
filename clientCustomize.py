@@ -85,6 +85,14 @@ def processSpecialCmd(funcName, clientSocket, inMsgLst):
 
     for f in fileLst:
         uploadPic(clientSocket,cmd,f)
+
+        # ADD: Read the server's response before next file
+        try:
+            rsp = clientSocket.recv(1024)
+            print(rsp.decode())
+        except socket.timeout:
+            print('Timeout waiting for server response')
+
         time.sleep(.4)
     return
 #############################################################################
