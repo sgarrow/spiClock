@@ -1,3 +1,4 @@
+import socket
 import time
 import os
 from PIL import Image
@@ -20,7 +21,7 @@ def uploadPic(clientSocket,cmd,file):
         return False
     except OSError as e:
         print(' \n ERROR: Could not access file {}: {}\n'.format(file,e))
-        return
+        return False
 
     fSizeBytes    = fStat.st_size
 
@@ -33,7 +34,7 @@ def uploadPic(clientSocket,cmd,file):
 
     if (width,height) != (240,320):
         print(' ERROR.  Image must be 240x320 pixels.\n')
-        return
+        return False
 
     message = '{} {} {}'.format(cmd, file, fSizeBytes )
     clientSocket.send(message.encode())
@@ -45,10 +46,10 @@ def uploadPic(clientSocket,cmd,file):
         clientSocket.send(chunk)
         numPacketsSent += 1
         numBytesSent += len(chunk)
-    print(' Client sent file {} in {:,d} packets ({:,d} bytes).'.\
+    print(' Client sent file {:>20} in {:4,d} packets ({:7,d} bytes).'.\
         format(file, numPacketsSent, numBytesSent))
 
-    return True
+    return True # True that a file was actually sent.
 #############################################################################
 
 def processSpecialCmd(funcName, clientSocket, inMsgLst):
@@ -89,9 +90,7 @@ def processSpecialCmd(funcName, clientSocket, inMsgLst):
         if fileSent:
         # ADD: Read the server's response before next file
             try:
-                print('Calling clientSocket.recv(1024)')
                 rsp = clientSocket.recv(1024)
-                print('clientSocket.recv(1024) done')
                 print(rsp.decode())
             except socket.timeout:
                 print('Timeout waiting for server response')

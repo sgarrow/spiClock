@@ -137,7 +137,7 @@ def specialCmdHndlr(inParms, clientSocket):
                 #print('     {:6} of {:6} bytes'.\
                 #    format(totBytesRecvd, inNumBytes))
     if response == '':
-        response = ' Srvr rcvd file {:>20}. {:4,d} pkts. {:7,d} bytes. {:5.3f} sec.\n'.\
+        response = ' Server rcvd file {:>20} in {:4,d} packets ({:7,d} bytes). {:5.3f} sec.\n'.\
             format(outFile, packetNum, totBytesRecvd, totRcvTime)
 
     # ADD: Send response back to client
