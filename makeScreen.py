@@ -345,10 +345,26 @@ def repeatListToMatchLength(listToRepeat, targetList):
 
 def displayPics(prmLst):
 
-    dPath  = 'pics'
-    picLst = sorted(os.listdir(dPath))
+    dPath     = 'pics'
+    allPicLst = sorted(os.listdir(dPath))
+    picLst    = []
+
+    #print(allPicLst)
+    for p in allPicLst:
+        img           = Image.open('{}/{}'.format(dPath,p))
+        width, height = img.size
+        img.close()
+
+        #print('\n File {} is {}x{} pixels.'.\
+        #    format(p, width, height))
+
+        if (width,height) == (240,320):
+            picLst.append(p)
+    ###############
+
     if len(picLst) == 0:
         return [' No pics found.']
+
 
     mpSharedDict, mpSharedDictLock = prmLst[0], prmLst[1]
     rspStr = ut.getActThrds()
