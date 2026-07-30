@@ -34,7 +34,7 @@ def dummy():
 
 # Version number of the "app".
 # As opposed to the version number of the "server" which is in fileIO.py
-VER = 'v1.7.14 - 11-Jun-2026'
+VER = 'v1.7.15 - 29-Jul-2026'
 def getVer():
     appVer = VER
     srvVer = fio.VER
@@ -129,29 +129,21 @@ def vector(inputStr,mpSharedDict,mpSharedDictLock): # called from handleClient.
                 'menu' : 'Set Night Time'                        },
 
     # FILE COMMANDS
-    'ral'   : { 'func' : fio.readFile,
-                'parm' : ['appLog.txt',[5]],
-                'menu' : 'Read App Log File'                     },
+    'rlf'   : { 'func' : fio.readFile,
+                'parm' : ['logFile.txt',[5]],
+                'menu' : 'Read Log File'                         }, # Written by logger.
 
-    'rsl'   : { 'func' : fio.readFile,
-                'parm' : ['serverLog.txt',[5]],
-                'menu' : 'Read Srvr Log File'                    },
+    'ref'   : { 'func' : fio.readFile,
+                'parm' : ['exceptionFile.txt',[5]],
+                'menu' : 'Read Exception File'                   }, # Written by file redirect (cron)
 
-    'rse'   : { 'func' : fio.readFile,
-                'parm' : ['serverException.txt',[5]],
-                'menu' : 'Read Srvr Exc File'                    },
+    'clf'   : { 'func' : fio.clearFile,
+                'parm' : ['logFile.txt'],
+                'menu' : 'Clear Log File'                        },
 
-    'cal'   : { 'func' : fio.clearFile,
-                'parm' : ['appLog.txt'],
-                'menu' : 'Clr App Log File'                      },
-
-    'csl'   : { 'func' : fio.clearFile,
-                'parm' : ['serverLog.txt'],
-                'menu' : 'Clr Srvr Log File'                     },
-
-    'cse'   : { 'func' : fio.clearFile,
-                'parm' : ['serverException.txt'],
-                'menu' : 'Clr Srvr Except File'                  },
+    'cef'   : { 'func' : fio.clearFile,
+                'parm' : ['exceptionFile.txt'],
+                'menu' : 'Clear Exception File'                  },
 
     # OTHER COMMANDS
     'sc'    : { 'func' : cr.startClk,
@@ -268,7 +260,7 @@ def vector(inputStr,mpSharedDict,mpSharedDictLock): # called from handleClient.
             and len(optArgsStr) > 0:
             params[0] = optArgsStr
 
-        elif choice in ['ral','rsl','rse'] \
+        elif choice in ['rlf','ref'] \
             and len(optArgsStr) > 0:
             params[1] = optArgsStr
 
