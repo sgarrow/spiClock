@@ -6,6 +6,8 @@ function "vector" (in this file) and the appropriate "worker" function
 is then vectored to.
 '''
 
+import sys
+import logging
 import multiprocessing   as mp
 import styleMgmtRoutines as sm
 import startStopClock    as cr
@@ -16,6 +18,7 @@ import swUpdate          as su
 import fileIO            as fio
 import utils             as ut
 import cmds              as cm
+lg = logging.getLogger(__name__)
 #############################################################################
 
 lcdCq = mp.Queue() # LCD Cmd Q. mp queue must be used here.
@@ -34,7 +37,7 @@ def dummy():
 
 # Version number of the "app".
 # As opposed to the version number of the "server" which is in fileIO.py
-VER = 'v1.7.15 - 29-Jul-2026'
+VER = 'v1.7.16 - 01-Aug-2026'
 def getVer():
     appVer = VER
     srvVer = fio.VER
@@ -131,11 +134,11 @@ def vector(inputStr,mpSharedDict,mpSharedDictLock): # called from handleClient.
     # FILE COMMANDS
     'rlf'   : { 'func' : fio.readFile,
                 'parm' : ['logFile.txt',[5]],
-                'menu' : 'Read Log File'                         }, # Written by logger.
+                'menu' : 'Read Log File'                         },# Written by logger.
 
     'ref'   : { 'func' : fio.readFile,
                 'parm' : ['exceptionFile.txt',[5]],
-                'menu' : 'Read Exception File'                   }, # Written by file redirect (cron)
+                'menu' : 'Read Exception File'                   },# Written by file redirect (cron)
 
     'clf'   : { 'func' : fio.clearFile,
                 'parm' : ['logFile.txt'],
@@ -238,6 +241,10 @@ def vector(inputStr,mpSharedDict,mpSharedDictLock): # called from handleClient.
     'lc'    : { 'func' : cm.cmds,
                 'parm' : None,
                 'menu' : 'List Commands Test'                    },
+
+    'ge'    : { 'func' : lambda: 1/0,
+                'parm' : None,
+                'menu' : 'Generate Exception'                    },
     }
     #####################################################
 
@@ -279,13 +286,20 @@ def vector(inputStr,mpSharedDict,mpSharedDictLock): # called from handleClient.
             rsp = func(params) # rsp[0] = rspStr. Vector to worker.
             return rsp[0]      # Return to srvr for forwarding to clnt.
         except Exception as e: # pylint: disable = W0718
-            return str(e)
+            # Output to logFile.txt via logger.
+            lg.exception('%s', str(e))
+            # Output to terminal.
+            excType, excObj, excTb = sys.exc_info() # pylint: disable=W0612
+            rsp  = ' Error Type  : {}\n'.format(excType.__name__)
+            rsp += ' File  Name  : {}\n'.format(excTb.tb_frame.f_code.co_filename)
+            rsp += ' Line  Number: {}'.format(excTb.tb_lineno)
+            return rsp
 
     if choice == 'm':
         tmpDic = {
         'gas' : '{}'.format(   ' === GET   COMMANDS === \n' ),
         'sas' : '{}'.format( '\n === SET   COMMANDS === \n' ),
-        'ral' : '{}'.format( '\n === FILE  COMMANDS === \n' ),
+        'rlf' : '{}'.format( '\n === FILE  COMMANDS === \n' ),
         'sc'  : '{}'.format( '\n === OTHER COMMANDS === \n' ),
         't1'  : '{}'.format( '\n === TEST  COMMANDS === \n' ) }
 
