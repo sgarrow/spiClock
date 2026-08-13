@@ -37,7 +37,7 @@ def dummy():
 
 # Version number of the "app".
 # As opposed to the version number of the "server" which is in fileIO.py
-VER = 'v1.7.16 - 01-Aug-2026'
+VER = 'v1.7.17 - 12-Aug-2026'
 def getVer():
     appVer = VER
     srvVer = fio.VER
@@ -133,11 +133,11 @@ def vector(inputStr,mpSharedDict,mpSharedDictLock): # called from handleClient.
 
     # FILE COMMANDS
     'rlf'   : { 'func' : fio.readFile,
-                'parm' : ['logFile.txt',[5]],
+                'parm' : ['logFile.txt',['5']],
                 'menu' : 'Read Log File'                         },# Written by logger.
 
     'ref'   : { 'func' : fio.readFile,
-                'parm' : ['exceptionFile.txt',[5]],
+                'parm' : ['exceptionFile.txt',['5']],
                 'menu' : 'Read Exception File'                   },# Written by file redirect (cron)
 
     'clf'   : { 'func' : fio.clearFile,
