@@ -120,36 +120,22 @@ def waveshareMoreSwReset(displayID):
     sendDatToSt7789(displayID, [0xA1])
 
     sendCmdToSt7789(displayID,  0xE0 ) # Positive Voltage Gamma Control
-    sendDatToSt7789(displayID, [0xD0])
-    sendDatToSt7789(displayID, [0x08])
-    sendDatToSt7789(displayID, [0x11])
-    sendDatToSt7789(displayID, [0x08])
-    sendDatToSt7789(displayID, [0x0C])
-    sendDatToSt7789(displayID, [0x15])
-    sendDatToSt7789(displayID, [0x39])
-    sendDatToSt7789(displayID, [0x33])
-    sendDatToSt7789(displayID, [0x50])
-    sendDatToSt7789(displayID, [0x36])
-    sendDatToSt7789(displayID, [0x13])
-    sendDatToSt7789(displayID, [0x14])
-    sendDatToSt7789(displayID, [0x29])
-    sendDatToSt7789(displayID, [0x2D])
+    pvgc = [
+             [0xD0],[0x08],[0x11],[0x08],[0x0C],[0x15],[0x39],
+             [0x33],[0x50],[0x36],[0x13],[0x14],[0x29],[0x2D]
+           ]
+    for el in pvgc:
+        sendDatToSt7789(displayID, el)
+
+
 
     sendCmdToSt7789(displayID,  0xE1 ) # Negative Voltage Gamma Control
-    sendDatToSt7789(displayID, [0xD0])
-    sendDatToSt7789(displayID, [0x08])
-    sendDatToSt7789(displayID, [0x10])
-    sendDatToSt7789(displayID, [0x08])
-    sendDatToSt7789(displayID, [0x06])
-    sendDatToSt7789(displayID, [0x06])
-    sendDatToSt7789(displayID, [0x39])
-    sendDatToSt7789(displayID, [0x44])
-    sendDatToSt7789(displayID, [0x51])
-    sendDatToSt7789(displayID, [0x0B])
-    sendDatToSt7789(displayID, [0x16])
-    sendDatToSt7789(displayID, [0x14])
-    sendDatToSt7789(displayID, [0x2F])
-    sendDatToSt7789(displayID, [0x31])
+    nvgc = [
+             [0xD0],[0x08],[0x10],[0x08],[0x06],[0x06],[0x39],
+             [0x44],[0x51],[0x0B],[0x16],[0x14],[0x2F],[0x31]
+           ]
+    for el in nvgc:
+        sendDatToSt7789(displayID, el)
 
 def swReset(displayID):
     # Performs a software reset on the st7789v controller.
