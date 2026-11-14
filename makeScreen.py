@@ -4,7 +4,7 @@ import pickle
 import logging
 from PIL import Image, ImageDraw, ImageFont # pylint: disable=E0401
 import styleMgmtRoutines as sm
-import spiRoutines       as sr
+#import spiRoutines       as sr
 import utils             as ut
 lg = logging.getLogger(__name__)
 #############################################################################
@@ -159,7 +159,7 @@ def mkDigPikFile( styleName, textLst, textColor, backgroundColor ):
     # run stand-alone on the command line the default digit styles are all
     # created.
     #
-    # This func is called by mkDigPikFile which is available to the user
+    # This func is called by mkUsrDigPikF which is available to the user
     # (client), giving users the ablity to create their own digit styles.
     #
     # This function is also called by functions in testRoutines.py.
@@ -168,12 +168,15 @@ def mkDigPikFile( styleName, textLst, textColor, backgroundColor ):
 
     digitScreenDict2 = {}
     for ii,t in enumerate(textLst):
-        if t in ['0','1','2','3','4','5','6','7','8','9']:
-            tData = mkPilTxtImg( t, textColor, backgroundColor )
-        else:
+        if styleName == 'chinese':
             tData = mkPilTxtImg( t, textColor, backgroundColor,
                                  fontName = 'fonts/NotoSerifTC-Light.ttf',
                                  fontSize = 200, yOffset = 75 )
+        elif styleName == 'soduko':
+            print('making {}'.format(t))
+            tData = makePilJpgPicImage(t)
+        else:
+            tData = mkPilTxtImg( t, textColor, backgroundColor )
 
         digitScreenDict2[str(ii)] = tData
 
@@ -424,10 +427,11 @@ if __name__ == '__main__':
     orange    = ( 239, 144,   1 )
     turquoise = (  18, 151, 128 )
     lightRed  = (  96,   0,   0 )
+
     txtLst   = ['0','1','2','3','4','5','6','7','8','9']
+
     chineseTxtLst = [ '\u58de', '\u52d2', '\u5ff5', '\u64e6', '\u6b3e',
                       '\u79aa', '\u4f7f', '\u63e1', '\u6a5f', '\u760b']
-
 
     # greyOnBlack is default style and can not be deleted.
     styleNames = [ 'whiteOnBlack',      'blackOnWhite',
@@ -436,11 +440,20 @@ if __name__ == '__main__':
     txtColors  = [ white, black, orange,    turquoise, grey,  lightRed ]
     backColors = [ black, white, turquoise, orange,    black, black ]
 
+    sodukoPicLst = [ 
+        'pics/s0b.jpg', 'pics/s1b.jpg', 'pics/s2b.jpg', 'pics/s3b.jpg',
+        'pics/s4b.jpg', 'pics/s5b.jpg', 'pics/s6b.jpg', 'pics/s7b.jpg',
+        'pics/s8b.jpg', 'pics/s9b.jpg' ]
+
     for style,tColor,bColor in zip(styleNames, txtColors, backColors):
         resp = mkDigPikFile(style, txtLst, tColor, bColor)
         print(resp)
 
     resp = mkDigPikFile('chinese', chineseTxtLst, black, white)
+    print(resp)
+
+    resp = mkDigPikFile('soduko', sodukoPicLst, black, white)
+    print(resp)
 
     #lg.info('%s', resp)
 
