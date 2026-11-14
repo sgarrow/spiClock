@@ -4,7 +4,7 @@ import pickle
 import logging
 from PIL import Image, ImageDraw, ImageFont # pylint: disable=E0401
 import styleMgmtRoutines as sm
-#import spiRoutines       as sr
+import spiRoutines       as sr
 import utils             as ut
 lg = logging.getLogger(__name__)
 #############################################################################
